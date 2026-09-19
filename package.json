@@ -1,0 +1,14 @@
+{
+  "name": "manevi-rota",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node scripts/route-engine-smoke.mjs && node scripts/route-engine-stress.mjs && node scripts/route-engine-longitudinal.mjs && node scripts/route-engine-timeslot.mjs && node scripts/route-engine-30day.mjs && node scripts/prayer-center.mjs && node scripts/route-engine-analysis.mjs && node scripts/route-engine-v2.mjs && node scripts/route-engine-v2-closed-loop.mjs && node scripts/route-engine-v2.1.mjs && node scripts/route-engine-v2.1-closed-loop.mjs && node scripts/kirk-hadis.mjs && node scripts/kirk-hadis-learning.mjs",
+    "check": "npm test"
+  }
+}

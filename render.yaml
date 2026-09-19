@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: manevi-rota
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm test
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
