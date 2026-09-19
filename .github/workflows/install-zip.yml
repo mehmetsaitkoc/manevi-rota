@@ -1,0 +1,42 @@
+name: Install Manevi Rota v3 from zip
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - bootstrap.zip
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Expand production project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/manevi-rota
+          mkdir -p /tmp/manevi-rota
+          unzip -q bootstrap.zip -d /tmp/manevi-rota
+          cp -a /tmp/manevi-rota/manevi-rota-v3/. .
+          rm -rf bootstrap bootstrap.trigger bootstrap.zip bootstrap.zip.b64
+          rm -f src/route-engine.mjs.bak
+
+      - name: Commit production project
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "feat: bootstrap Manevi Rota v3 production app"
+          git push
