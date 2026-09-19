@@ -43,6 +43,7 @@ jobs:
           cp -a /tmp/manevi-rota/manevi-rota-v3/. .
           rm -rf bootstrap bootstrap.trigger
           rm -f src/route-engine.mjs.bak
+          rm -f .github/workflows/ci.yml
 
       - name: Commit production project
         shell: bash
