@@ -20,7 +20,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat bootstrap/part-* > /tmp/manevi-rota.b64
+          cat \
+            bootstrap/part-aa \
+            bootstrap/part-ab \
+            bootstrap/part-ac \
+            bootstrap/part-ad \
+            bootstrap/part-ae-0 \
+            bootstrap/part-ae-1 \
+            bootstrap/part-af \
+            bootstrap/part-ag-0 \
+            bootstrap/part-ah \
+            bootstrap/part-ai \
+            bootstrap/part-aj \
+            bootstrap/part-ak \
+            bootstrap/part-al \
+            bootstrap/part-am \
+            > /tmp/manevi-rota.b64
           base64 -d /tmp/manevi-rota.b64 > /tmp/manevi-rota.zip
           rm -rf /tmp/manevi-rota
           mkdir -p /tmp/manevi-rota
@@ -36,5 +51,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
           git commit -m "feat: bootstrap Manevi Rota v3 production app"
           git push
