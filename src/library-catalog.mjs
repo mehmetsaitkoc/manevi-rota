@@ -100,13 +100,13 @@ export const STARTER_LIBRARY=[
         rightsNote:'Klasik eser; Türkçe tercüme Manevî Rota içinde ayrı editoryal katman olarak tutulur.'
       },
   {
-        order:6,stage:'level-3',id:'peygamberimiz-muhammed',title:'Peygamberimiz Hz. Muhammed ve Müslümanlık',author:'Ahmed Hamdi Akseki',field:'Siyer',level:'Seviye 3',
+        order:6,stage:'level-3',id:'siyer-i-nebi-mehmed-ziya',title:'Siyer-i Nebî',author:'İhtifalci Mehmed Ziyâ',field:'Siyer · Şemâil',level:'Seviye 3',
         readerType:'generic',availability:'source-verified',coverGlyph:'ص',tone:'burgundy',
-        shortLabel:'Siyer ve temel Müslümanlık bilgisi',
-        sourceLabel:'1934 baskısı bibliyografik olarak doğrulandı',
+        shortLabel:'Hz. Peygamber’in hayatı · Mekke’den Medine’ye · şemâil',
+        sourceLabel:'1924 ilk baskı ve 1926/27 ikinci baskı kurumsal kataloglarda doğrulandı · üretim taraması bekleniyor',
         rightsStatus:'public-domain-turkey-author-term',
-        originalYear:1934,authorDeathYear:1951,
-        rightsNote:'Metin tarihî nüshadan aktarılacak; modern sadeleştirme kullanılmayacaktır.'
+        originalYear:1924,authorDeathYear:1930,
+        rightsNote:'Müellif koruma süresi dışındadır. Production reader yalnız 1924/1926 tarihî baskının yeniden kullanımı uygun taramasından üretilecek; modern çevriyazı, sadeleştirme veya akademik tez metni eser asset’i olarak kullanılmayacaktır.'
       },
   {
         order:7,stage:'level-4',id:'islam-fitri-tabii-umumi',title:'İslâm Fıtrî, Tabiî ve Umumî Bir Dindir',author:'Ahmed Hamdi Akseki',field:'İman · İslâm düşüncesi',level:'Seviye 4',
