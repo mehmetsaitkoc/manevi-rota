@@ -114,6 +114,30 @@ export const STARTER_LIBRARY=[
           preferredScript:'latin',
           selectionReason:'Tam siyer hacmi, öğretici tarih yaklaşımı ve Latin harfli Cumhuriyet dönemi baskısı nedeniyle birinci üretim adayıdır.',
           conditionalEditionPolicy:'1955 Diyanet ikinci baskı yalnız 1934 müellif metniyle gövde karşılaştırması yapılıp Diyanet/editoryal ekler ayrılabildiğinde kullanılabilir.',
+          contentQualityGate:{
+            status:'review-required',
+            approvalRequiredBeforeReady:true,
+            auditScope:[
+              'muhatap yaşına uygun üslup',
+              'temel olaylarda rivayet ve tarih dayanağı',
+              'uydurma diyalog veya toplu dönüşüm iddiası',
+              'savunmacı anlatının tarihî veriyi değiştirmemesi'
+            ],
+            knownConcerns:[
+              {
+                type:'audience-tone',
+                source:'Şaban Öz · Cumhuriyet Dönemi (1930–1970) Siyer Yazıcılığı Üzerine Bazı Mülahazalar · 2022',
+                note:'Akseki’nin genç/çocuk muhataplı kitabında sert ve pedagojik açıdan problemli ifadeler bulunduğu eleştirilmektedir.'
+              },
+              {
+                type:'historical-claim',
+                source:'Şaban Öz · 2022',
+                note:'Bedir sonrasında Medine Yahudilerinin topluca son peygamberi tanıyıp Müslüman olduklarına dair anlatı, metin üretimi/uydurma örnekleri arasında Akseki’ye atfedilmiştir.'
+              }
+            ],
+            comparisonSources:['Kur’ân','sahih hadis rivayetleri','TDV İslâm Ansiklopedisi siyer maddeleri','çağdaş akademik siyer çalışmaları'],
+            decisionRule:'Kaynak taraması bulunsa bile çekirdek anlatıda önemli ve dayanağı gösterilemeyen üretme/tahrif veya yeni başlayan okuyucu için ciddi üslup sorunu kalırsa eser READY yapılmaz.'
+          },
           catalogRecords:[
             {
               institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',
@@ -147,6 +171,15 @@ export const STARTER_LIBRARY=[
             }
           ],
           fallbackCandidates:[
+            {
+              id:'asri-saadet-siyret',
+              title:'İslâm Tarihi: Asr-ı Saâdet — Peygamberimizin Siyreti',
+              author:'Şiblî Nu‘mânî · Süleyman Nedvî',
+              translator:'Ömer Rıza Doğrul',
+              editionYears:[1928],
+              note:'İlmî içerik açısından güçlü aday; müellifler ve mütercim koruma süresi dışındadır. 1928 Türkçe baskı Osmanlı harfli olduğundan production için yeniden kullanımı uygun tarihî tarama ve güvenilir literal Latin çevriyazı gerekir.',
+              contentEvidence:'TDV, eseri İslâm kaynaklarının ciddi tahlil ve tenkidine dayanan ve dönemin önemli ilim adamlarınca takdir edilen çalışma olarak tanımlar.'
+            },
             {
               id:'siyer-i-nebi-mehmed-ziya',
               title:'Siyer-i Nebî',
