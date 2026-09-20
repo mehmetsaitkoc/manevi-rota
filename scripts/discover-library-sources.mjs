@@ -29,11 +29,24 @@ async function archiveCandidates(work){
       for(const doc of data?.response?.docs||[]){
         if(!doc?.identifier||seen.has(doc.identifier))continue;
         seen.add(doc.identifier);
+        let metadata=null;
+        try{
+          const meta=await getJson(`https://archive.org/metadata/${doc.identifier}`);
+          const files=(meta?.files||[]).filter(file=>/\.(pdf|djvu\.txt|txt|epub)$/i.test(String(file?.name||''))).map(file=>({
+            name:file.name,size:Number(file.size||0)||null,format:file.format||null,source:file.source||null
+          })).slice(0,20);
+          metadata={
+            title:meta?.metadata?.title||null,creator:meta?.metadata?.creator||null,date:meta?.metadata?.date||null,
+            year:meta?.metadata?.year||null,licenseurl:meta?.metadata?.licenseurl||null,rights:meta?.metadata?.rights||null,
+            uploader:meta?.metadata?.uploader||null,files
+          };
+        }catch(err){metadata={error:String(err.message||err)}}
         out.push({
           identifier:doc.identifier,title:doc.title||'',creator:doc.creator||'',year:doc.year||null,
           mediatype:doc.mediatype||'',licenseurl:doc.licenseurl||null,
           detailsUrl:`https://archive.org/details/${doc.identifier}`,
-          metadataUrl:`https://archive.org/metadata/${doc.identifier}`
+          metadataUrl:`https://archive.org/metadata/${doc.identifier}`,
+          metadata
         });
       }
     }catch(err){out.push({error:String(err.message||err),query:q})}
