@@ -162,7 +162,14 @@ await fs.writeFile(path.join(OUT,'islam-dini.json'),JSON.stringify({
   author:'Ahmet Hamdi Akseki',
   pages,
   sections,
-  source:{kind:'historical-scan-ocr',url:ISLAM_URL}
+  source:{
+    kind:'historical-scan-ocr',
+    url:ISLAM_URL,
+    sourceLabel:'1933 tarihli tarihî tarama/OCR',
+    originalYear:1933,
+    textPolicy:'Müellif metni OCR aktarımı olarak korunur; no AI summary, modernizasyon veya Manevî Rota yorumu eser metnine karıştırılmaz.',
+    reviewNote:'OCR ve tarihî dizgi hataları bulunabilir; kullanıcı notları eser metninden ayrı tutulur.'
+  }
 }), 'utf8');
 
 
