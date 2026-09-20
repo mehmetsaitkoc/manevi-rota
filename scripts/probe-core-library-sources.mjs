@@ -4,7 +4,12 @@ const candidates=[
   {
     id:'peygamberimiz-aleyhisselam',
     titles:['Peygamberimiz Aleyhisselam','Peygamberimiz Aleyhisselâm','Peygamber'],
-    creators:['Ömer Rıza Doğrul','Omer Riza Dogrul','Mevlana Muhammed Ali','Muhammed Ali']
+    creators:['Ömer Rıza Doğrul','Omer Riza Dogrul','Mevlana Muhammed Ali','Muhammed Ali'],
+    expectedYears:[1925],
+    catalogEvidence:[
+      {label:'İBB Kütüphaneleri',url:'https://kutuphane.osmanlica.com/tr/search',note:'1925 / Mahmud Bey Matbaası / Osmanlıca bibliyografik kayıt'},
+      {label:'Sakarya Üniversitesi bibliyografyası',url:'https://acikerisim.sakarya.edu.tr/',note:'Peygamberimiz Aleyhisselam, 1341-1342, 300+4 s.'}
+    ]
   },
   {
     id:'safahat',
@@ -20,7 +25,8 @@ const candidates=[
     id:'kisas-cevdet',
     titles:['Kısas-ı Enbiya','Kısas-ı Enbiyâ','Kısas-ı Enbiya ve Tevarih-i Hulefa','Peygamber Efendimizin Hayatı'],
     creators:['Ahmed Cevdet Paşa','Ahmet Cevdet Paşa','Cevdet Paşa','Ahmed Cevdet'],
-    knownIdentifiers:['KsasIEnbiya1','KsasIEnbiya2','KsasIEnbiya3','KsasIEnbiya4','KsasIEnbiya5','KsasIEnbiya6']
+    knownIdentifiers:['KsasIEnbiya1','KsasIEnbiya2','KsasIEnbiya3','KsasIEnbiya4','KsasIEnbiya5','KsasIEnbiya6'],
+    rejectTextSignatures:['Mahir IZ','Mahir İz','KULTUR VE TURIZM BAKANLIGI','KÜLTÜR VE TURİZM BAKANLIĞI','1985','sadeleştiren','Sadeleştiren']
   },
   {
     id:'kurandan-ayetler',
@@ -49,6 +55,11 @@ const candidates=[
       'title:(Siyreti) AND mediatype:texts',
       '("Ömer Rıza" AND Şibli) AND mediatype:texts',
       '("Omer Riza" AND Shibli) AND mediatype:texts'
+    ],
+    expectedYears:[1928],
+    catalogEvidence:[
+      {label:'TDV İslâm Ansiklopedisi',url:'https://islamansiklopedisi.org.tr/asr-i-saadet--literatur',note:'Şiblî/Nedvî, Ömer Rıza Doğrul tercümesi, İstanbul 1928'},
+      {label:'Wikilala katalog kaydı',url:'https://www.wikilala.com/kitaplar/islam-tarihi-asr-i-saadet-peygamberimizin-siyreti-281596',note:'1928 nüsha, 281 sayfa; yeniden kullanım lisansı ayrıca doğrulanmalı'}
     ],
     probeText:true
   },
@@ -86,6 +97,28 @@ async function json(url,timeout=10000){
   return r.json();
 }
 const clean=s=>String(s||'').replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+const lowerTr=s=>String(s||'').toLocaleLowerCase('tr-TR');
+function assessResult(candidate,result){
+  if(result?.error)return {status:'probe-error',reason:result.error};
+  const files=result?.files||[];
+  const hasFullText=files.some(f=>/djvu\.txt$|\.txt$|\.pdf$|\.epub$/i.test(String(f?.name||'')));
+  if(!hasFullText)return {status:'reject-no-fulltext',reason:'No PDF/TXT/EPUB full-text file exposed by source.'};
+  const license=lowerTr([result?.metadata?.licenseurl,result?.metadata?.rights].filter(Boolean).join(' '));
+  if(/by-nc|noncommercial|non-commercial|nc-nd|by-nd|no derivatives/.test(license)){
+    return {status:'reject-restrictive-license',reason:'Source metadata indicates NC/ND or equivalent redistribution restriction.'};
+  }
+  const probe=lowerTr([result?.contentProbe?.head,...Object.values(result?.contentProbe?.hits||{}).map(x=>x?.context||'')].join('\n'));
+  const blocked=(candidate.rejectTextSignatures||[]).find(sig=>probe.includes(lowerTr(sig)));
+  if(blocked)return {status:'reject-modern-editorial-layer',reason:`Detected modern/editorial signature: ${blocked}`};
+  const year=Number(result?.year||result?.metadata?.year||String(result?.metadata?.date||'').match(/\d{4}/)?.[0]||0)||null;
+  if(candidate.expectedYears?.length&&year&&!candidate.expectedYears.includes(year)){
+    return {status:'review-year-mismatch',reason:`Expected ${candidate.expectedYears.join('/')} historical witness; source reports ${year}.`};
+  }
+  if(result?.contentProbe?.charCount>5000){
+    return {status:'manual-rights-and-text-review',reason:'Substantial full text detected; verify edition identity, rights and OCR against scan before production.'};
+  }
+  return {status:'manual-source-review',reason:'Source needs human edition/rights verification before production use.'};
+}
 const ctx=(src,index,radius=220)=>index<0?null:clean(src.slice(Math.max(0,index-radius),Math.min(src.length,index+radius)));
 async function textProbe(identifier,files){
   const djvu=files.find(f=>/djvu\.txt$/i.test(String(f?.name||'')));
@@ -136,11 +169,21 @@ async function searchOne(c){
         files:files.slice(0,20),
         ...(contentProbe?{contentProbe}:{})
       };
+      result.assessment=assessResult(c,result);
+      return result;
     }catch(err){return {identifier:row.identifier,title:row.title||'',error:String(err.message||err)}}
   }));
   return {...c,results};
 }
-const report={generatedAt:new Date().toISOString(),candidates:[]};
+const report={
+  generatedAt:new Date().toISOString(),
+  policy:{
+    readyRule:'A search hit is never enough: production requires edition identity, commercially reusable rights, and text-vs-scan review.',
+    hardReject:['modern editorial/simplification layer','NC/ND or equivalent restrictive license','snippet/preview/catalog-only source'],
+    note:'catalogEvidence is discovery evidence only; it never authorizes copying text into production.'
+  },
+  candidates:[]
+};
 for(const c of candidates)report.candidates.push(await searchOne(c));
 await fs.writeFile('core-source-probe.json',JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
