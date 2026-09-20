@@ -4,11 +4,12 @@ import {STARTER_LIBRARY,STARTER_LIBRARY_STAGES,starterBook,starterBooksByStage,r
 assert.equal(STARTER_LIBRARY.length,10,'starter library must contain exactly 10 curated works');
 assert.equal(new Set(STARTER_LIBRARY.map(x=>x.id)).size,10,'book ids must be unique');
 assert.deepEqual(STARTER_LIBRARY.map(x=>x.order),[1,2,3,4,5,6,7,8,9,10]);
-assert.equal(STARTER_LIBRARY_STAGES.length,3,'starter path must contain three deliberate stages');
-assert.deepEqual(STARTER_LIBRARY_STAGES.map(x=>x.id),['foundation','build','reflect']);
-assert.deepEqual(STARTER_LIBRARY.map(x=>x.stage),['foundation','foundation','foundation','foundation','build','build','build','reflect','reflect','reflect']);
-assert.deepEqual(STARTER_LIBRARY_STAGES.map(x=>starterBooksByStage(x.id).length),[4,3,3]);
+assert.equal(STARTER_LIBRARY_STAGES.length,5,'starter path must contain five deliberate levels');
+assert.deepEqual(STARTER_LIBRARY_STAGES.map(x=>x.id),['level-1','level-2','level-3','level-4','level-5']);
+assert.deepEqual(STARTER_LIBRARY.map(x=>x.stage),['level-1','level-1','level-2','level-2','level-3','level-3','level-4','level-4','level-5','level-5']);
+assert.deepEqual(STARTER_LIBRARY_STAGES.map(x=>starterBooksByStage(x.id).length),[2,2,2,2,2]);
 assert.ok(STARTER_LIBRARY.every(x=>x.title&&x.author&&x.field&&x.level&&x.rightsStatus));
+assert.ok(STARTER_LIBRARY.every(x=>x.level===`Seviye ${x.order<=2?1:x.order<=4?2:x.order<=6?3:x.order<=8?4:5}`));
 assert.ok(STARTER_LIBRARY.every(x=>x.rightsStatus!=='unknown'));
 assert.equal(readyStarterBooks().length,5,'first premium wave should expose five genuinely readable works');
 assert.equal(pendingStarterBooks().length,5);
