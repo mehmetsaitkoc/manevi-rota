@@ -99,7 +99,7 @@ jobs:
             const shelfCount=await page.locator('[data-starter-book]').count();
             if(shelfCount!==10)throw new Error('Starter library must render exactly 10 works, got '+shelfCount);
             const starterStages=await page.locator('[data-starter-stage]').count();
-            if(starterStages!==3)throw new Error('Starter library must render three reading stages, got '+starterStages);
+            if(starterStages!==5)throw new Error('Starter library must render five reading levels, got '+starterStages);
 
             await page.click('[data-starter-book="namaz-sureleri-tefsiri"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
