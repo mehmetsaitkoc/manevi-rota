@@ -10,11 +10,17 @@ const ROOT=process.cwd();
 const OUT=path.join(ROOT,'public','data');
 const QOUT=path.join(OUT,'quran');
 const BOUT=path.join(OUT,'books');
+const archiveDownload=(identifier,file)=>`https://archive.org/download/${identifier}/${encodeURIComponent(file)}`;
 const QURAN_URL='https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quranuthmanihaf.min.json';
 const ISLAM_URL='https://archive.org/download/islamdinia.hamdiakseki1933.pdf_201912/%C4%B0slam%20Dini%20A.Hamdi%20Akseki1933.pdf_djvu.txt';
 const YAVRULAR_URL='https://archive.org/download/yavrularimiza-di-n-dersleri-ahmet-hamdi-akseki/YAVRULARIMIZA%20D%C4%B0N%20DERSLER%C4%B0%20-%20AHMET%20HAMD%C4%B0%20AKSEK%C4%B0_djvu.txt';
 const ISLAM_FITRI_URL='https://archive.org/download/i-slam-fitri-tabii-ve-umumi-bi-r-di-ndi-r-ahmed-hamdi-akseki-di-yanet/%C4%B0SLAM%20FITR%C4%B0%20TAB%C4%B0%C4%B0%20VE%20UMUM%C4%B0%20B%C4%B0R%20D%C4%B0ND%C4%B0R%20-%20AHMED%20HAMD%C4%B0%20AKSEK%C4%B0%20-%20D%C4%B0YANET_djvu.txt';
 const ASKERE_DIN_URL='https://archive.org/download/McGillLibrary-isl_askere-din-kitabi_BP1883S6A41945-18890/isl_askere-din-kitabi_BP1883S6A41945_djvu.txt';
+const SAFAHAT_URL=archiveDownload('Safahat-MehmetAkifErsoy','Safahat_djvu.txt');
+const TANRI_BUYRUGU_URL=archiveDownload(
+  'tanri-buyrugu-kuran-i-kerimin-tercume-ve-tefsir-i-serifi-omer-riza-dogrul',
+  "Tanrı Buyruğu (Kur'an-ı Kerim'in Tercüme ve Tefsir-i Şerifi ) Ömer Rıza Doğrul_djvu.txt"
+);
 
 async function fetchOk(url,type='text'){
   const r=await fetch(url,{headers:{'user-agent':'Manevi-Rota-Library-Builder/1.1'}});
@@ -38,8 +44,9 @@ function chunkFallback(text,size=2400){
 
 await fs.mkdir(QOUT,{recursive:true});
 await fs.mkdir(BOUT,{recursive:true});
-/* Rejected/mislabeled candidate cleanup: never ship modern prepared text as Akseki. */
+/* Rejected/non-core candidate cleanup: keep generated library limited to reviewed core works. */
 await fs.rm(path.join(BOUT,'ibn-sina-ihlas-tefsiri.json'),{force:true});
+await fs.rm(path.join(BOUT,'askere-din-kitabi.json'),{force:true});
 
 
 const normalizePdfPage=text=>String(text||'')
@@ -258,27 +265,6 @@ const yavrularimiza=await buildTextBook({
   ]
 });
 
-const askereDin=await buildTextBook({
-  id:'askere-din-kitabi',
-  title:'Askere Din Kitabı',
-  subtitle:'İman, ibadet, ahlâk ve günlük sorumluluk',
-  author:'Ahmed Hamdi Akseki',
-  url:ASKERE_DIN_URL,
-  minReaderPages:180,
-  minChars:180000,
-  originalYear:1945,
-  sourceEditionYear:1945,
-  sourceLabel:'McGill University Library · 1945 tarihî baskı taraması',
-  signature:/ASKERE\s+D[Iİ]N\s+K[Iİ]TAB[Iİ]/i,
-  startAtMatcher:/(?:ÖN\s*SÖZ|G[Iİ]R[Iİ][ŞS]|B[Iİ]R[Iİ]NC[Iİ]\s+(?:DERS|B[ÖO]L[ÜU]M))/i,
-  sectionMatchers:[
-    {title:'Başlangıç',re:/G[Iİ]R[Iİ][ŞS]|BA[ŞS]LANGI[ÇC]/i},
-    {title:'İman',re:/\b[Iİ]MAN\b/i},
-    {title:'İbadet',re:/\b[Iİ]BADET/i},
-    {title:'Ahlâk',re:/AHL[ÂA]K/i}
-  ]
-});
-
 const islamFitri=await buildTextBook({
   id:'islam-fitri-tabii-umumi',
   title:'İslâm Fıtrî, Tabiî ve Umumî Bir Dindir',
@@ -297,6 +283,52 @@ const islamFitri=await buildTextBook({
     {title:'Din',re:/\bD[Iİ]N\b/i},
     {title:'İslâm',re:/\b[Iİ]SL[ÂA]M\b/i},
     {title:'İman',re:/\b[Iİ]MAN\b/i}
+  ]
+});
+
+const safahat=await buildTextBook({
+  id:'safahat',
+  title:'Safahat',
+  subtitle:'İman, ahlâk, toplum ve sorumluluk şiirleri',
+  author:'Mehmet Âkif Ersoy',
+  url:SAFAHAT_URL,
+  minReaderPages:180,
+  minChars:300000,
+  originalYear:1911,
+  sourceEditionYear:null,
+  sourceLabel:'Internet Archive · Public Domain Mark taşıyan Safahat taraması',
+  signature:/SAFAHAT|MEHME[DT]\s+[ÂA]K[Iİ]F/i,
+  startAtMatcher:/(?:SAFAHAT|B[Iİ]R[Iİ]NC[Iİ]\s+K[Iİ]TAP|FAT[Iİ]H[AÂ])/i,
+  sectionMatchers:[
+    {title:'Birinci Kitap — Safahat',re:/B[Iİ]R[Iİ]NC[Iİ]\s+K[Iİ]TAP|SAFAHAT/i},
+    {title:'Süleymaniye Kürsüsünde',re:/S[ÜU]LEYMAN[Iİ]YE\s+K[ÜU]RS[ÜU]S[ÜU]NDE/i},
+    {title:'Hakkın Sesleri',re:/HAKKIN\s+SESLER[Iİ]/i},
+    {title:'Fâtih Kürsüsünde',re:/F[ÂA]T[Iİ]H\s+K[ÜU]RS[ÜU]S[ÜU]NDE/i},
+    {title:'Âsım',re:/\b[ÂA]SIM\b/i},
+    {title:'Gölgeler',re:/\bG[ÖO]LGELER\b/i}
+  ]
+});
+
+const tanriBuyrugu=await buildTextBook({
+  id:'tanri-buyrugu',
+  title:'Tanrı Buyruğu',
+  subtitle:'Kur’ân-ı Kerîm’in tercüme ve tefsiri',
+  author:'Ömer Rıza Doğrul',
+  url:TANRI_BUYRUGU_URL,
+  minReaderPages:700,
+  minChars:1500000,
+  originalYear:1934,
+  sourceEditionYear:1955,
+  sourceLabel:'Internet Archive · 1955 üçüncü baskı tarihî taraması',
+  signature:/TANRI\s+BUYRU[GĞ]U|Kur.?an.?[ıi]\s+Kerim/i,
+  startAtMatcher:/(?:KUR.?AN.?I\s+KER[Iİ]M[Iİ]N\s+TERC[ÜU]ME|KUR.?ANIN\s+TERT[Iİ]P|B[Iİ]R[Iİ]NC[Iİ]\s+B[ÖO]L[ÜU]M)/i,
+  sectionMatchers:[
+    {title:'Kur’ân’ın Tertip ve Taksimi',re:/KUR.?ANIN\s+TERT[Iİ]P\s+VE\s+TAKS[Iİ]M[Iİ]/i},
+    {title:'Dinin Esasları',re:/D[Iİ]N[Iİ]N\s+ESASLARI/i},
+    {title:'İslâmın Amelî Esasları',re:/[İI]SL[ÂA]MIN\s+AMEL[IÎ]\s+ESASLARI/i},
+    {title:'Kısas-ı Enbiyâ',re:/KISAS.?I\s+ENB[Iİ]Y[AÂ]/i},
+    {title:'Fâtiha',re:/F[ÂA]T[Iİ]HA\s+S[ÛU]RES[Iİ]/i},
+    {title:'Bakara',re:/BAKARA\s+S[ÛU]RES[Iİ]/i}
   ]
 });
 
@@ -349,5 +381,5 @@ const ahlakDersleri=await buildPdfBook({
   ]
 });
 
-console.log(`Library assets ready: Quran ${byChapter.size} surahs; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Askere Din ${askereDin.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
+console.log(`Library assets ready: Quran ${byChapter.size}; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Safahat ${safahat.pages.length}; Tanrı Buyruğu ${tanriBuyrugu.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
 
