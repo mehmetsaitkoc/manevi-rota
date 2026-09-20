@@ -27,6 +27,12 @@ assert.equal(starterBook('kurandan-ayetler').sourceLabel.includes('1944'),true);
 assert.equal(starterBook('tanri-buyrugu').asset,'public/data/books/tanri-buyrugu.json');
 assert.equal(starterBook('tanri-buyrugu').requiresEditionReview,true);
 assert.equal(starterBook('ahlak-dersleri').availability,'ready');
-assert.ok(STARTER_LIBRARY.filter(x=>x.authorDeathYear).every(x=>x.authorDeathYear<=1952));
+const TURKEY_RIGHTS_AS_OF_YEAR=2026;
+const publicDomainInTurkeyByYear=deathYear=>Number.isInteger(deathYear)&&(deathYear+71)<=TURKEY_RIGHTS_AS_OF_YEAR;
+assert.ok(
+  STARTER_LIBRARY.filter(x=>x.rightsStatus==='public-domain-turkey-author-term')
+    .every(x=>publicDomainInTurkeyByYear(x.authorDeathYear)),
+  'every Turkish author-term work must be public domain by the audit year'
+);
 
 console.log('library-catalog: 10-work beginner path and rights metadata passed');
