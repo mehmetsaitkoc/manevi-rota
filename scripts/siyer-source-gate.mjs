@@ -19,6 +19,7 @@ assert.ok(siyer.sourceGate?.fallbackCandidates?.some(x=>x.id==='siyer-i-nebi-meh
 assert.ok(siyer.sourceGate?.fallbackCandidates?.some(x=>x.id==='yorukan-peygamberimiz-1926'&&x.editionYears?.includes(1926)));
 assert.ok((siyer.sourceGate?.reject||[]).some(x=>/academic thesis/i.test(x)));
 assert.ok((siyer.sourceGate?.reject||[]).some(x=>/modern transliteration|simplification/i.test(x)));
+assert.ok(siyer.sourceGate?.knownRejectedSources?.some(x=>/Diyanet 2015 Hâtemü’l-Enbiyâ/i.test(x.label)&&/© Diyanet|modern tashih/i.test(x.reason)));
 assert.ok(siyer.sourceGate?.knownRejectedSources?.some(x=>/KSÜ SAMER/i.test(x.label)&&/sadeleştirme/i.test(x.reason)));
 assert.ok(siyer.sourceGate?.knownRejectedSources?.some(x=>/Wikilala/i.test(x.label)&&/ticari yeniden kullanım/i.test(x.reason)));
 
