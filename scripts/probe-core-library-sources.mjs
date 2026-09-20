@@ -63,6 +63,19 @@ const candidates=[
       '(Hazreti AND Muhammed) AND mediatype:texts AND language:tur AND year:[1928 TO 1955]'
     ],
     probeText:true
+  },
+  {
+    id:'akseki-siyer-fallbacks',
+    titles:['Ondört Asır Evvel Doğan Güneş','14 Asır Evvel Doğan Güneş','Öğretmen ve Öğrencilere Yardımcı Açıklamalı Din Dersleri','Açıklamalı Din Dersleri'],
+    creators:['Ahmed Hamdi Akseki','Ahmet Hamdi Akseki','A. Hamdi Akseki','Hamdi Akseki'],
+    extraQueries:[
+      '("Ondört Asır" AND Akseki) AND mediatype:texts',
+      '("14 Asır" AND Akseki) AND mediatype:texts',
+      '("Açıklamalı Din Dersleri" AND Akseki) AND mediatype:texts',
+      '("Peygamberimiz" AND Akseki) AND mediatype:texts',
+      'creator:(Akseki) AND title:(Din Dersleri) AND mediatype:texts'
+    ],
+    probeText:true
   }
 ];
 
