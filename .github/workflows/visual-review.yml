@@ -15,6 +15,8 @@ on:
       - 'src/quran-reader.mjs'
       - 'src/library-catalog.mjs'
       - 'src/book-reader.mjs'
+      - 'src/ilim-notebook.mjs'
+      - 'scripts/ilim-notebook.mjs'
       - 'src/library-path.mjs'
       - 'scripts/library-catalog.mjs'
       - 'scripts/book-reader.mjs'
@@ -222,15 +224,36 @@ jobs:
             await page.click('[data-starter-book="quran"]');
             await page.waitForSelector('.quranAyah',{timeout:10000});
             await page.click('[data-quran-highlight="1"]');
+            await page.click('[data-quran-bookmark="1"]');
             await page.click('[data-quran-note="1"]');
             await page.fill('#quranNoteInput','Visual review — kişisel not katmanı');
             await page.click('#quranNoteSave');
+            const quranStored=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.quran,key);
+            if(!quranStored?.bookmarks?.includes('1:1'))throw new Error('Quran verse bookmark was not persisted');
             await page.screenshot({path:'visual-review/04-quran.png',fullPage:true});
             await page.click('#quranFocus');
             await page.waitForSelector('.quranFocusMode',{timeout:5000});
             await page.screenshot({path:'visual-review/04b-quran-focus.png',fullPage:true});
             await page.click('#quranFocus');
             await page.click('#quranBack');
+            await page.waitForSelector('#ilimNotebook',{timeout:10000});
+
+            await page.click('#ilimNotebook');
+            await page.waitForSelector('.notebookToolbar',{timeout:15000});
+            const notebookSummary=await page.locator('.notebookSummaryGrid').innerText();
+            if(!notebookSummary.includes('not')||!notebookSummary.includes('vurgu')||!notebookSummary.includes('yer imi'))throw new Error('Ilim Defteri v2 summary missing');
+            const quranGroup=page.locator('.notebookBookGroup').filter({hasText:'Kur’ân-ı Kerîm'});
+            const namazGroup=page.locator('.notebookBookGroup').filter({hasText:'Namaz Sûrelerinin'});
+            if(await quranGroup.count()!==1)throw new Error('Quran annotations missing from Ilim Defteri v2');
+            if(await namazGroup.count()!==1)throw new Error('Generic book annotations missing from Ilim Defteri v2');
+            await page.screenshot({path:'visual-review/04c-ilim-defteri-v2.png',fullPage:true});
+            await page.fill('#notebookSearchInput','Visual review');
+            await page.click('#notebookSearchForm button[type="submit"]');
+            await page.waitForTimeout(180);
+            const visibleNotebookEntries=await page.locator('.notebookEntry').count();
+            if(visibleNotebookEntries<2)throw new Error('Ilim Defteri v2 search did not find cross-book personal notes');
+            await page.screenshot({path:'visual-review/04d-ilim-defteri-search.png',fullPage:true});
+            await page.click('#ilimHome');
             await page.waitForSelector('[data-starter-book="islam-dini"]',{timeout:10000});
 
             await page.click('[data-starter-book="islam-dini"]');
