@@ -436,6 +436,14 @@ async function renderQuranReader(){
    document.querySelectorAll('[data-quran-ayah]').forEach(el=>quranProgressObserver.observe(el));
  }
 }
+function cleanIslamOcrParagraph(text){
+ return String(text||'')
+   .replace(/¬\s*\n\s*/g,'')
+   .replace(/([A-Za-zÇĞİÖŞÜçğıöşüÂÎâî])-\s*\n\s*([A-Za-zÇĞİÖŞÜçğıöşüÂÎâî])/g,'$1$2')
+   .replace(/\s*\n\s*/g,' ')
+   .replace(/[ \t]{2,}/g,' ')
+   .trim();
+}
 async function renderIslamDiniReader(){
  const screen=S.ilim.ui?.screen;
  if(!islamDiniLibrary){
@@ -449,7 +457,7 @@ async function renderIslamDiniReader(){
  <section class="islamReaderShell">
    <div class="islamReaderNav"><button id="prevIslamPage" ${pageNo<=1?'disabled':''}>← Önceki</button><label>Okuma <input id="islamPageInput" inputmode="numeric" type="number" min="1" max="${total}" value="${pageNo}"> / ${total}</label><button id="nextIslamPage" ${pageNo>=total?'disabled':''}>Sonraki →</button></div>
    <div class="islamChapterJump"><select id="islamChapterSelect" aria-label="Bölüme git"><option value="">Bölüme git…</option>${sections.map(x=>`<option value="${x.page}">${esc(x.title)}</option>`).join('')}</select></div>
-   <article class="islamPagePaper"><div class="readerMarker">İSLÂM DİNİ · OKUMA SAYFASI ${pageNo}</div>${paragraphs.length?paragraphs.map((p,i)=>{const heading=p.length<120&&p===p.toLocaleUpperCase('tr-TR')&&/[A-ZÇĞİÖŞÜÎÂ]/.test(p);return heading?`<h2>${esc(p).replace(/\n/g,'<br>')}</h2>`:`<p style="font-size:${(1.02*scale).toFixed(2)}rem">${esc(p).replace(/\n/g,'<br>')}</p>`}).join(''):'<div class="emptyState">Bu tarama sayfasında metin bulunamadı.</div>'}</article>
+   <article class="islamPagePaper"><div class="readerMarker">İSLÂM DİNİ · OKUMA SAYFASI ${pageNo}</div>${paragraphs.length?paragraphs.map((p,i)=>{const display=cleanIslamOcrParagraph(p),heading=display.length<120&&display===display.toLocaleUpperCase('tr-TR')&&/[A-ZÇĞİÖŞÜÎÂ]/.test(display);return heading?`<h2>${esc(display)}</h2>`:`<p style="font-size:${(1.02*scale).toFixed(2)}rem">${esc(display)}</p>`}).join(''):'<div class="emptyState">Bu tarama sayfasında metin bulunamadı.</div>'}</article>
    <div class="readerSourceNote">Kaynak metin eski baskının OCR aktarımıdır. Okuma sayfaları uygulama için bölünmüştür; Manevî Rota metne açıklama veya yorum eklemez. Tarama/dizgi hataları bulunabilir.</div>
  </section>`;
  const goPage=n=>{S.library.islam.page=Math.max(1,Math.min(total,Number(n)||pageNo));S.library.lastBook='islam';save();renderIslamDiniReader()};
