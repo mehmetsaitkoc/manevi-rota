@@ -240,6 +240,8 @@ async function json(url,timeout=10000){
   if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);
   return r.json();
 }
+let googleBooksCircuit=null;
+
 async function googleBooksJsonWithBackoff(url){
   let lastStatus=null;
   for(let attempt=1;attempt<=3;attempt++){
@@ -247,13 +249,15 @@ async function googleBooksJsonWithBackoff(url){
     lastStatus=r.status;
     if(r.ok)return {ok:true,data:await r.json(),attempt};
     if(r.status!==429)return {ok:false,status:r.status,error:`${r.status} ${r.statusText}`,attempt};
-    if(attempt<3)await new Promise(resolve=>setTimeout(resolve,attempt*1500));
+    googleBooksCircuit={status:429,error:'429 Too Many Requests',rateLimited:true};
+    return {ok:false,status:429,error:'429 Too Many Requests',rateLimited:true,attempt};
   }
   return {ok:false,status:lastStatus,error:'429 Too Many Requests',rateLimited:true,attempt:3};
 }
 
 async function googleCandidates(c){
   if(!c.secondaryProbe)return [];
+  if(googleBooksCircuit)return [{query:null,error:googleBooksCircuit.error,status:429,rateLimited:true,circuitOpen:true}];
   const title=c.titles[0]||'';
   const creator=c.creators[0]||'';
   if(!title&&!creator)return [];
