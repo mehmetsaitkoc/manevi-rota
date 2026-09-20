@@ -113,6 +113,13 @@ export const STARTER_LIBRARY=[
           preferredScript:'ottoman-turkish',
           selectionReason:'Seviye 3 için nihai siyer seçimi budur: TDV değerlendirmesinde İslâm kaynaklarının ciddi tahlil ve tenkidine dayanan, çağdaş çalışmalarla mukayese yapan ve dönemin önemli ilim adamlarınca takdir edilmiş güçlü bir çalışma olarak öne çıkar.',
           productionPlan:'Özgün 1928 I–IV ciltler fizikî olarak temin edilip Manevî Rota için yeniden taranacak; OCR yalnız yardımcı katman olacak, Osmanlıca metin güvenilir literal Latin çevriyazıyla taramaya karşı satır/sayfa kontrolüyle aktarılacak. Üçüncü taraf pazar yeri görselleri veya modern sadeleştirmeler production asset olarak kullanılmayacak.',
+          ingest:{
+            manifest:'sources/asri-saadet-1928/manifest.json',
+            auditCommand:'npm run asri:audit',
+            buildCommand:'npm run asri:build',
+            outputAsset:'public/data/books/asri-saadet-siyret.json',
+            failClosed:true
+          },
           acquisitionPlan:{
             status:'physical-originals-available',
             auditedAt:'2026-09-21',
