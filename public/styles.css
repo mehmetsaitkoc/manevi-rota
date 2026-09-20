@@ -382,3 +382,19 @@ nav button:hover{transform:translateY(-1px)}
  .islamReaderNav label{font-size:9px}.islamReaderNav input{width:53px;padding:8px 4px}
  .islamPagePaper{padding:23px 17px;border-radius:21px}
 }
+
+
+/* v4.4 — Quran annotation + focus layer */
+.readerTools button.active{background:#173f36;color:#fff;border-color:#173f36}
+.quranMarkupBar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:11px 13px;border:1px solid #e3d9c5;border-radius:16px;background:rgba(255,252,244,.88)}
+.quranMarkupBar>div{display:flex;align-items:center;gap:10px}.quranMarkupBar span{font-size:10px;font-weight:900;letter-spacing:.06em;color:#756d5e;text-transform:uppercase}
+.quranMarkupBar>small{font-size:9px;line-height:1.45;color:#9a9285;text-align:right}
+.quranColorPalette{display:flex;align-items:center;gap:6px}.quranColorSwatch{width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:var(--sw);box-shadow:0 0 0 1px #d8cdb9;cursor:pointer}.quranColorSwatch.sel{box-shadow:0 0 0 2px #173f36}.quranColorPalette input[type=color]{width:28px;height:28px;padding:1px;border:1px solid #d8cdb9;border-radius:8px;background:#fff;cursor:pointer}
+.quranAyah.highlightedAyah{background:linear-gradient(135deg,var(--quran-hl),#fffdf8 48%);border-color:var(--quran-hl-line);box-shadow:inset 3px 0 0 var(--quran-hl-line),0 9px 28px rgba(53,54,46,.06)}
+.quranAyahMeta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px}.quranAyahMeta>small{margin:0}.quranAyahTools{display:flex;gap:6px}
+.quranAyahTools button{border:1px solid #e3dac9;background:#fffaf1;color:#6e695f;border-radius:999px;padding:6px 9px;font-size:9px;font-weight:850;cursor:pointer}.quranAyahTools button.active{border-color:#b88c45;color:#173f36;background:#f7efd9}
+.quranUserNote{margin-top:10px;padding:11px 12px;border-radius:14px;background:#f4efe3;border:1px solid #e5dccb}.quranUserNote small{opacity:1!important;color:#a07a3b!important;font-weight:900;letter-spacing:.08em}.quranUserNote p{direction:ltr!important;text-align:left!important;font-family:inherit!important;font-size:12px!important;line-height:1.55!important;padding:0!important;margin:4px 0 0!important;color:#4b4942!important}
+.quranNoteEditor{margin-top:10px;padding:12px;border-radius:14px;border:1px solid #d9ccb3;background:#fffaf0}.quranNoteEditor label{display:block;margin-bottom:7px;font-size:10px;font-weight:900;color:#173f36}.quranNoteEditor textarea{width:100%;resize:vertical;border:1px solid #d9ccb3;border-radius:12px;background:#fffdf8;padding:10px 11px;font:inherit;line-height:1.5;color:#34322e}.quranNoteEditor>div{display:flex;justify-content:flex-end;gap:7px;margin-top:8px}.quranNoteEditor .btn{width:auto;margin:0;padding:8px 11px;font-size:10px}
+.quranSourceDetails summary{cursor:pointer;font-weight:850;color:#526158}.quranSourceDetails p{margin:8px 0 0}
+.quranFocusMode{max-width:720px}.quranFocusMode .quranNavBar,.quranFocusMode .quranSurahHead,.quranFocusMode .quranMarkupBar,.quranFocusMode .readerSourceNote,.quranFocusMode .quranAyahTools,.quranFocusMode .quranUserNote,.quranFocusMode .quranAyahMeta>small{display:none}.quranFocusMode .quranVerseList{gap:3px}.quranFocusMode .quranAyah{border-color:transparent;border-radius:14px;box-shadow:none;padding-top:22px;padding-bottom:20px;background:#fffdf7}.quranFocusMode .quranAyah.highlightedAyah{background:linear-gradient(90deg,var(--quran-hl),#fffdf7 38%);box-shadow:inset 2px 0 0 var(--quran-hl-line)}
+@media(max-width:620px){.quranMarkupBar{align-items:flex-start;flex-direction:column}.quranMarkupBar>small{text-align:left}.quranAyahMeta{align-items:flex-end}.quranAyahTools button{padding:6px 8px}.quranFocusMode .quranAyah{padding-left:12px;padding-right:12px}}
