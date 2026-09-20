@@ -11,6 +11,7 @@ const candidates=[
       '(title:(Peygamberimiz) AND year:[1924 TO 1926]) AND mediatype:texts'
     ],
     expectedYears:[1925],
+    secondaryProbe:true,
     catalogEvidence:[
       {label:'İBB Kütüphaneleri',url:'https://kutuphane.osmanlica.com/tr/search',note:'1925 / Mahmud Bey Matbaası / Osmanlıca bibliyografik kayıt'},
       {label:'Sakarya Üniversitesi bibliyografyası',url:'https://acikerisim.sakarya.edu.tr/',note:'Peygamberimiz Aleyhisselam, 1341-1342, 300+4 s.'}
@@ -41,6 +42,7 @@ const candidates=[
   },
   {
     id:'akseki-missing-core',
+    secondaryProbe:true,
     titles:['Peygamberimizin Vecizeleri','Kuvvetli İman Kuvvetli İrade','Peygamberimiz Hz. Muhammed ve Müslümanlık','Peygamberimiz Hazreti Muhammed ve Müslümanlık'],
     creators:['Ahmed Hamdi Akseki','Ahmet Hamdi Akseki','A. Hamdi Akseki'],
     extraQueries:[
@@ -67,6 +69,7 @@ const candidates=[
       '(title:("Islam Tarihi") AND year:1928) AND mediatype:texts'
     ],
     expectedYears:[1928],
+    secondaryProbe:true,
     catalogEvidence:[
       {label:'TDV İslâm Ansiklopedisi',url:'https://islamansiklopedisi.org.tr/asr-i-saadet--literatur',note:'Şiblî/Nedvî, Ömer Rıza Doğrul tercümesi, İstanbul 1928'},
       {label:'Wikilala katalog kaydı',url:'https://www.wikilala.com/kitaplar/islam-tarihi-asr-i-saadet-peygamberimizin-siyreti-281596',note:'1928 nüsha, 281 sayfa; yeniden kullanım lisansı ayrıca doğrulanmalı'}
@@ -87,6 +90,7 @@ const candidates=[
   },
   {
     id:'akseki-siyer-fallbacks',
+    secondaryProbe:true,
     titles:['Ondört Asır Evvel Doğan Güneş','14 Asır Evvel Doğan Güneş','Öğretmen ve Öğrencilere Yardımcı Açıklamalı Din Dersleri','Açıklamalı Din Dersleri'],
     creators:['Ahmed Hamdi Akseki','Ahmet Hamdi Akseki','A. Hamdi Akseki','Hamdi Akseki'],
     extraQueries:[
@@ -105,6 +109,49 @@ async function json(url,timeout=10000){
   const r=await fetch(url,{headers:{'user-agent':UA,'accept':'application/json'},signal:AbortSignal.timeout(timeout)});
   if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);
   return r.json();
+}
+async function googleCandidates(c){
+  if(!c.secondaryProbe)return [];
+  const queries=[...new Set([
+    ...c.titles.slice(0,2).map(title=>'intitle:"'+title+'"'),
+    c.titles[0]&&c.creators[0]?'intitle:"'+c.titles[0]+'" inauthor:"'+c.creators[0]+'"':null,
+    c.creators[0]?'inauthor:"'+c.creators[0]+'"':null
+  ].filter(Boolean))].slice(0,4);
+  const seen=new Set(),out=[];
+  for(const q of queries){
+    try{
+      const d=await json('https://www.googleapis.com/books/v1/volumes?q='+enc(q)+'&maxResults=20&printType=books',15000);
+      for(const item of d?.items||[]){
+        if(!item?.id||seen.has(item.id))continue;
+        seen.add(item.id);
+        const v=item.volumeInfo||{},a=item.accessInfo||{};
+        out.push({id:item.id,title:v.title||'',authors:v.authors||[],publishedDate:v.publishedDate||null,publisher:v.publisher||null,pageCount:v.pageCount||null,viewability:a.viewability||null,publicDomain:Boolean(a.publicDomain),embeddable:Boolean(a.embeddable),pdfAvailable:Boolean(a.pdf?.isAvailable),pdfDownloadLink:a.pdf?.downloadLink||null,epubAvailable:Boolean(a.epub?.isAvailable),epubDownloadLink:a.epub?.downloadLink||null,webReaderLink:a.webReaderLink||null,infoLink:v.infoLink||null});
+      }
+    }catch(err){out.push({query:q,error:String(err.message||err)})}
+  }
+  return out.slice(0,20);
+}
+
+async function openLibraryCandidates(c){
+  if(!c.secondaryProbe)return [];
+  const queries=[...new Set([
+    c.titles[0]?'title="'+c.titles[0]+'"':null,
+    c.titles[0]&&c.creators[0]?'title="'+c.titles[0]+'" author="'+c.creators[0]+'"':null,
+    c.creators[0]?'author="'+c.creators[0]+'"':null
+  ].filter(Boolean))].slice(0,3);
+  const seen=new Set(),out=[];
+  for(const q of queries){
+    try{
+      const d=await json('https://openlibrary.org/search.json?q='+enc(q)+'&limit=20&fields=key,title,author_name,first_publish_year,edition_key,ia,public_scan_b,ebook_access,publish_year,publisher',15000);
+      for(const row of d?.docs||[]){
+        const key=row?.key||JSON.stringify([row?.title,row?.first_publish_year]);
+        if(seen.has(key))continue;
+        seen.add(key);
+        out.push({key:row.key||null,title:row.title||'',authors:row.author_name||[],firstPublishYear:row.first_publish_year||null,publishYears:row.publish_year||[],publishers:row.publisher||[],editionKeys:row.edition_key||[],iaIdentifiers:row.ia||[],publicScan:Boolean(row.public_scan_b),ebookAccess:row.ebook_access||null});
+      }
+    }catch(err){out.push({query:q,error:String(err.message||err)})}
+  }
+  return out.slice(0,20);
 }
 const clean=s=>String(s||'').replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
 const lowerTr=s=>String(s||'').toLocaleLowerCase('tr-TR');
@@ -183,7 +230,8 @@ async function searchOne(c){
       return result;
     }catch(err){return {identifier:row.identifier,title:row.title||'',error:String(err.message||err)}}
   }));
-  return {...c,results};
+  const [googleBooks,openLibrary]=await Promise.all([googleCandidates(c),openLibraryCandidates(c)]);
+  return {...c,results,googleBooks,openLibrary};
 }
 const report={
   generatedAt:new Date().toISOString(),
