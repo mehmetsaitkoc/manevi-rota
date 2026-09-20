@@ -99,6 +99,9 @@ jobs:
             if(!readingRecommendationText.includes('BUGÜN NE OKUYAYIM?')||!readingRecommendationText.includes('Okumaya Başla'))throw new Error('Daily reading recommendation card is incomplete');
             const readingRecommendationCount=await page.locator('.readingRecommendationCard').count();
             if(readingRecommendationCount!==1)throw new Error('Today view must show exactly one primary reading recommendation');
+            const recommendationBox=await page.locator('.readingRecommendationCard').boundingBox();
+            const navBox=await page.locator('#nav').boundingBox();
+            if(recommendationBox&&navBox&&recommendationBox.y+recommendationBox.height>navBox.y)throw new Error('Primary reading recommendation is obscured by mobile navigation');
             await page.screenshot({path:'visual-review/01-today.png',fullPage:true});
             await page.screenshot({path:'visual-review/01a-reading-recommendation.png',fullPage:true});
 
