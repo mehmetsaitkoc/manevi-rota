@@ -37,14 +37,15 @@ rec=buildReadingRecommendation({date,profile:{...baseProfile,priorities:['learni
 assert.equal(rec.kind,'hadith-review');
 assert.equal(rec.action.type,'open-reviews');
 
-// E — four consecutive sessions in the same book allow same-level diversity
+// E — a long same-book streak should eventually surface gentle same-level variety
 lib=library({lastBook:'islam-dini',books:{
   'islam-dini':{page:80,totalPages:250,sessions:[
-    session('2026-09-17',8,'ideal',72),session('2026-09-18',8,'ideal',75),session('2026-09-19',8,'ideal',78),session('2026-09-20',8,'ideal',80)
+    session('2026-09-16',8,'ideal',70),session('2026-09-17',8,'ideal',72),session('2026-09-18',8,'ideal',75),session('2026-09-19',8,'ideal',78),session('2026-09-20',8,'ideal',80)
   ]}
 }});
-const ranked=rankReadingRecommendations({date,profile:baseProfile,checkin:baseCheckin,library:lib,ilim:emptyKirkHadisState(),records:[]});
-assert.ok(ranked.findIndex(x=>x.bookId!=='islam-dini'&&x.activeLevel===1)<ranked.length-1,'diversity candidate should remain viable after a long same-book streak');
+let ranked=rankReadingRecommendations({date,profile:baseProfile,checkin:baseCheckin,library:lib,ilim:emptyKirkHadisState(),records:[]});
+assert.notEqual(ranked[0].bookId,'islam-dini','a sufficiently long streak should be able to change the primary recommendation');
+assert.ok(ranked[0].reasons.some(x=>x.includes('çeşitlilik')),'variety recommendation should be explainable');
 
 // F — final 10% increases continuation priority
 lib=library({lastBook:'islam-dini',books:{'islam-dini':{page:230,totalPages:250,sessions:[session('2026-09-20',8,'ideal',230)]}}});
@@ -70,4 +71,13 @@ const records=[
 rec=buildReadingRecommendation({date,profile:baseProfile,checkin:{...baseCheckin,minutes:10},library:library({lastBook:'islam-dini'}),ilim:emptyKirkHadisState(),records});
 assert.equal(rec.routeTypicalMinutes,7);
 
-console.log('reading-recommendation: scenarios A-G and learned reading dose passed');
+// Onboarding preferences are only priors: real behavior should decay their score influence.
+lib=library({lastBook:'islam-dini',books:{'islam-dini':{page:90,totalPages:250,sessions:[
+  session('2026-09-11',8,'ideal',45),session('2026-09-12',8,'ideal',50),session('2026-09-13',8,'ideal',55),session('2026-09-14',8,'ideal',60),
+  session('2026-09-15',8,'ideal',65),session('2026-09-16',8,'ideal',70),session('2026-09-17',8,'ideal',75),session('2026-09-18',8,'ideal',80),
+  session('2026-09-19',8,'ideal',85),session('2026-09-20',8,'ideal',90)
+]}}});
+ranked=rankReadingRecommendations({date,profile:{...baseProfile,priorities:['reading','learning']},checkin:baseCheckin,library:lib,ilim:emptyKirkHadisState(),records:[]});
+assert.equal(ranked[0].priorWeight,.15,'ten real reading sessions should reduce onboarding priors to the minimum influence');
+
+console.log('reading-recommendation: scenarios A-G, prior decay and learned reading dose passed');
