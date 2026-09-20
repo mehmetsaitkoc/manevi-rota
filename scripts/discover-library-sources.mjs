@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 
 const works=[
-  {id:'yavrularimiza-din-dersleri',title:'Yavrularımıza Din Dersleri',author:'Ahmet Hamdi Akseki'},
-  {id:'peygamberimiz-muhammed',title:'Peygamberimiz Hz. Muhammed ve Müslümanlık',author:'Ahmet Hamdi Akseki'},
-  {id:'muslumanlik-nedir',title:'Müslümanlık Nedir',author:'Ömer Rıza Doğrul'},
-  {id:'peygamberimizin-vecizeleri',title:'Peygamberimizin Vecizeleri',author:'Ahmet Hamdi Akseki'},
-  {id:'vel-asr-tefsiri',title:"Ve'l-Asr Suresinin Tefsiri",author:'Ahmet Hamdi Akseki'}
+  {id:'yavrularimiza-din-dersleri',title:'Yavrularımıza Din Dersleri',author:'Ahmet Hamdi Akseki',aliases:['Yavrularımıza Din Dersleri']},
+  {id:'peygamberimiz-muhammed',title:'Peygamberimiz Hz. Muhammed ve Müslümanlık',author:'Ahmet Hamdi Akseki',aliases:['Peygamberimiz Hz. Muhammed ve Müslümanlık','Peygamberimiz Hazreti Muhammed ve Müslümanlık','Peygamberimiz Muhammed ve Müslümanlık','Peygamberimiz ve Müslümanlık']},
+  {id:'muslumanlik-nedir',title:'Müslümanlık Nedir',author:'Ömer Rıza Doğrul',aliases:['Müslümanlık Nedir','Muslumanlik Nedir','Müslümanlık Nedir?']},
+  {id:'peygamberimizin-vecizeleri',title:'Peygamberimizin Vecizeleri',author:'Ahmet Hamdi Akseki',aliases:['Peygamberimizin Vecizeleri','Kuvvetli İman Kuvvetli İrade','Peygamberimizin Vecizeleri Kuvvetli İman']},
+  {id:'vel-asr-tefsiri',title:"Ve'l-Asr Suresinin Tefsiri",author:'Ahmet Hamdi Akseki',aliases:["Ve'l-Asr Suresinin Tefsiri",'Vel Asr Suresinin Tefsiri','Asr Suresinin Tefsiri','Velasr Suresinin Tefsiri']}
 ];
 
 const UA='Manevi-Rota-Source-Audit/1.0';
@@ -17,9 +17,14 @@ async function getJson(url){
 const enc=encodeURIComponent;
 
 async function archiveCandidates(work){
+  const titles=[...new Set([work.title,...(work.aliases||[])])];
   const queries=[
-    `title:"${work.title}" AND creator:"${work.author}"`,
-    `"${work.title}" AND "${work.author}"`
+    ...titles.flatMap(title=>[
+      `title:"${title}" AND creator:"${work.author}"`,
+      `title:"${title}"`,
+      `"${title}" AND "${work.author}"`
+    ]),
+    `creator:"${work.author}" AND mediatype:texts`
   ];
   const seen=new Set(),out=[];
   for(const q of queries){
@@ -55,10 +60,11 @@ async function archiveCandidates(work){
 }
 
 async function googleCandidates(work){
-  const qs=[
-    `intitle:"${work.title}" inauthor:"${work.author}"`,
-    `"${work.title}" "${work.author}"`
-  ];
+  const titles=[...new Set([work.title,...(work.aliases||[])])];
+  const qs=titles.flatMap(title=>[
+    `intitle:"${title}" inauthor:"${work.author}"`,
+    `"${title}" "${work.author}"`
+  ]);
   const seen=new Set(),out=[];
   for(const q of qs){
     try{
