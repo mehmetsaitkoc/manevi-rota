@@ -166,10 +166,10 @@ await fs.writeFile(path.join(OUT,'islam-dini.json'),JSON.stringify({
   source:{
     kind:'historical-scan-ocr',
     url:ISLAM_URL,
-    sourceLabel:'1933 tarihli tarihî tarama/OCR',
+    sourceLabel:'İlk baskı 1933 · kullanılan OCR taraması 20. baskı',
     originalYear:1933,
     textPolicy:'Müellif metni OCR aktarımı olarak korunur; no AI summary, modernizasyon veya Manevî Rota yorumu eser metnine karıştırılmaz.',
-    reviewNote:'OCR ve tarihî dizgi hataları bulunabilir; kullanıcı notları eser metninden ayrı tutulur.'
+    reviewNote:'Kullanılan tarama künye sayfasında 20. baskı olarak görünür. OCR/dizgi ve muhtemel tashih katkıları ticari yayın öncesi insan editör tarafından karşılaştırılmalıdır; kullanıcı notları eser metninden ayrı tutulur.'
   }
 }), 'utf8');
 
