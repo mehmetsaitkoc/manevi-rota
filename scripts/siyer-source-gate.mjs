@@ -12,6 +12,7 @@ assert.deepEqual(siyer.sourceGate?.conditionallyAcceptedEditionYears,[1955]);
 assert.equal(siyer.sourceGate?.editionComparisonRequired,true);
 assert.match(siyer.sourceGate?.conditionalEditionPolicy||'',/1955 Diyanet|1934/i);
 assert.ok(siyer.sourceGate?.catalogRecords?.some(x=>x.publicationNo==='40'&&x.conditional===true));
+assert.ok(siyer.sourceGate?.catalogRecords?.some(x=>x.recordId==='423781'&&x.callNumber==='A.IV/9738'&&x.conditional===true));
 assert.equal(siyer.sourceGate?.preferredScript,'latin');
 assert.match(siyer.sourceGate?.selectionReason||'',/Latin harfli|Latin/i);
 assert.ok(siyer.sourceGate?.catalogRecords?.some(x=>x.institution==='Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi'&&x.callNumber==='297.92 AKS.P'&&x.inventory==='09768'));
