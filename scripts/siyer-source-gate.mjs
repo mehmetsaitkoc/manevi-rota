@@ -11,5 +11,8 @@ assert.deepEqual(siyer.sourceGate?.acceptedEditionYears,[1924,1926]);
 assert.ok(siyer.sourceGate?.catalogRecords?.some(x=>x.institution==='Türk Tarih Kurumu Kütüphanesi'&&x.recordId==='761204'&&x.callNumber==='AKM/K/20768'));
 assert.ok((siyer.sourceGate?.reject||[]).some(x=>/academic thesis/i.test(x)));
 assert.ok((siyer.sourceGate?.reject||[]).some(x=>/modern transliteration|simplification/i.test(x)));
+assert.ok(siyer.sourceGate?.knownRejectedSources?.some(x=>/KSÜ SAMER/i.test(x.label)&&/sadeleştirme/i.test(x.reason)));
+assert.ok(siyer.sourceGate?.knownRejectedSources?.some(x=>/Wikilala/i.test(x.label)&&/ticari yeniden kullanım/i.test(x.reason)));
+assert.ok(siyer.sourceGate?.catalogRecords?.some(x=>x.url?.includes('kutuphane.ttk.gov.tr/details?id=761204')));
 
 console.log('siyer-source-gate: pending historical source gate passed');
