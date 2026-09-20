@@ -11,12 +11,17 @@ on:
       - 'public/index.html'
       - 'src/kirk-hadis.mjs'
       - 'src/quran-reader.mjs'
+      - 'src/library-catalog.mjs'
+      - 'src/book-reader.mjs'
+      - 'scripts/library-catalog.mjs'
+      - 'scripts/book-reader.mjs'
       - 'src/pilot-telemetry.mjs'
       - 'scripts/pilot-telemetry.mjs'
       - 'scripts/pilot-server.mjs'
       - 'server.mjs'
       - 'scripts/quran-reader.mjs'
       - 'public/data/**'
+      - 'public/data/books/**'
   workflow_dispatch:
 
 permissions:
@@ -90,44 +95,61 @@ jobs:
             await page.waitForSelector('#app .libraryHero',{timeout:10000});
             await page.screenshot({path:'visual-review/02-ilim.png',fullPage:true});
 
-            await page.click('#bookQuran');
+            const shelfCount=await page.locator('[data-starter-book]').count();
+            if(shelfCount!==10)throw new Error('Starter library must render exactly 10 works, got '+shelfCount);
+
+            await page.click('[data-starter-book="namaz-sureleri-tefsiri"]');
+            await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            await page.click('[data-book-highlight="0"]');
+            await page.click('[data-book-note="0"]');
+            await page.fill('#genericBookNoteInput','Visual review — kişisel kitap notu');
+            await page.click('#genericBookNoteSave');
+            await page.screenshot({path:'visual-review/03-premium-book.png',fullPage:true});
+            await page.click('#genericBookFocus');
+            await page.waitForSelector('.genericBookFocusMode',{timeout:5000});
+            await page.screenshot({path:'visual-review/03b-premium-book-focus.png',fullPage:true});
+            await page.click('#genericBookFocus');
+            await page.click('#genericBookBack');
+            await page.waitForSelector('[data-starter-book="quran"]',{timeout:10000});
+
+            await page.click('[data-starter-book="quran"]');
             await page.waitForSelector('.quranAyah',{timeout:10000});
             await page.click('[data-quran-highlight="1"]');
             await page.click('[data-quran-note="1"]');
             await page.fill('#quranNoteInput','Visual review — kişisel not katmanı');
             await page.click('#quranNoteSave');
-            await page.screenshot({path:'visual-review/03-quran.png',fullPage:true});
+            await page.screenshot({path:'visual-review/04-quran.png',fullPage:true});
             await page.click('#quranFocus');
             await page.waitForSelector('.quranFocusMode',{timeout:5000});
-            await page.screenshot({path:'visual-review/03b-quran-focus.png',fullPage:true});
+            await page.screenshot({path:'visual-review/04b-quran-focus.png',fullPage:true});
             await page.click('#quranFocus');
             await page.click('#quranBack');
-            await page.waitForSelector('#bookIslam',{timeout:10000});
+            await page.waitForSelector('[data-starter-book="islam-dini"]',{timeout:10000});
 
-            await page.click('#bookIslam');
+            await page.click('[data-starter-book="islam-dini"]');
             await page.waitForSelector('.islamPagePaper',{timeout:10000});
-            await page.screenshot({path:'visual-review/04-islam-dini.png',fullPage:true});
+            await page.screenshot({path:'visual-review/05-islam-dini.png',fullPage:true});
             await page.click('#islamBack');
             await page.waitForSelector('#openTodayHadis',{timeout:10000});
 
             await page.click('#openTodayHadis');
             await page.waitForSelector('.hadisReader',{timeout:10000});
             await page.waitForTimeout(500);
-            await page.screenshot({path:'visual-review/05-hadis-reader.png',fullPage:true});
+            await page.screenshot({path:'visual-review/06-hadis-reader.png',fullPage:true});
 
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));s.view='week';localStorage.setItem(k,JSON.stringify(s));
             },key);
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#app .progressHero',{timeout:10000});
-            await page.screenshot({path:'visual-review/06-progress.png',fullPage:true});
+            await page.screenshot({path:'visual-review/07-progress.png',fullPage:true});
 
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));s.view='profile';localStorage.setItem(k,JSON.stringify(s));
             },key);
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#app .pilotCard',{timeout:10000});
-            await page.screenshot({path:'visual-review/07-profile-pilot-off.png',fullPage:true});
+            await page.screenshot({path:'visual-review/08-profile-pilot-off.png',fullPage:true});
             page.once('dialog',dialog=>dialog.accept());
             await page.click('#pilotToggle');
             await page.waitForTimeout(350);
@@ -135,7 +157,7 @@ jobs:
             if(!pilotState?.enabled||!Array.isArray(pilotState.queue)||pilotState.queue.length<1)throw new Error('Pilot opt-in did not create a local calibration event');
             const pilotStatus=await page.evaluate(()=>fetch('/api/pilot/status').then(r=>r.json()));
             if(pilotStatus.schemaVersion!==1)throw new Error('Pilot status schema mismatch');
-            await page.screenshot({path:'visual-review/07b-profile-pilot-on.png',fullPage:true});
+            await page.screenshot({path:'visual-review/08b-profile-pilot-on.png',fullPage:true});
 
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
