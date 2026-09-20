@@ -11,9 +11,20 @@ assert.match(siyer.author,/Şiblî/);
 assert.equal(siyer.translator,'Ömer Rıza Doğrul');
 assert.equal(siyer.originalYear,1928);
 assert.equal(siyer.authorDeathYear,1953);
-assert.equal(siyer.sourceGate?.status,'selected-waiting-reusable-historical-scan');
+assert.equal(siyer.sourceGate?.status,'selected-physical-source-available');
 assert.equal(siyer.sourceGate?.selectedWorkId,'asri-saadet-siyret');
 assert.deepEqual(siyer.sourceGate?.acceptedEditionYears,[1928]);
+assert.equal(siyer.sourceGate?.acquisitionPlan?.status,'physical-originals-available');
+assert.equal(siyer.sourceGate?.acquisitionPlan?.preferredStrategy,'buy-volumes-1-to-4-and-self-digitize');
+assert.deepEqual(siyer.sourceGate?.acquisitionPlan?.requiredVolumes,[1,2,3,4]);
+assert.equal(siyer.sourceGate?.acquisitionPlan?.rightsReview?.jurisdiction,'Türkiye');
+assert.equal(siyer.sourceGate?.acquisitionPlan?.rightsReview?.latestRelevantContributorDeathYear,1953);
+assert.equal(siyer.sourceGate?.acquisitionPlan?.rightsReview?.apparentPublicDomainFrom,'2024-01-01');
+assert.equal(siyer.sourceGate?.acquisitionPlan?.rightsReview?.commercialLaunchReviewRequired,true);
+assert.equal(siyer.sourceGate?.acquisitionPlan?.currentListings?.length,4);
+assert.ok(siyer.sourceGate?.acquisitionPlan?.currentListings?.every(x=>x.edition.includes('1928')&&x.access==='physical-copy-for-self-digitization'));
+assert.ok(siyer.sourceGate?.acquisitionPlan?.currentListings?.some(x=>x.volume===1&&x.marketplace==='Kitantik'));
+assert.ok(siyer.sourceGate?.acquisitionPlan?.currentListings?.some(x=>x.volume===2&&x.marketplace==='NadirKitap'));
 assert.equal(siyer.sourceGate?.preferredScript,'ottoman-turkish');
 assert.match(siyer.sourceGate?.selectionReason||'',/ciddi tahlil|tenkid/i);
 assert.equal(siyer.sourceGate?.contentQualityGate?.status,'selected');
@@ -28,4 +39,4 @@ assert.ok((siyer.sourceGate?.reject||[]).some(x=>/Wikilala full text/i.test(x)))
 assert.ok((siyer.sourceGate?.reject||[]).some(x=>/modern transliteration|simplification/i.test(x)));
 assert.ok(siyer.sourceGate?.knownRejectedSources?.some(x=>/Wikilala 1928 Asr-ı Saâdet/i.test(x.label)&&/ticari kullanım/i.test(x.reason)));
 
-console.log('siyer-source-gate: definitive Asr-i Saadet source gate passed');
+console.log('siyer-source-gate: Asr-i Saadet selection + physical acquisition gate passed');
