@@ -311,6 +311,8 @@ function renderProfile(){
 
 function renderIlim(){
  const ui=S.ilim.ui||{};
+ const fullReader=['reader','quran','islam'].includes(ui.screen);
+ nav.classList.toggle('hidden',fullReader);
  if(ui.screen==='reader')return renderIlimReader(ui.selectedId||S.ilim.currentId);
  if(ui.screen==='notebook')return renderIlimNotebook();
  if(ui.screen==='reviews')return renderIlimReviews();
@@ -384,7 +386,7 @@ function renderIlimHome(){
      </button>
      <button class="bookShelfCard primaryBook" id="bookIslam">
        <div class="bookCoverMini islamBook">ك</div>
-       <div><b>İslâm Dini</b><small>Ahmed Hamdi Akseki</small><span>Sayfa ${S.library.islam.page} · kaldığın yerden</span></div><i>›</i>
+       <div><b>İslâm Dini</b><small>Ahmed Hamdi Akseki</small><span>Okuma sayfası ${S.library.islam.page} · kaldığın yerden</span></div><i>›</i>
      </button>
    </div>
  </section>
@@ -443,12 +445,12 @@ async function renderIslamDiniReader(){
  }
  const state=S.library.islam,total=islamDiniLibrary.pages.length,pageNo=Math.max(1,Math.min(total,Number(state.page)||5)),page=islamDiniLibrary.pages[pageNo-1],scale=Number(state.fontScale||1),sections=islamDiniLibrary.sections||[];
  const paragraphs=String(page?.text||'').split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
- app.innerHTML=`<section class="readerTop islamReaderTop"><button class="readerBack" id="islamBack">←</button><div><small>İSLÂM DİNİ · ${pageNo}/${total}</small><b>Ahmed Hamdi Akseki</b></div><div class="readerTools"><button id="islamFontDown">A−</button><button id="islamFontUp">A+</button></div></section>
+ app.innerHTML=`<section class="readerTop islamReaderTop"><button class="readerBack" id="islamBack">←</button><div><small>İSLÂM DİNİ · OKUMA ${pageNo}/${total}</small><b>Ahmed Hamdi Akseki</b></div><div class="readerTools"><button id="islamFontDown">A−</button><button id="islamFontUp">A+</button></div></section>
  <section class="islamReaderShell">
-   <div class="islamReaderNav"><button id="prevIslamPage" ${pageNo<=1?'disabled':''}>← Önceki</button><label>Sayfa <input id="islamPageInput" inputmode="numeric" type="number" min="1" max="${total}" value="${pageNo}"> / ${total}</label><button id="nextIslamPage" ${pageNo>=total?'disabled':''}>Sonraki →</button></div>
+   <div class="islamReaderNav"><button id="prevIslamPage" ${pageNo<=1?'disabled':''}>← Önceki</button><label>Okuma <input id="islamPageInput" inputmode="numeric" type="number" min="1" max="${total}" value="${pageNo}"> / ${total}</label><button id="nextIslamPage" ${pageNo>=total?'disabled':''}>Sonraki →</button></div>
    <div class="islamChapterJump"><select id="islamChapterSelect" aria-label="Bölüme git"><option value="">Bölüme git…</option>${sections.map(x=>`<option value="${x.page}">${esc(x.title)}</option>`).join('')}</select></div>
-   <article class="islamPagePaper"><div class="readerMarker">İSLÂM DİNİ · SAYFA ${pageNo}</div>${paragraphs.length?paragraphs.map((p,i)=>{const heading=p.length<120&&p===p.toLocaleUpperCase('tr-TR')&&/[A-ZÇĞİÖŞÜÎÂ]/.test(p);return heading?`<h2>${esc(p).replace(/\n/g,'<br>')}</h2>`:`<p style="font-size:${(1.02*scale).toFixed(2)}rem">${esc(p).replace(/\n/g,'<br>')}</p>`}).join(''):'<div class="emptyState">Bu tarama sayfasında metin bulunamadı.</div>'}</article>
-   <div class="readerSourceNote">Kaynak metin eski baskının OCR aktarımıdır. Manevî Rota metne açıklama veya yorum eklemez; tarama/dizgi hataları bulunabilir.</div>
+   <article class="islamPagePaper"><div class="readerMarker">İSLÂM DİNİ · OKUMA SAYFASI ${pageNo}</div>${paragraphs.length?paragraphs.map((p,i)=>{const heading=p.length<120&&p===p.toLocaleUpperCase('tr-TR')&&/[A-ZÇĞİÖŞÜÎÂ]/.test(p);return heading?`<h2>${esc(p).replace(/\n/g,'<br>')}</h2>`:`<p style="font-size:${(1.02*scale).toFixed(2)}rem">${esc(p).replace(/\n/g,'<br>')}</p>`}).join(''):'<div class="emptyState">Bu tarama sayfasında metin bulunamadı.</div>'}</article>
+   <div class="readerSourceNote">Kaynak metin eski baskının OCR aktarımıdır. Okuma sayfaları uygulama için bölünmüştür; Manevî Rota metne açıklama veya yorum eklemez. Tarama/dizgi hataları bulunabilir.</div>
  </section>`;
  const goPage=n=>{S.library.islam.page=Math.max(1,Math.min(total,Number(n)||pageNo));S.library.lastBook='islam';save();renderIslamDiniReader()};
  document.querySelector('#islamBack').onclick=()=>ilimGo('home');
