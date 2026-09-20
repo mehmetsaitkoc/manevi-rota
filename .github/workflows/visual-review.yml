@@ -138,11 +138,9 @@ jobs:
             await page.waitForSelector('[data-starter-book="quran"]',{timeout:10000});
             const resumeTitle=await page.locator('.continueReadingCard h2').innerText();
             if(!resumeTitle.includes('Namaz Sûrelerinin'))throw new Error('Last-read library card did not resume the actual book: '+resumeTitle);
-            const completedBadge=await page.locator('[data-starter-book="namaz-sureleri-tefsiri"] .starterBookBadges').innerText();
-            const completedCardHtml=await page.locator('[data-starter-book="namaz-sureleri-tefsiri"]').evaluate(el=>el.outerHTML);
-            const levelTwoMeta=await page.locator('[data-starter-stage="level-2"] .starterStageMeta').innerText();
-            console.log('LIBRARY_PATH_DEBUG',JSON.stringify({pathState,completedBadge,levelTwoMeta,completedCardHtml}));
-            if(!completedBadge.includes('Tamamlandı'))throw new Error('Completed library book badge did not update');
+            const completedCard=page.locator('[data-starter-book="namaz-sureleri-tefsiri"].completed');
+            if(await completedCard.count()!==1)throw new Error('Completed library book card did not update');
+            if(await completedCard.locator('.starterBookBadges .done').count()!==1)throw new Error('Completed library book badge did not update');
             await page.screenshot({path:'visual-review/03d-library-level-progress.png',fullPage:true});
 
             await page.click('[data-starter-book="quran"]');
