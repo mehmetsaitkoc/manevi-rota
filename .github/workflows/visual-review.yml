@@ -9,6 +9,7 @@ on:
       - 'public/styles.css'
       - 'public/index.html'
       - 'src/kirk-hadis.mjs'
+      - 'public/data/**'
   workflow_dispatch:
 
 permissions:
@@ -82,17 +83,29 @@ jobs:
             await page.waitForSelector('#app .libraryHero',{timeout:10000});
             await page.screenshot({path:'visual-review/02-ilim.png',fullPage:true});
 
+            await page.click('#bookQuran');
+            await page.waitForSelector('.quranAyah',{timeout:10000});
+            await page.screenshot({path:'visual-review/03-quran.png',fullPage:true});
+            await page.click('#quranBack');
+            await page.waitForSelector('#bookIslam',{timeout:10000});
+
+            await page.click('#bookIslam');
+            await page.waitForSelector('.islamPagePaper',{timeout:10000});
+            await page.screenshot({path:'visual-review/04-islam-dini.png',fullPage:true});
+            await page.click('#islamBack');
+            await page.waitForSelector('#openTodayHadis',{timeout:10000});
+
             await page.click('#openTodayHadis');
             await page.waitForSelector('.hadisReader',{timeout:10000});
-            await page.waitForTimeout(1200);
-            await page.screenshot({path:'visual-review/03-reader.png',fullPage:true});
+            await page.waitForTimeout(500);
+            await page.screenshot({path:'visual-review/05-hadis-reader.png',fullPage:true});
 
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));s.view='week';localStorage.setItem(k,JSON.stringify(s));
             },key);
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#app .progressHero',{timeout:10000});
-            await page.screenshot({path:'visual-review/04-progress.png',fullPage:true});
+            await page.screenshot({path:'visual-review/06-progress.png',fullPage:true});
 
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
