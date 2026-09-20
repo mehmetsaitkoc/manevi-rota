@@ -114,6 +114,13 @@ function daysBetween(older,newer){
 
 function taskWasDone(record,id){return completedSet(record).has(id);}
 function taskFeedbackValue(record,id){return record?.taskFeedback?.[id]||null;}
+function observedTaskMinutes(record,id){
+  const sessions=(Array.isArray(record?.readingSessions)?record.readingSessions:[])
+    .filter(x=>x?.taskId===id&&Number.isFinite(Number(x?.minutes))&&Number(x.minutes)>0);
+  if(sessions.length)return clamp(Math.round(sessions.reduce((n,x)=>n+Number(x.minutes),0)),1,120);
+  const planned=record?.route?.tasks?.find(t=>t.id===id)?.duration;
+  return Number.isFinite(planned)?Number(planned):null;
+}
 function taskExposureRows(records=[],id,today){
   return records.filter(validRecord)
     .filter(r=>r.date<today&&plannedIds(r).includes(id)&&!r.lightExcused)
@@ -193,7 +200,7 @@ export function routineMemory(records=[],today){
       shift=delta<=-.30?BEHAVIOR_SHIFT.DOWN:delta>=.24?BEHAVIOR_SHIFT.UP:BEHAVIOR_SHIFT.STABLE;
     }
     const continuity=established?clamp(completion*Math.exp(-Math.max(0,lastDoneDays-3)/10)*verification.avgFreshness,0,1):completion*.50*verification.avgFreshness;
-    const completedDurations=doneRows.map(r=>r.route?.tasks?.find(t=>t.id===id)?.duration).filter(Number.isFinite);
+    const completedDurations=doneRows.map(r=>observedTaskMinutes(r,id)).filter(Number.isFinite);
     const minGapDays=state===ROUTINE_STATE.FRAGILE?2:0;
     const frequencyReady=lastPlannedDays>=minGapDays;
     const baseConfidence=confidenceFromSamples(rows.length);
