@@ -1,0 +1,28 @@
+name: Core Library Source Probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/probe-core-library-sources.mjs'
+      - '.github/workflows/core-source-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/probe-core-library-sources.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: core-library-source-probe
+          path: core-source-probe.json
+          if-no-files-found: error
