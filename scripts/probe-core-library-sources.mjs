@@ -77,6 +77,40 @@ const candidates=[
     probeText:true
   },
   {
+    id:'yorukan-peygamberimiz-1926',
+    titles:['Peygamberimiz','Din Dersleri Peygamberimiz','Din Dersleri: Peygamberimiz'],
+    creators:['Yusuf Ziya Yörükan','Yusuf Ziya Yörükân','Yusuf Ziya'],
+    extraQueries:[
+      '(title:(Peygamberimiz) AND creator:("Yusuf Ziya") AND year:[1926 TO 1927]) AND mediatype:texts',
+      '(creator:(Yörükan) AND year:[1926 TO 1927]) AND mediatype:texts',
+      '("Din Dersleri" AND Peygamberimiz AND year:[1926 TO 1927]) AND mediatype:texts'
+    ],
+    expectedYears:[1926,1927],
+    secondaryProbe:true,
+    probeText:true,
+    catalogEvidence:[
+      {label:'TDV İslâm Ansiklopedisi',url:'https://islamansiklopedisi.org.tr/yorukan-yusuf-ziya',note:'Yusuf Ziya Yörükân (ö. 1954), Peygamberimiz, İstanbul 1926'},
+      {label:'Marmara din eğitimi araştırması',url:'https://katalog.marmara.edu.tr/veriler/yordambt/cokluortam/3A/0FB88DCF-A7A7-F54B-8363-CCBC21E0C7BE.pdf',note:'1926 ilk neşir; 1927 ikinci baskı; orta mektep ikinci sınıf din dersleri bağlamı'}
+    ]
+  },
+  {
+    id:'mehmed-ziya-siyer-1924',
+    titles:['Siyer-i Nebî','Siyer-i Nebi'],
+    creators:['İhtifalci Mehmed Ziyâ','İhtifalci Mehmed Ziya','Mehmed Ziya','Mehmet Ziya'],
+    extraQueries:[
+      '(title:("Siyer-i Nebi") AND creator:("Mehmed Ziya") AND year:[1924 TO 1926]) AND mediatype:texts',
+      '(title:(Siyer) AND creator:("Mehmed Ziya") AND year:[1924 TO 1926]) AND mediatype:texts',
+      '(creator:("Mehmed Ziya") AND year:[1924 TO 1926]) AND mediatype:texts'
+    ],
+    expectedYears:[1924,1926],
+    secondaryProbe:true,
+    probeText:true,
+    catalogEvidence:[
+      {label:'TDV İslâm Ansiklopedisi',url:'https://islamansiklopedisi.org.tr/ihtifalci-mehmed-ziya',note:'Mehmed Ziyâ (ö. 1930), Siyer-i Nebî, İstanbul 1340/1924'},
+      {label:'Marmara Üniversitesi araştırması',url:'https://openaccess.marmara.edu.tr/entities/publication/e47e8b5d-bac7-4aa4-b069-3f7ac3687995',note:'1924 birinci ve 1926 ikinci baskı; tam kronolojik siyer ders kitabı olarak incelenmiştir'}
+    ]
+  },
+  {
     id:'latin-siyer-public-domain-window',
     titles:[],
     creators:[],
