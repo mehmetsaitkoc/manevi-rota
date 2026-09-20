@@ -44,7 +44,7 @@ linear-gradient(180deg,#efe4cf 0%,#f7f1e7 54%,#ede2cf 100%);color:var(--intro-in
   <div class="mr-intro-inner">
     <header class="mr-top">
       <div class="mr-brand"><div class="mr-mark">☾</div><span>Manevî Rota</span></div>
-      <nav class="mr-toplinks" aria-label="Tanıtım menüsü">
+      <div class="mr-toplinks" aria-label="Tanıtım menüsü">
         <a href="#mrPreview">Nasıl çalışır?</a>
         <a href="#mrFeatures">Özellikler</a>
         <a href="#mrStart">Başlangıç</a>
@@ -126,7 +126,7 @@ linear-gradient(180deg,#efe4cf 0%,#f7f1e7 54%,#ede2cf 100%);color:var(--intro-in
   </div>
 </section>
 
-<div id="productApp">
+<div id="productApp" hidden>
   <div class="shell"><main id="app"></main><div class="notice">Manevî Rota ibadetleri puanlamaz veya manevî değer biçmez; yalnızca kişisel rutin planlamana ve kendi tuttuğun kayıtlara yardımcı olur.</div></div>
   <nav id="nav" class="hidden" aria-label="Ana menü">
     <button data-view="today">🌿<br><small>Bugün</small></button>
@@ -142,12 +142,15 @@ linear-gradient(180deg,#efe4cf 0%,#f7f1e7 54%,#ede2cf 100%);color:var(--intro-in
 function enterManeviRota(){
   try{sessionStorage.setItem('manevi-rota-intro-seen','1')}catch(e){}
   const intro=document.getElementById('mrIntro');
+  const product=document.getElementById('productApp');
   if(intro) intro.hidden=true;
+  if(product) product.hidden=false;
   window.scrollTo({top:0,behavior:'smooth'});
 }
 try{
   if(sessionStorage.getItem('manevi-rota-intro-seen')==='1'){
     document.getElementById('mrIntro').hidden=true;
+    document.getElementById('productApp').hidden=false;
   }
 }catch(e){}
 </script>
