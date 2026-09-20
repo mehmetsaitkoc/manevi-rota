@@ -86,6 +86,13 @@ const candidates=[
     preferredScript:'latin',
     knownCatalogRecords:[
       {
+        institution:'Türk Tarih Kurumu Kütüphanesi',
+        recordId:'423781',
+        callNumber:'A.IV/9738',
+        edition:'Ankara · Diyanet İşleri · 1955 · 159 s.',
+        access:'physical-copy-no-public-reusable-file-confirmed'
+      },
+      {
         institution:'Diyanet İşleri Başkanlığı yayın bibliyografyası',
         publicationNo:'40',
         edition:'2. baskı · Ankara · 1955 · 160 s.',
@@ -313,6 +320,9 @@ function assessResult(candidate,result){
   const year=Number(result?.year||result?.metadata?.year||String(result?.metadata?.date||'').match(/\d{4}/)?.[0]||0)||null;
   if(candidate.expectedYears?.length&&year&&!candidate.expectedYears.includes(year)){
     return {status:'review-year-mismatch',reason:`Expected ${candidate.expectedYears.join('/')} historical witness; source reports ${year}.`};
+  }
+  if(candidate.expectedYears?.length&&!year){
+    return {status:'review-edition-identity-missing',reason:`Expected historical edition year ${candidate.expectedYears.join('/')}, but source metadata does not establish an edition year.`};
   }
   if(result?.contentProbe?.charCount>5000){
     return {status:'manual-rights-and-text-review',reason:'Substantial full text detected; verify edition identity, rights and OCR against scan before production.'};
