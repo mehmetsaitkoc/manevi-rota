@@ -17,8 +17,11 @@ assert.equal(readyStarterBooks().length,9,'premium library should expose nine ge
 assert.equal(pendingStarterBooks().length,1);
 assert.equal(pendingStarterBooks()[0].id,'peygamberimiz-muhammed');
 assert.equal(starterBook('peygamberimiz-muhammed').availability,'source-verified');
-assert.equal(starterBook('peygamberimiz-muhammed').authorDeathYear,1951);
-assert.equal(starterBook('peygamberimiz-muhammed').sourceGate?.preferredScript,'latin');
+assert.equal(starterBook('peygamberimiz-muhammed').authorDeathYear,1953);
+assert.equal(starterBook('peygamberimiz-muhammed').sourceGate?.preferredScript,'ottoman-turkish');
+assert.match(starterBook('peygamberimiz-muhammed').title,/Asr-ı Saâdet/);
+assert.equal(starterBook('peygamberimiz-muhammed').translator,'Ömer Rıza Doğrul');
+assert.equal(starterBook('peygamberimiz-muhammed').sourceGate?.selectedWorkId,'asri-saadet-siyret');
 assert.equal(Boolean(starterBook('peygamberimiz-muhammed').asset),false,'pending siyer must not expose an unverified production asset');
 assert.equal(starterBook('yavrularimiza-din-dersleri').asset,'public/data/books/yavrularimiza-din-dersleri.json');
 assert.equal(starterBook('yavrularimiza-din-dersleri').requiresEditionReview,true);
