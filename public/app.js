@@ -16,6 +16,7 @@ let S=load();
 S.profile=S.profile||{priorities:[]};S.profile.slotOverrides=S.profile.slotOverrides||{};S.profile.slotSuggestionSnooze=S.profile.slotSuggestionSnooze||{};
 S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:normalizeQuranReaderState({...libraryBase.quran,...(S.library?.quran||{})}),islam:{...libraryBase.islam,...(S.library?.islam||{})},books:{...(S.library?.books||{})}};
 S.library.books=Object.fromEntries(Object.entries(S.library.books||{}).map(([id,state])=>[id,normalizeBookReaderState(state)]));
+if(!S.library.books['islam-dini'])S.library.books['islam-dini']=normalizeBookReaderState({page:S.library.islam?.page||5,fontScale:S.library.islam?.fontScale||1});
 S.pilot=normalizePilotState(S.pilot||{});
 const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
 const APP_VERSION='3.0.0';
@@ -464,11 +465,9 @@ function renderIlimHome(){
      ?`${completedCount}/42 okundu`
      :book.id==='quran'
        ?`${esc(quranMeta(S.library.quran.surah).turkish)} · ${S.library.quran.ayah}. âyet`
-       :book.id==='islam-dini'
-         ?`Okuma ${S.library.islam.page} · kaldığın yerden`
-         :ready
-           ?`Okuma ${saved?.page||1} · kaldığın yerden`
-           :'Kaynak doğrulanıyor';
+       :ready&&book.readerType==='generic'
+         ?`Okuma ${saved?.page||1} · kaldığın yerden`
+         :'Kaynak doğrulanıyor';
    const byline=book.author==='—'?'Arapça metin':book.author;
    return `<button class="starterBookCard tone-${esc(book.tone||'forest')} ${ready?'ready':'pending'}" data-starter-book="${esc(book.id)}" ${ready?'':'disabled'} aria-label="${esc(book.title)}">
      <div class="starterBookOrder">${book.order}</div>
