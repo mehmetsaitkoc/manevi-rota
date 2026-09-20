@@ -109,8 +109,11 @@ export const STARTER_LIBRARY=[
         sourceGate:{
           status:'waiting-reusable-historical-scan',
           acceptedEditionYears:[1934],
+          conditionallyAcceptedEditionYears:[1955],
+          editionComparisonRequired:true,
           preferredScript:'latin',
           selectionReason:'Tam siyer hacmi, öğretici tarih yaklaşımı ve Latin harfli Cumhuriyet dönemi baskısı nedeniyle birinci üretim adayıdır.',
+          conditionalEditionPolicy:'1955 Diyanet ikinci baskı yalnız 1934 müellif metniyle gövde karşılaştırması yapılıp Diyanet/editoryal ekler ayrılabildiğinde kullanılabilir.',
           catalogRecords:[
             {
               institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',
@@ -118,6 +121,20 @@ export const STARTER_LIBRARY=[
               inventory:'09768',
               edition:'Ankara · İdeal Matbaası · 1934',
               access:'physical-copy-no-public-reusable-file-confirmed'
+            },
+            {
+              institution:'Diyanet İşleri Başkanlığı yayın bibliyografyası',
+              publicationNo:'40',
+              edition:'2. baskı · Ankara · 1955 · 159–160 s.',
+              access:'bibliographic-record-no-public-reusable-file-confirmed',
+              conditional:true
+            },
+            {
+              institution:'Sakarya Üniversitesi Mehmet Uzun (Baboğlu) Koleksiyonu',
+              recordId:'Baboğlu 065840',
+              edition:'Ankara · Diyanet İşleri Yayınları · 1955 · 159 s.',
+              access:'catalog-only-no-public-reusable-file-confirmed',
+              conditional:true
             }
           ],
           fallbackCandidates:[
