@@ -139,6 +139,18 @@ jobs:
             await page.click('#genericBookBack');
             await page.waitForSelector('[data-starter-book="namaz-sureleri-tefsiri"]',{timeout:10000});
 
+            const fitriButton=page.locator('[data-starter-book="islam-fitri-tabii-umumi"]');
+            if(await fitriButton.isDisabled())throw new Error('Islam Fitri should be readable');
+            await fitriButton.click();
+            await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            const fitriTitle=await page.locator('.genericBookTitleCard h1').innerText();
+            if(!fitriTitle.includes('Fıtrî')&&!fitriTitle.includes('Fıtri'))throw new Error('Islam Fitri reader title mismatch');
+            const fitriText=await page.locator('.genericBookPaper').innerText();
+            if(!fitriText.includes('ÖN SÖZ'))throw new Error('Islam Fitri reader did not start from author preface');
+            await page.screenshot({path:'visual-review/03a-islam-fitri-reader.png',fullPage:true});
+            await page.click('#genericBookBack');
+            await page.waitForSelector('[data-starter-book="namaz-sureleri-tefsiri"]',{timeout:10000});
+
             await page.click('[data-starter-book="namaz-sureleri-tefsiri"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
             await page.click('[data-book-highlight="1"]');
