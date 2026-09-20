@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {STARTER_LIBRARY} from '../src/library-catalog.mjs';
 
 const readyGeneric=STARTER_LIBRARY.filter(x=>x.availability==='ready'&&x.readerType==='generic');
-assert.equal(readyGeneric.length,6);
+assert.equal(readyGeneric.length,7);
 
 for(const book of readyGeneric){
   assert.ok(book.asset,book.id+' asset path missing');
@@ -27,6 +27,13 @@ assert.match(islamFitri.pages[0].text,/ÖN SÖZ/i);
 assert.ok(islamFitri.pages.length>=650);
 assert.match(islamFitri.pages.slice(0,12).map(x=>x.text).join('\n'),/fıtr|fitr|vahiy|peygamber/i);
 assert.equal(islamFitri.id,'islam-fitri-tabii-umumi');
+const kurandanAyetler=JSON.parse(fs.readFileSync('public/data/books/kurandan-ayetler.json','utf8'));
+assert.equal(kurandanAyetler.id,'kurandan-ayetler');
+assert.ok(kurandanAyetler.pages.length>=300);
+assert.match(kurandanAyetler.pages[0].text,/On Söz|ÖN SÖZ/i);
+assert.match(kurandanAyetler.pages.slice(0,8).map(x=>x.text).join('\n'),/Mehmet Akif|Mehmet Âkif|Kur.?an/i);
+assert.equal(kurandanAyetler.source?.sourceEditionYear,1944);
+assert.match(kurandanAyetler.source?.reviewNote||'',/Commercial release|human|edit/i);
 const tanriBuyrugu=JSON.parse(fs.readFileSync('public/data/books/tanri-buyrugu.json','utf8'));
 assert.equal(tanriBuyrugu.id,'tanri-buyrugu');
 assert.ok(tanriBuyrugu.pages.length>=1500);

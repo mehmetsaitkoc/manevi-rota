@@ -39,11 +39,11 @@ export const STARTER_LIBRARY_STAGES=[
   },
   {
     id:'level-5',order:5,title:'Tefekkür ve Şuur',
-    subtitle:'Hadis ve tefsir okumalarıyla düşünme, muhasebe ve anlam derinliğini artır.',
+    subtitle:'Kur’ân merkezli tefsir ve şuur okumalarıyla düşünme, muhasebe ve anlam derinliğini artır.',
     goals:[
       'Bir metnin ana fikri, gerekçesi ve sonucu arasında bağlantı kurabilmek.',
       'Zaman, sorumluluk ve davranış temalarını birlikte değerlendirebilmek.',
-      'Hadis veya tefsir okumasından kendi araştırma ya da muhasebe sorunu üretebilmek.'
+      'Tefsir veya şuur okumasından kendi araştırma ya da muhasebe sorunu üretebilmek.'
     ]
   }
 ];
@@ -130,13 +130,15 @@ export const STARTER_LIBRARY=[
         rightsNote:'Yayınevi ön maddeleri alınmaz; müellif metni özgün dilinde korunur ve AI açıklaması metne karıştırılmaz.'
       },
   {
-        order:9,stage:'level-5',id:'peygamberimizin-vecizeleri',title:'Peygamberimizin Vecizeleri',author:'Ahmed Hamdi Akseki',field:'Hadis · Ahlâk',level:'Seviye 5',
-        readerType:'generic',availability:'source-verified',coverGlyph:'و',tone:'ink',
-        shortLabel:'Hadis metinleri, tercüme ve şerh',
-        sourceLabel:'1945 ilk baskı doğrulandı',
+        order:9,stage:'level-5',id:'kurandan-ayetler',title:'Kur’an’dan Âyetler ve Nesirler',author:'Mehmet Âkif Ersoy · Ömer Rıza Doğrul',field:'Kur’ân · Ahlâk · Tefekkür',level:'Seviye 5',
+        readerType:'generic',availability:'ready',coverGlyph:'و',tone:'ink',
+        shortLabel:'Âyetler üzerinden ahlâk, sorumluluk ve şuur',
+        sourceLabel:'1944 Yüksel Yayınevi tarihî taraması · Internet Archive',
+        asset:'public/data/books/kurandan-ayetler.json',
+        requiresEditionReview:true,
         rightsStatus:'public-domain-turkey-author-term',
-        originalYear:1945,authorDeathYear:1951,
-        rightsNote:'İlk baskıda dizgi hataları bulunduğu için metin ayrıca tashih karşılaştırmasından geçmeden canlıya açılmaz.'
+        originalYear:1944,authorDeathYear:1952,
+        rightsNote:'Mehmet Âkif Ersoy (ö. 1936) ile eseri toplayıp ekler ve notlarla neşreden Ömer Rıza Doğrul (ö. 1952) koruma süresi dışındadır. 1944 tarihî baskının OCR aktarımı kullanılır; OCR ve baskı kaynaklı hatalar ticari yayın öncesi insan editör tarafından taramayla karşılaştırılmalıdır.'
       },
   {
         order:10,stage:'level-5',id:'tanri-buyrugu',title:'Tanrı Buyruğu',author:'Ömer Rıza Doğrul',field:'Kur’ân · Tefsir',level:'Seviye 5',
