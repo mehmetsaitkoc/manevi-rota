@@ -2,11 +2,12 @@ import {TASK_CATALOG,TIME_SLOTS} from '../src/catalog.mjs';
 import {buildRoute,weeklyDigest,dayAdd,timeSlotLearning} from '../src/route-engine.mjs';
 import {PRAYERS,emptyQada,normalizePrayerPayload,prayerStatus,formatDuration,qadaRemaining,qadaTargetProgress,setQadaBalance,recordQada,undoQada} from '../src/prayer-center.mjs';
 import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisState,getHadis,progressPct as hadisProgressPct,todayHadisPlan,recordHadisSession,scheduleHadisReviews,dueReviews as dueHadisReviews,recordRecallAttempt,recallPromptFor,knowledgeSignal,knowledgeOverview,addHadisHighlight,addHadisNote,toggleHadisBookmark,notebookEntries} from '../src/kirk-hadis.mjs';
-import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,toggleQuranVerseHighlight,setQuranVerseNote} from '../src/quran-reader.mjs';
+import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,quranVerseBookmarked,toggleQuranVerseHighlight,setQuranVerseNote,toggleQuranVerseBookmark} from '../src/quran-reader.mjs';
 import {STARTER_LIBRARY,STARTER_LIBRARY_STAGES,starterBook,starterBooksByStage} from '../src/library-catalog.mjs';
 import {normalizeBookReaderState,bookHighlight,bookNote,toggleBookHighlight,setBookNote,toggleBookPageBookmark,beginBookReadingSession,touchBookReadingSession,finishBookReadingSession,bookReadingSummary,searchBookPages} from '../src/book-reader.mjs';
 import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,isPathBookCompleted,libraryPathSnapshot,acknowledgeLibraryLevel} from '../src/library-path.mjs';
 import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilotRoutePayload,pilotDayPayload} from '../src/pilot-telemetry.mjs';
+import {genericNotebookRefs,quranNotebookRefs,filterNotebookEntries,groupNotebookEntries,notebookSummary} from '../src/ilim-notebook.mjs';
 
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
@@ -744,12 +745,12 @@ async function renderQuranReader(){
  if(quranProgressObserver){quranProgressObserver.disconnect();quranProgressObserver=null}
  const palette=['#e6c46f','#8fc7a2','#d998a2'].map(color=>`<button class="quranColorSwatch ${selectedColor===color?'sel':''}" data-quran-color="${color}" style="--sw:${color}" aria-label="Vurgu rengi ${color}"></button>`).join('');
  const verses=data.verses.map(v=>{
-   const highlight=quranVerseHighlight(state,meta.id,v.verse),note=quranVerseNote(state,meta.id,v.verse),editing=Number(state.noteFor)===Number(v.verse);
+   const highlight=quranVerseHighlight(state,meta.id,v.verse),note=quranVerseNote(state,meta.id,v.verse),bookmarked=quranVerseBookmarked(state,meta.id,v.verse),editing=Number(state.noteFor)===Number(v.verse);
    const highlightStyle=highlight?` style="--quran-hl:${hexToRgba(highlight,.30)};--quran-hl-line:${hexToRgba(highlight,.92)}"`:'';
    return `<article class="quranAyah ${Number(state.ayah)===Number(v.verse)?'savedAyah':''} ${highlight?'highlightedAyah':''}" data-quran-ayah="${v.verse}"${highlightStyle}>
      <span class="quranAyahNo">${v.verse}</span>
      <p dir="rtl" lang="ar" style="font-size:${(1.72*scale).toFixed(2)}rem">${esc(v.text)}</p>
-     <div class="quranAyahMeta"><small>Kaldığın yer · ${meta.id}:${v.verse}</small><div class="quranAyahTools"><button data-quran-highlight="${v.verse}" class="${highlight?'active':''}" title="Âyeti vurgula">✦ Vurgu</button><button data-quran-note="${v.verse}" class="${note?'active':''}" title="Kişisel not">✎ Not</button></div></div>
+     <div class="quranAyahMeta"><small>Kaldığın yer · ${meta.id}:${v.verse}</small><div class="quranAyahTools"><button data-quran-bookmark="${v.verse}" class="${bookmarked?'active':''}" title="Âyet yer imi">${bookmarked?'★ Kayıtlı':'☆ Kaydet'}</button><button data-quran-highlight="${v.verse}" class="${highlight?'active':''}" title="Âyeti vurgula">✦ Vurgu</button><button data-quran-note="${v.verse}" class="${note?'active':''}" title="Kişisel not">✎ Not</button></div></div>
      ${note?`<aside class="quranUserNote"><small>KİŞİSEL NOT</small><p>${esc(note)}</p></aside>`:''}
      ${editing?`<div class="quranNoteEditor"><label for="quranNoteInput">Kişisel notun</label><textarea id="quranNoteInput" rows="3" maxlength="1200" placeholder="Bu not yalnızca sana aittir.">${esc(note)}</textarea><div><button class="btn ghost" id="quranNoteCancel">Vazgeç</button><button class="btn primary" id="quranNoteSave">Kaydet</button></div></div>`:''}
    </article>`;
@@ -771,6 +772,7 @@ async function renderQuranReader(){
  document.querySelector('#quranFocus').onclick=()=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,focusMode:!state.focusMode,noteFor:null});save();renderQuranReader()};
  document.querySelectorAll('[data-quran-color]').forEach(el=>el.onclick=e=>{e.stopPropagation();S.library.quran=normalizeQuranReaderState({...S.library.quran,highlightColor:el.dataset.quranColor});save();renderQuranReader()});
  document.querySelector('#quranCustomColor').onchange=e=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,highlightColor:e.target.value});save();renderQuranReader()};
+ document.querySelectorAll('[data-quran-bookmark]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();S.library.quran=toggleQuranVerseBookmark(S.library.quran,meta.id,Number(btn.dataset.quranBookmark));S.library.lastBook='quran';save();renderQuranReader()});
  document.querySelectorAll('[data-quran-highlight]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();S.library.quran=toggleQuranVerseHighlight(S.library.quran,meta.id,Number(btn.dataset.quranHighlight),S.library.quran.highlightColor);S.library.lastBook='quran';save();renderQuranReader()});
  document.querySelectorAll('[data-quran-note]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();const n=Number(btn.dataset.quranNote);S.library.quran=normalizeQuranReaderState({...S.library.quran,ayah:n,noteFor:n});S.library.lastBook='quran';save();renderQuranReader();setTimeout(()=>document.querySelector('#quranNoteInput')?.focus(),40)});
  const noteSave=document.querySelector('#quranNoteSave'),noteCancel=document.querySelector('#quranNoteCancel');
