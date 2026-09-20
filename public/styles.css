@@ -469,3 +469,23 @@ nav button:hover{transform:translateY(-1px)}
  .starterBookCard{padding:11px;gap:11px}.starterBookOrder{top:7px;right:8px}.starterBookBadges span{font-size:6px}.starterBookInfo>p{font-size:9px}
  .genericBookTop .readerTools{gap:3px}.genericBookTop .readerTools button{padding:7px 6px;font-size:10px}.genericBookNav label{font-size:9px}.genericBookNav input{width:54px}
 }
+
+
+/* v4.7 — staged beginner reading path */
+.starterPath{display:grid;gap:17px;margin-top:18px}
+.starterStage{padding:15px;border:1px solid #e3dac8;border-radius:21px;background:rgba(255,255,255,.38)}
+.starterStageHead{display:grid;grid-template-columns:38px 1fr auto;gap:11px;align-items:center;margin-bottom:12px}
+.starterStageNumber{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:#173f36;color:#fff;font-family:Georgia,serif;font-size:18px;box-shadow:0 8px 20px rgba(23,63,54,.12)}
+.starterStageHead>div:nth-child(2)>small{display:block;color:#aa8448;font-size:8px;font-weight:900;letter-spacing:.10em}
+.starterStageHead>div:nth-child(2)>b{display:block;font-family:Georgia,serif;color:#203a31;font-size:17px;margin:2px 0 2px}
+.starterStageHead>div:nth-child(2)>p{margin:0;color:#777064;font-size:10px;line-height:1.4}
+.starterStageHead>span{display:inline-flex;padding:6px 8px;border-radius:999px;background:#eee8dc;color:#766b5b;font-size:8px;font-weight:900;white-space:nowrap}
+.starterStage .starterLibraryGrid{margin-top:0}
+@media(max-width:700px){
+ .starterStage{padding:12px}
+ .starterStageHead{grid-template-columns:34px 1fr auto;gap:9px}
+ .starterStageNumber{width:34px;height:34px;border-radius:11px;font-size:16px}
+ .starterStageHead>div:nth-child(2)>b{font-size:15px}
+ .starterStageHead>div:nth-child(2)>p{font-size:9px}
+ .starterStageHead>span{font-size:7px;padding:5px 7px}
+}
