@@ -12,7 +12,7 @@ const QOUT=path.join(OUT,'quran');
 const BOUT=path.join(OUT,'books');
 const QURAN_URL='https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quranuthmanihaf.min.json';
 const ISLAM_URL='https://archive.org/download/islamdinia.hamdiakseki1933.pdf_201912/%C4%B0slam%20Dini%20A.Hamdi%20Akseki1933.pdf_djvu.txt';
-const YAVRULAR_URL='https://archive.org/stream/yavrularimiza-di-n-dersleri-ahmet-hamdi-akseki/YAVRULARIMIZA%20D%C4%B0N%20DERSLER%C4%B0%20-%20AHMET%20HAMD%C4%B0%20AKSEK%C4%B0_djvu.txt';
+const YAVRULAR_URL='https://archive.org/download/yavrularimiza-di-n-dersleri-ahmet-hamdi-akseki/YAVRULARIMIZA%20D%C4%B0N%20DERSLER%C4%B0%20-%20AHMET%20HAMD%C4%B0%20AKSEK%C4%B0_djvu.txt';
 
 async function fetchOk(url,type='text'){
   const r=await fetch(url,{headers:{'user-agent':'Manevi-Rota-Library-Builder/1.1'}});
