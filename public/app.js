@@ -489,12 +489,30 @@ function renderStarterPath(completedCount){
  }).join('');
 }
 
+
+function libraryResume(currentHadis,completedCount){
+ const last=starterBook(S.library.lastBook)||starterBook('kirk-hadis');
+ if(last?.availability==='ready'){
+   if(last.readerType==='quran'){
+     const meta=quranMeta(S.library.quran.surah);
+     return {book:last,glyph:last.coverGlyph,label:'KUR’ÂN-I KERÎM',title:meta.turkish,description:`${meta.arabic} · ${S.library.quran.ayah}. âyet`,meta:`${meta.id}/114 sûre`,action:()=>openStarterBook('quran')};
+   }
+   if(last.readerType==='generic'){
+     const state=normalizeBookReaderState(S.library.books?.[last.id]||{});
+     return {book:last,glyph:last.coverGlyph,label:'KALDIĞIN KİTAP',title:last.title,description:last.shortLabel,meta:`Okuma ${state.page||1}`,action:()=>openStarterBook(last.id)};
+   }
+ }
+ const hadis=currentHadis;
+ return {book:starterBook('kirk-hadis'),glyph:'ح',label:'KALDIĞIN YER',title:hadis.title,description:hadis.meaning,meta:`Hadis ${hadis.id}/${KIRK_HADIS_META.totalUnits} · ${completedCount} tamamlandı`,action:()=>ilimGo('reader',S.ilim.currentId)};
+}
+
 function renderIlimHome(){
  loadNawawiArabic().catch(()=>{});
  const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,p=hadisProgressPct(S.ilim),due=dueHadisReviews(S.ilim,today(),9),entries=notebookEntries(S.ilim),overview=knowledgeOverview(S.ilim,today());
  const counts=overview.reduce((a,x)=>(a[x.key]=(a[x.key]||0)+1,a),{});
  const completedCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
  const current=getHadis(S.ilim.currentId)||h;
+ const resume=libraryResume(current,completedCount);
  const nextDue=due[0];
  const readyBookCount=STARTER_LIBRARY.filter(x=>x.availability==='ready').length;
  const starterShelf=renderStarterPath(completedCount);
@@ -511,13 +529,13 @@ function renderIlimHome(){
  </section>
 
  <section class="continueReadingCard">
-   <div class="continueCover"><span>ح</span><small>DEVAM ET</small></div>
+   <div class="continueCover"><span>${esc(resume.glyph||'ك')}</span><small>DEVAM ET</small></div>
    <div class="continueBody">
-     <div class="eyebrow">KALDIĞIN YER</div>
-     <h2>${esc(current.title)}</h2>
-     <p>${esc(current.meaning)}</p>
-     <div class="continueMeta"><span>Hadis ${current.id}/${KIRK_HADIS_META.totalUnits}</span><span>${completedCount} tamamlandı</span></div>
-     <button class="btn primary wide" id="continueHadis">Okumaya devam →</button>
+     <div class="eyebrow">${esc(resume.label)}</div>
+     <h2>${esc(resume.title)}</h2>
+     <p>${esc(resume.description)}</p>
+     <div class="continueMeta"><span>${esc(resume.meta)}</span><span>${esc(resume.book?.field||'İlim')}</span></div>
+     <button class="btn primary wide" id="continueLibrary">Okumaya devam →</button>
    </div>
  </section>
 
@@ -551,7 +569,7 @@ function renderIlimHome(){
 
  <section class="card sourceCard"><details><summary>Metin ve kaynak politikası</summary><p>${esc(KIRK_HADIS_META.rightsNote)}</p><p>${esc(KIRK_HADIS_META.editorialNote)}</p></details></section>`;
  const open=()=>ilimGo('reader',S.ilim.currentId);
- document.querySelector('#continueHadis').onclick=open;
+ document.querySelector('#continueLibrary').onclick=resume.action;
  document.querySelector('#openTodayHadis').onclick=()=>ilimGo('reader',h.id);
  document.querySelectorAll('[data-starter-book]').forEach(btn=>btn.onclick=()=>openStarterBook(btn.dataset.starterBook));
  document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');
