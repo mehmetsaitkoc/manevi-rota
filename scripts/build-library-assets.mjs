@@ -13,6 +13,9 @@ const BOUT=path.join(OUT,'books');
 const QURAN_URL='https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quranuthmanihaf.min.json';
 const ISLAM_URL='https://archive.org/download/islamdinia.hamdiakseki1933.pdf_201912/%C4%B0slam%20Dini%20A.Hamdi%20Akseki1933.pdf_djvu.txt';
 const YAVRULAR_URL='https://archive.org/download/yavrularimiza-di-n-dersleri-ahmet-hamdi-akseki/YAVRULARIMIZA%20D%C4%B0N%20DERSLER%C4%B0%20-%20AHMET%20HAMD%C4%B0%20AKSEK%C4%B0_djvu.txt';
+const ISLAM_FITRI_URL='https://archive.org/download/i-slam-fitri-tabii-ve-umumi-bi-r-di-ndi-r-ahmed-hamdi-akseki-di-yanet/%C4%B0SLAM%20FITR%C4%B0%20TAB%C4%B0%C4%B0%20VE%20UMUM%C4%B0%20B%C4%B0R%20D%C4%B0ND%C4%B0R%20-%20AHMED%20HAMD%C4%B0%20AKSEK%C4%B0%20-%20D%C4%B0YANET_djvu.txt';
+const IBN_SINA_IHLAS_URL='https://archive.org/download/ibnisinaihlassuresi/Ibni%20Sina%20Ihlas%20Suresi_djvu.txt';
+const ASKERE_DIN_URL='https://archive.org/download/McGillLibrary-isl_askere-din-kitabi_BP1883S6A41945-18890/isl_askere-din-kitabi_BP1883S6A41945_djvu.txt';
 
 async function fetchOk(url,type='text'){
   const r=await fetch(url,{headers:{'user-agent':'Manevi-Rota-Library-Builder/1.1'}});
@@ -253,6 +256,68 @@ const yavrularimiza=await buildTextBook({
   ]
 });
 
+const askereDin=await buildTextBook({
+  id:'askere-din-kitabi',
+  title:'Askere Din Kitabı',
+  subtitle:'İman, ibadet, ahlâk ve günlük sorumluluk',
+  author:'Ahmed Hamdi Akseki',
+  url:ASKERE_DIN_URL,
+  minReaderPages:180,
+  minChars:180000,
+  originalYear:1945,
+  sourceEditionYear:1945,
+  sourceLabel:'McGill University Library · 1945 tarihî baskı taraması',
+  signature:/ASKERE\s+D[Iİ]N\s+K[Iİ]TAB[Iİ]/i,
+  startAtMatcher:/(?:ÖN\s*SÖZ|G[Iİ]R[Iİ][ŞS]|B[Iİ]R[Iİ]NC[Iİ]\s+(?:DERS|B[ÖO]L[ÜU]M))/i,
+  sectionMatchers:[
+    {title:'Başlangıç',re:/G[Iİ]R[Iİ][ŞS]|BA[ŞS]LANGI[ÇC]/i},
+    {title:'İman',re:/\b[Iİ]MAN\b/i},
+    {title:'İbadet',re:/\b[Iİ]BADET/i},
+    {title:'Ahlâk',re:/AHL[ÂA]K/i}
+  ]
+});
+
+const islamFitri=await buildTextBook({
+  id:'islam-fitri-tabii-umumi',
+  title:'İslâm Fıtrî, Tabiî ve Umumî Bir Dindir',
+  subtitle:'İslâmın insan, akıl ve hayatla ilişkisi',
+  author:'Ahmed Hamdi Akseki',
+  url:ISLAM_FITRI_URL,
+  minReaderPages:280,
+  minChars:450000,
+  originalYear:1943,
+  sourceEditionYear:null,
+  sourceLabel:'Internet Archive · Diyanet kaynaklı tarihî tarama',
+  signature:/[İI]SLAM\s+F[Iİ]TR[Iİ]|ISLAM\s+FITRI/i,
+  startAtMatcher:/(?:ÖN\s*SÖZ|G[Iİ]R[Iİ][ŞS]|MUKADD[Iİ]ME|B[Iİ]R[Iİ]NC[Iİ]\s+B[ÖO]L[ÜU]M)/i,
+  sectionMatchers:[
+    {title:'Giriş',re:/\bG[Iİ]R[Iİ][ŞS]\b|MUKADD[Iİ]ME/i},
+    {title:'Din',re:/\bD[Iİ]N\b/i},
+    {title:'İslâm',re:/\b[Iİ]SL[ÂA]M\b/i},
+    {title:'İman',re:/\b[Iİ]MAN\b/i}
+  ]
+});
+
+const ibnSinaIhlas=await buildTextBook({
+  id:'ibn-sina-ihlas-tefsiri',
+  title:'İbn Sînâ’nın İhlâs Sûresi Tefsiri',
+  subtitle:'Tercüme ve şerh',
+  author:'Ahmed Hamdi Akseki',
+  url:IBN_SINA_IHLAS_URL,
+  minReaderPages:35,
+  minChars:35000,
+  originalYear:1937,
+  sourceEditionYear:1986,
+  sourceLabel:'Internet Archive · 1986 tarihli neşir taraması',
+  signature:/[İI]HLAS\s+SURES[Iİ]|IHLAS\s+SURESI/i,
+  startAtMatcher:/(?:ÖN\s*SÖZ|[İI]HLAS\s+SURES[Iİ]|[İI]BN[Iİ]?\s+S[Iİ]NA)/i,
+  sectionMatchers:[
+    {title:'Giriş',re:/ÖN\s*SÖZ|G[Iİ]R[Iİ][ŞS]/i},
+    {title:'İhlâs Sûresi',re:/[İI]HL[ÂA]S\s+S[ÛU]RES[Iİ]/i},
+    {title:'Tercüme ve Şerh',re:/TERC[ÜU]ME|[ŞS]ERH/i}
+  ]
+});
+
 const namazSureleri=await buildPdfBook({
   id:'namaz-sureleri-tefsiri',
   title:'Namaz Sûrelerinin Türkçe Terceme ve Tefsiri',
@@ -302,5 +367,5 @@ const ahlakDersleri=await buildPdfBook({
   ]
 });
 
-console.log(`Library assets ready: Quran ${byChapter.size} surahs; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
+console.log(`Library assets ready: Quran ${byChapter.size} surahs; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Askere Din ${askereDin.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Ibn Sina Ihlas ${ibnSinaIhlas.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
 
