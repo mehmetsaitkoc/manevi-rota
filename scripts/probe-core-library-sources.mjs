@@ -167,26 +167,46 @@ async function json(url,timeout=10000){
   if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);
   return r.json();
 }
+async function googleBooksJsonWithBackoff(url){
+  let lastStatus=null;
+  for(let attempt=1;attempt<=3;attempt++){
+    const r=await fetch(url,{headers:{'user-agent':UA,'accept':'application/json'},signal:AbortSignal.timeout(15000)});
+    lastStatus=r.status;
+    if(r.ok)return {ok:true,data:await r.json(),attempt};
+    if(r.status!==429)return {ok:false,status:r.status,error:`${r.status} ${r.statusText}`,attempt};
+    if(attempt<3)await new Promise(resolve=>setTimeout(resolve,attempt*1500));
+  }
+  return {ok:false,status:lastStatus,error:'429 Too Many Requests',rateLimited:true,attempt:3};
+}
+
 async function googleCandidates(c){
   if(!c.secondaryProbe)return [];
-  const queries=[...new Set([
-    ...c.titles.slice(0,2).map(title=>'intitle:"'+title+'"'),
-    c.titles[0]&&c.creators[0]?'intitle:"'+c.titles[0]+'" inauthor:"'+c.creators[0]+'"':null,
-    c.creators[0]?'inauthor:"'+c.creators[0]+'"':null
-  ].filter(Boolean))].slice(0,4);
-  const seen=new Set(),out=[];
-  for(const q of queries){
-    try{
-      const d=await json('https://www.googleapis.com/books/v1/volumes?q='+enc(q)+'&maxResults=20&printType=books',15000);
-      for(const item of d?.items||[]){
-        if(!item?.id||seen.has(item.id))continue;
-        seen.add(item.id);
-        const v=item.volumeInfo||{},a=item.accessInfo||{};
-        out.push({id:item.id,title:v.title||'',authors:v.authors||[],publishedDate:v.publishedDate||null,publisher:v.publisher||null,pageCount:v.pageCount||null,viewability:a.viewability||null,publicDomain:Boolean(a.publicDomain),embeddable:Boolean(a.embeddable),pdfAvailable:Boolean(a.pdf?.isAvailable),pdfDownloadLink:a.pdf?.downloadLink||null,epubAvailable:Boolean(a.epub?.isAvailable),epubDownloadLink:a.epub?.downloadLink||null,webReaderLink:a.webReaderLink||null,infoLink:v.infoLink||null});
-      }
-    }catch(err){out.push({query:q,error:String(err.message||err)})}
+  const title=c.titles[0]||'';
+  const creator=c.creators[0]||'';
+  if(!title&&!creator)return [];
+  const q=title&&creator?`intitle:"${title}" inauthor:"${creator}"`:title?`intitle:"${title}"`:`inauthor:"${creator}"`;
+  const url='https://www.googleapis.com/books/v1/volumes?q='+enc(q)+'&maxResults=20&printType=books';
+  try{
+    const response=await googleBooksJsonWithBackoff(url);
+    if(!response.ok)return [{query:q,error:response.error,status:response.status,rateLimited:Boolean(response.rateLimited),attempts:response.attempt}];
+    const seen=new Set(),out=[];
+    for(const item of response.data?.items||[]){
+      if(!item?.id||seen.has(item.id))continue;
+      seen.add(item.id);
+      const v=item.volumeInfo||{},a=item.accessInfo||{};
+      out.push({
+        id:item.id,title:v.title||'',authors:v.authors||[],publishedDate:v.publishedDate||null,
+        publisher:v.publisher||null,pageCount:v.pageCount||null,viewability:a.viewability||null,
+        publicDomain:Boolean(a.publicDomain),embeddable:Boolean(a.embeddable),
+        pdfAvailable:Boolean(a.pdf?.isAvailable),pdfDownloadLink:a.pdf?.downloadLink||null,
+        epubAvailable:Boolean(a.epub?.isAvailable),epubDownloadLink:a.epub?.downloadLink||null,
+        webReaderLink:a.webReaderLink||null,infoLink:v.infoLink||null,query:q,attempts:response.attempt
+      });
+    }
+    return out.slice(0,20);
+  }catch(err){
+    return [{query:q,error:String(err.message||err),status:null,rateLimited:false}];
   }
-  return out.slice(0,20);
 }
 
 async function openLibraryCandidates(c){
