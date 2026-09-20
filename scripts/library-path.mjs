@@ -20,10 +20,15 @@ const initial=libraryPathSnapshot({pathState:state,hadithCompletedCount:0});
 assert.equal(initial.totalLevels,5);
 assert.equal(initial.currentLevel,1);
 assert.equal(initial.levels[0].status,'current');
-assert.equal(initial.levels[0].sourcePending,true,'a missing full text must never be silently treated as completed');
+assert.equal(initial.levels[0].sourcePending,false,'level one must be fully readable so the path can genuinely begin');
 
 const completedReady=setGenericBookCompleted(state,'islam-dini',true);
-const stillLevelOne=libraryPathSnapshot({pathState:completedReady,hadithCompletedCount:42});
-assert.equal(stillLevelOne.currentLevel,1,'pending source must keep the level honest even if available works are complete');
+const levelTwo=libraryPathSnapshot({pathState:completedReady,hadithCompletedCount:0});
+assert.equal(levelTwo.currentLevel,2,'finishing the level-one required book should move guidance to level two');
+assert.equal(levelTwo.levels[0].complete,true);
+assert.equal(levelTwo.levels[1].sourcePending,true,'a missing level-two full text must be disclosed');
+const withNamaz=setGenericBookCompleted(completedReady,'namaz-sureleri-tefsiri',true);
+const stillLevelTwo=libraryPathSnapshot({pathState:withNamaz,hadithCompletedCount:42});
+assert.equal(stillLevelTwo.currentLevel,2,'pending source must keep level two honest even if its available book is complete');
 
 console.log('library-path: five-level soft progression and source-honesty checks passed');
