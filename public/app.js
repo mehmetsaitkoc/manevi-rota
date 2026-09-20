@@ -1,7 +1,7 @@
-import {TASK_CATALOG,TIME_SLOTS} from '/src/catalog.mjs';
-import {buildRoute,weeklyDigest,dayAdd,timeSlotLearning} from '/src/route-engine.mjs';
-import {PRAYERS,emptyQada,normalizePrayerPayload,prayerStatus,formatDuration,qadaRemaining,qadaTargetProgress,setQadaBalance,recordQada,undoQada} from '/src/prayer-center.mjs';
-import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisState,getHadis,progressPct as hadisProgressPct,todayHadisPlan,recordHadisSession,scheduleHadisReviews,dueReviews as dueHadisReviews,recordRecallAttempt,recallPromptFor,knowledgeSignal,knowledgeOverview,addHadisHighlight,addHadisNote,toggleHadisBookmark,notebookEntries} from '/src/kirk-hadis.mjs';
+import {TASK_CATALOG,TIME_SLOTS} from '../src/catalog.mjs';
+import {buildRoute,weeklyDigest,dayAdd,timeSlotLearning} from '../src/route-engine.mjs';
+import {PRAYERS,emptyQada,normalizePrayerPayload,prayerStatus,formatDuration,qadaRemaining,qadaTargetProgress,setQadaBalance,recordQada,undoQada} from '../src/prayer-center.mjs';
+import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisState,getHadis,progressPct as hadisProgressPct,todayHadisPlan,recordHadisSession,scheduleHadisReviews,dueReviews as dueHadisReviews,recordRecallAttempt,recallPromptFor,knowledgeSignal,knowledgeOverview,addHadisHighlight,addHadisNote,toggleHadisBookmark,notebookEntries} from '../src/kirk-hadis.mjs';
 
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
