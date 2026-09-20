@@ -29,7 +29,7 @@ jobs:
           test -f public/data/quran/1.json
           test -f public/data/quran/114.json
           test -f public/data/islam-dini.json
-          node -e "const fs=require('fs'); const q=JSON.parse(fs.readFileSync('public/data/quran/2.json')); const i=JSON.parse(fs.readFileSync('public/data/islam-dini.json')); if(q.verses.length!==286) process.exit(2); if(i.pages.length<100) process.exit(3); console.log('assets validated', q.verses.length, i.pages.length)"
+          node -e "const fs=require('fs'); const q=JSON.parse(fs.readFileSync('public/data/quran/2.json')); const i=JSON.parse(fs.readFileSync('public/data/islam-dini.json')); if(q.verses.length!==286) process.exit(2); if(i.pages.length<250) process.exit(3); console.log('assets validated', q.verses.length, i.pages.length)"
       - name: Commit generated assets to main
         run: |
           git config user.name "github-actions[bot]"
