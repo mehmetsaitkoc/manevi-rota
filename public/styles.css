@@ -275,3 +275,62 @@ nav button:hover{transform:translateY(-1px)}
 .libraryShelf h2{font-family:Georgia,serif;font-size:26px}.bookShelfGrid{display:grid;gap:9px}.bookShelfCard{width:100%;display:grid;grid-template-columns:50px 1fr auto;gap:12px;align-items:center;text-align:left;border:1px solid #e5ddcd;border-radius:17px;background:#fff;padding:11px;color:inherit}.bookShelfCard.primaryBook{cursor:pointer}.bookShelfCard.primaryBook:hover{border-color:#bca16d;transform:translateY(-1px)}.bookCoverMini{width:50px;height:58px;border-radius:10px;display:grid;place-items:center;color:#fff;font-size:20px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}.hadisBook{background:linear-gradient(145deg,#6d322b,#94493d)}.quranBook{background:linear-gradient(145deg,#123f35,#286652)}.islamBook{background:linear-gradient(145deg,#8c642a,#b58a48)}.bookShelfCard b,.bookShelfCard small,.bookShelfCard span{display:block}.bookShelfCard b{font-family:Georgia,serif;font-size:17px}.bookShelfCard small{color:#79776f;margin-top:2px}.bookShelfCard span{font-size:10px;color:#9a8763;margin-top:5px}.bookShelfCard i{font-style:normal;font-size:22px;color:#a39c90}.futureBook{opacity:.72}
 .compactMemory .memoryGrid{margin-top:10px}
 @media(max-width:760px){.libraryTodayGrid{grid-template-columns:1fr}.continueReadingCard{grid-template-columns:82px 1fr}.continueCover span{width:48px;height:48px}.libraryHeroTop{align-items:flex-start}.libraryHero .ilimProgressRing{width:76px;height:76px;flex-basis:76px}.continueBody{padding:16px}.continueBody h2{font-size:23px}}
+
+
+/* v4.2 — premium progress dashboard */
+.understandingBlock{margin-top:14px;padding:14px;border-radius:16px;background:#f6f0e3;border:1px solid #e4d8be}
+.understandingBlock>div:first-child{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.understandingBlock b{font-size:12px;color:#183f36}.understandingBlock small{font-size:10px;color:#8b8376;text-align:right}
+.understandingScale{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}
+.understandingScale button{border:1px solid #ddd2bd;background:#fffaf0;border-radius:11px;padding:9px 0;font-weight:900;color:#756a58;cursor:pointer}
+.understandingScale button.sel{background:#173f36;color:#fff;border-color:#173f36}
+
+.premiumProgressHero{padding:24px 20px 20px}
+.progressTopline{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.progressConfidence{display:inline-flex;white-space:nowrap;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);font-size:10px;font-weight:850;color:#e8f1ec}
+.progressTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:18px 0 14px;padding:4px;border-radius:15px;background:rgba(255,255,255,.08)}
+.progressTabs button{border:0;border-radius:11px;padding:10px 7px;background:transparent;color:#d2e0d9;font-weight:850;cursor:pointer}
+.progressTabs button.active{background:#fffaf0;color:#173f36;box-shadow:0 6px 18px rgba(6,35,28,.14)}
+.journeyChartCard{background:rgba(255,250,240,.97);color:#173f36;border-radius:20px;padding:14px;border:1px solid rgba(255,255,255,.15)}
+.journeyChartHead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:12px}
+.journeyChartHead small{display:block;color:#9a7d47;font-size:9px;letter-spacing:.1em;font-weight:900}
+.journeyChartHead b{display:block;font-family:Georgia,serif;font-size:18px;margin-top:3px}
+.journeyChartHead>span{font-size:10px;color:#7a7b73}
+.journeyChart{display:flex;gap:5px;height:150px;align-items:stretch;overflow-x:auto;padding:2px 1px 0}
+.journeyBarCol{min-width:12px;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px}
+.journeyBarTrack{width:100%;min-width:8px;flex:1;border-radius:8px 8px 3px 3px;background:#ece6da;display:flex;align-items:flex-end;overflow:hidden}
+.journeyBarTrack i{display:block;width:100%;min-height:5px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#58a77f,#17523f)}
+.journeyBarCol small{height:13px;font-size:8px;color:#8f8d85;white-space:nowrap}
+.progressEmpty{margin:auto;color:#8e8b82;font-size:11px;text-align:center;padding:30px}
+
+.journeyMetricGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:0 0 14px}
+.journeyMetric{background:#fffaf2;border:1px solid rgba(102,90,63,.14);border-radius:19px;padding:13px;display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:start;box-shadow:0 8px 22px rgba(37,50,42,.05)}
+.journeyMetricIcon{width:34px;height:34px;border-radius:11px;background:#173f36;color:#fff;display:grid;place-items:center;font-weight:900}
+.journeyMetric small,.journeyMetric b,.journeyMetric span{display:block}
+.journeyMetric small{font-size:8px;letter-spacing:.08em;color:#9a8155;font-weight:900}
+.journeyMetric b{font-size:22px;line-height:1.05;margin:4px 0;color:#173f36}
+.journeyMetric span{font-size:9px;color:#818079;line-height:1.3}
+.journeyMetric.understanding .journeyMetricIcon{background:#8f443a}.journeyMetric.recall .journeyMetricIcon{background:#2e745a}.journeyMetric.load .journeyMetricIcon{background:#9b742f}
+.periodInsight h2{font-family:Georgia,serif;font-size:26px}
+.insightCards{display:grid;gap:8px;margin-top:12px}
+.periodInsightRow{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:11px;border-radius:14px;background:#f6f2e8}
+.periodInsightRow span{width:30px;height:30px;border-radius:10px;background:#173f36;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900}
+.periodInsightRow p{margin:3px 0 0;color:#5f665f;font-size:12px;line-height:1.5}
+.progressDetails{box-shadow:none;background:rgba(255,250,240,.75)}
+.progressDetails summary{cursor:pointer;font-weight:850;color:#274a40}
+.progressDetails .slotStats{margin-top:12px}
+
+@media(max-width:760px){
+  .journeyMetricGrid{grid-template-columns:1fr 1fr}
+  .progressTopline h1{font-size:34px}
+  .journeyChart{height:132px}
+  .journeyBarCol{min-width:10px}
+}
+@media(max-width:430px){
+  .premiumProgressHero{padding:20px 16px}
+  .progressTopline{gap:8px}
+  .progressConfidence{font-size:9px;padding:6px 8px}
+  .journeyMetric{grid-template-columns:30px 1fr;padding:11px}.journeyMetricIcon{width:30px;height:30px}
+  .journeyMetric b{font-size:20px}
+  .journeyChart{gap:3px}
+}
