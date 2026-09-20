@@ -26,6 +26,30 @@ const candidates=[
     id:'kurandan-ayetler',
     titles:["Kur'an'dan Ayetler","Kur’ân’dan Âyetler",'Kurandan Ayetler','Kur’an’dan Ayetler ve Nesirler'],
     creators:['Mehmet Akif Ersoy','Mehmed Akif Ersoy','Ömer Rıza Doğrul','Omer Riza Dogrul']
+  },
+  {
+    id:'akseki-missing-core',
+    titles:['Peygamberimizin Vecizeleri','Kuvvetli İman Kuvvetli İrade','Peygamberimiz Hz. Muhammed ve Müslümanlık','Peygamberimiz Hazreti Muhammed ve Müslümanlık'],
+    creators:['Ahmed Hamdi Akseki','Ahmet Hamdi Akseki','A. Hamdi Akseki'],
+    extraQueries:[
+      'creator:(Akseki) AND mediatype:texts',
+      '(Akseki AND Vecizeleri) AND mediatype:texts',
+      '(Akseki AND "Kuvvetli İman") AND mediatype:texts',
+      '(Akseki AND Peygamberimiz) AND mediatype:texts'
+    ],
+    probeText:true
+  },
+  {
+    id:'asri-saadet-siyret',
+    titles:['İslâm Tarihi Asr-ı Saadet Peygamberimizin Siyreti','İslam Tarihi Asr-ı Saadet Peygamberimizin Siyreti','Peygamberimizin Siyreti','Asr-ı Saadet'],
+    creators:['Mevlana Şibli','Şibli Numanî','Şibli Numani','Ömer Rıza Doğrul','Omer Riza Dogrul'],
+    extraQueries:[
+      'title:(Saadet) AND mediatype:texts',
+      'title:(Siyreti) AND mediatype:texts',
+      '("Ömer Rıza" AND Şibli) AND mediatype:texts',
+      '("Omer Riza" AND Shibli) AND mediatype:texts'
+    ],
+    probeText:true
   }
 ];
 
@@ -60,6 +84,7 @@ async function searchOne(c){
     queries.push(`title:"${title}" AND mediatype:texts`);
     for(const creator of c.creators)queries.push(`title:"${title}" AND creator:"${creator}" AND mediatype:texts`);
   }
+  for(const q of c.extraQueries||[])queries.push(q);
   const docs=new Map();
   await Promise.all(queries.map(async q=>{
     try{
@@ -78,7 +103,7 @@ async function searchOne(c){
       const files=(m?.files||[]).filter(f=>/(djvu\.txt|\.txt$|\.pdf$|\.epub$)/i.test(String(f?.name||''))).map(f=>({
         name:f.name,size:Number(f.size||0)||null,format:f.format||null,source:f.source||null
       }));
-      const contentProbe=c.id==='kisas-cevdet'?await textProbe(row.identifier,files):null;
+      const contentProbe=(c.id==='kisas-cevdet'||c.probeText)?await textProbe(row.identifier,files):null;
       return {
         identifier:row.identifier,title:row.title||'',creator:row.creator||'',year:row.year||null,
         metadata:{date:m?.metadata?.date||null,year:m?.metadata?.year||null,language:m?.metadata?.language||null,rights:m?.metadata?.rights||null,licenseurl:m?.metadata?.licenseurl||null},
