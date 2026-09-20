@@ -16,7 +16,6 @@ const ISLAM_URL='https://archive.org/download/islamdinia.hamdiakseki1933.pdf_201
 const YAVRULAR_URL='https://archive.org/download/yavrularimiza-di-n-dersleri-ahmet-hamdi-akseki/YAVRULARIMIZA%20D%C4%B0N%20DERSLER%C4%B0%20-%20AHMET%20HAMD%C4%B0%20AKSEK%C4%B0_djvu.txt';
 const ISLAM_FITRI_URL='https://archive.org/download/i-slam-fitri-tabii-ve-umumi-bi-r-di-ndi-r-ahmed-hamdi-akseki-di-yanet/%C4%B0SLAM%20FITR%C4%B0%20TAB%C4%B0%C4%B0%20VE%20UMUM%C4%B0%20B%C4%B0R%20D%C4%B0ND%C4%B0R%20-%20AHMED%20HAMD%C4%B0%20AKSEK%C4%B0%20-%20D%C4%B0YANET_djvu.txt';
 const ASKERE_DIN_URL='https://archive.org/download/McGillLibrary-isl_askere-din-kitabi_BP1883S6A41945-18890/isl_askere-din-kitabi_BP1883S6A41945_djvu.txt';
-const SAFAHAT_URL=archiveDownload('Safahat-MehmetAkifErsoy','Safahat_djvu.txt');
 const TANRI_BUYRUGU_URL=archiveDownload(
   'tanri-buyrugu-kuran-i-kerimin-tercume-ve-tefsir-i-serifi-omer-riza-dogrul',
   "Tanrı Buyruğu (Kur'an-ı Kerim'in Tercüme ve Tefsir-i Şerifi ) Ömer Rıza Doğrul_djvu.txt"
@@ -47,6 +46,7 @@ await fs.mkdir(BOUT,{recursive:true});
 /* Rejected/non-core candidate cleanup: keep generated library limited to reviewed core works. */
 await fs.rm(path.join(BOUT,'ibn-sina-ihlas-tefsiri.json'),{force:true});
 await fs.rm(path.join(BOUT,'askere-din-kitabi.json'),{force:true});
+await fs.rm(path.join(BOUT,'safahat.json'),{force:true});
 
 
 const normalizePdfPage=text=>String(text||'')
@@ -303,29 +303,6 @@ const islamFitri=await buildTextBook({
   ]
 });
 
-const safahat=await buildTextBook({
-  id:'safahat',
-  title:'Safahat',
-  subtitle:'İman, ahlâk, toplum ve sorumluluk şiirleri',
-  author:'Mehmet Âkif Ersoy',
-  url:SAFAHAT_URL,
-  minReaderPages:180,
-  minChars:300000,
-  originalYear:1911,
-  sourceEditionYear:null,
-  sourceLabel:'Internet Archive · Public Domain Mark taşıyan Safahat taraması',
-  signature:/SAFAHAT|MEHME[DT]\s+[ÂA]K[Iİ]F/i,
-  startAtMatcher:/(?:SAFAHAT|B[Iİ]R[Iİ]NC[Iİ]\s+K[Iİ]TAP|FAT[Iİ]H[AÂ])/i,
-  sectionMatchers:[
-    {title:'Birinci Kitap — Safahat',re:/B[Iİ]R[Iİ]NC[Iİ]\s+K[Iİ]TAP|SAFAHAT/i},
-    {title:'Süleymaniye Kürsüsünde',re:/S[ÜU]LEYMAN[Iİ]YE\s+K[ÜU]RS[ÜU]S[ÜU]NDE/i},
-    {title:'Hakkın Sesleri',re:/HAKKIN\s+SESLER[Iİ]/i},
-    {title:'Fâtih Kürsüsünde',re:/F[ÂA]T[Iİ]H\s+K[ÜU]RS[ÜU]S[ÜU]NDE/i},
-    {title:'Âsım',re:/\b[ÂA]SIM\b/i},
-    {title:'Gölgeler',re:/\bG[ÖO]LGELER\b/i}
-  ]
-});
-
 const tanriBuyrugu=await buildTextBook({
   id:'tanri-buyrugu',
   title:'Tanrı Buyruğu',
@@ -398,5 +375,5 @@ const ahlakDersleri=await buildPdfBook({
   ]
 });
 
-console.log(`Library assets ready: Quran ${byChapter.size}; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Safahat ${safahat.pages.length}; Tanrı Buyruğu ${tanriBuyrugu.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
+console.log(`Library assets ready: Quran ${byChapter.size}; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Tanrı Buyruğu ${tanriBuyrugu.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
 
