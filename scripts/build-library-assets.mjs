@@ -12,6 +12,7 @@ const QOUT=path.join(OUT,'quran');
 const BOUT=path.join(OUT,'books');
 const QURAN_URL='https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quranuthmanihaf.min.json';
 const ISLAM_URL='https://archive.org/download/islamdinia.hamdiakseki1933.pdf_201912/%C4%B0slam%20Dini%20A.Hamdi%20Akseki1933.pdf_djvu.txt';
+const YAVRULAR_URL='https://archive.org/stream/yavrularimiza-di-n-dersleri-ahmet-hamdi-akseki/YAVRULARIMIZA%20D%C4%B0N%20DERSLER%C4%B0%20-%20AHMET%20HAMD%C4%B0%20AKSEK%C4%B0_djvu.txt';
 
 async function fetchOk(url,type='text'){
   const r=await fetch(url,{headers:{'user-agent':'Manevi-Rota-Library-Builder/1.1'}});
@@ -50,6 +51,58 @@ const normalizePdfPage=text=>String(text||'')
   .replace(/([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])-\n([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])/g,'$1$2')
   .replace(/\n{3,}/g,'\n\n')
   .trim();
+
+const normalizeArchivePage=text=>String(text||'')
+  .replace(/\r/g,'')
+  .replace(/\u00ad/g,'')
+  .replace(/\u0000/g,'')
+  .split('\n')
+  .map(line=>line.replace(/[ \t]+/g,' ').trim())
+  .filter(line=>!/^\d{1,4}$/.test(line))
+  .filter(line=>!/^(?:YAVRULARIMIZA D[Iİ]N DERSLER[Iİ]|AHMET HAMD[Iİ] AKSEK[Iİ])$/i.test(line))
+  .join('\n')
+  .replace(/([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])-\n([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])/g,'$1$2')
+  .replace(/\n{3,}/g,'\n\n')
+  .trim();
+
+async function buildTextBook({
+  id,title,subtitle,author,url,minReaderPages,minChars,originalYear,sourceEditionYear,sourceLabel,
+  signature,startAtMatcher=null,sectionMatchers=[]
+}){
+  console.log(`Preparing ${title} from OCR text…`);
+  const raw=await fetchOk(url,'text');
+  if(/^\s*<!doctype html/i.test(raw)||/<html[\s>]/i.test(raw.slice(0,2000)))throw new Error(`${title}: source returned HTML`);
+  if(signature&&!signature.test(raw.slice(0,50000)))throw new Error(`${title}: source signature not found`);
+  let rawPages=raw.split('\f');
+  if(rawPages.length<minReaderPages){
+    console.warn(`${title}: form-feed pagination too small (${rawPages.length}); using reader chunks.`);
+    rawPages=chunkFallback(raw,1900);
+  }
+  let pages=rawPages.map((page,i)=>({page:i+1,text:normalizeArchivePage(page)})).filter(x=>x.text);
+  if(startAtMatcher){
+    const start=pages.findIndex(x=>startAtMatcher.test(x.text));
+    if(start>0)pages=pages.slice(start).map((x,i)=>({...x,page:i+1,sourcePage:x.page}));
+  }
+  const joined=pages.map(x=>x.text).join('\n\n');
+  if(pages.length<minReaderPages)throw new Error(`${title}: reader pages too small (${pages.length})`);
+  if(joined.length<minChars)throw new Error(`${title}: extracted text too small (${joined.length})`);
+  const sections=sectionMatchers.map(({title:label,re})=>{
+    const hit=pages.find(x=>re.test(x.text));
+    return hit?{title:label,page:hit.page}:null;
+  }).filter(Boolean).filter((x,i,a)=>a.findIndex(y=>y.page===x.page)===i);
+  const asset={
+    id,title,subtitle,author,pages,sections,
+    source:{
+      kind:'public-domain-author-text-from-historical-scan-ocr',
+      sourceLabel,url,originalYear,sourceEditionYear,
+      textPolicy:'Historical OCR is normalized only for line-break noise. Author text is preserved; no AI summary, modernization or commentary is mixed into the work.',
+      reviewNote:'The author is outside the Turkish copyright term, but this reader uses OCR from a later historical edition. Commercial release must retain a final human comparison for publisher/editorial additions and OCR errors.'
+    }
+  };
+  await fs.writeFile(path.join(BOUT,`${id}.json`),JSON.stringify(asset),'utf8');
+  console.log(`${title}: ${pages.length} reader pages, ${joined.length} chars`);
+  return asset;
+}
 
 async function buildPdfBook({
   id,title,subtitle,author,url,startPage,minReaderPages,minChars,originalYear,sourceLabel,sectionMatchers=[]
@@ -174,6 +227,28 @@ await fs.writeFile(path.join(OUT,'islam-dini.json'),JSON.stringify({
 }), 'utf8');
 
 
+const yavrularimiza=await buildTextBook({
+  id:'yavrularimiza-din-dersleri',
+  title:'Yavrularımıza Din Dersleri',
+  subtitle:'Kademeli temel din bilgisi',
+  author:'Ahmed Hamdi Akseki',
+  url:YAVRULAR_URL,
+  minReaderPages:180,
+  minChars:180000,
+  originalYear:1941,
+  sourceEditionYear:1967,
+  sourceLabel:'Internet Archive · 1967 Üçdal Neşriyat tarihî taraması · 512 sayfa',
+  signature:/YAVRULARIMIZA\s+D[Iİ]N\s+DERSLER[Iİ]/i,
+  startAtMatcher:/(?:ÖN\s*SÖZ|B[Iİ]R[Iİ]NC[Iİ]\s+K[Iİ]TAP)/i,
+  sectionMatchers:[
+    {title:'Birinci Kitap',re:/B[Iİ]R[Iİ]NC[Iİ]\s+K[Iİ]TAP/i},
+    {title:'İkinci Kitap',re:/[İI]K[Iİ]NC[Iİ]\s+K[Iİ]TAP/i},
+    {title:'Üçüncü Kitap',re:/[ÜU][ÇC][ÜU]NC[ÜU]\s+K[Iİ]TAP/i},
+    {title:'Dördüncü Kitap',re:/D[ÖO]RD[ÜU]NC[ÜU]\s+K[Iİ]TAP/i},
+    {title:'Beşinci Kitap',re:/BE[ŞS][İI]NC[Iİ]\s+K[Iİ]TAP/i}
+  ]
+});
+
 const namazSureleri=await buildPdfBook({
   id:'namaz-sureleri-tefsiri',
   title:'Namaz Sûrelerinin Türkçe Terceme ve Tefsiri',
@@ -223,5 +298,5 @@ const ahlakDersleri=await buildPdfBook({
   ]
 });
 
-console.log(`Library assets ready: Quran ${byChapter.size} surahs; Islam Dini ${pages.length} reader pages.; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
+console.log(`Library assets ready: Quran ${byChapter.size} surahs; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
 
