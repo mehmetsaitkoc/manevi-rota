@@ -100,44 +100,62 @@ export const STARTER_LIBRARY=[
         rightsNote:'Klasik eser; Türkçe tercüme Manevî Rota içinde ayrı editoryal katman olarak tutulur.'
       },
   {
-        order:6,stage:'level-3',id:'siyer-i-nebi-mehmed-ziya',title:'Siyer-i Nebî',author:'İhtifalci Mehmed Ziyâ',field:'Siyer · Şemâil',level:'Seviye 3',
+        order:6,stage:'level-3',id:'peygamberimiz-muhammed',title:'Peygamberimiz Hz. Muhammed Aleyhisselâm ve Müslümanlık',author:'Ahmed Hamdi Akseki',field:'Siyer · Sünnet · Ahlâk',level:'Seviye 3',
         readerType:'generic',availability:'source-verified',coverGlyph:'ص',tone:'burgundy',
-        shortLabel:'Hz. Peygamber’in hayatı · Mekke’den Medine’ye · şemâil',
-        sourceLabel:'1924 ilk baskı ve 1926/27 ikinci baskı kurumsal kataloglarda doğrulandı · üretim taraması bekleniyor',
+        shortLabel:'Hz. Peygamber’in hayatı · tebliğ · örneklik · kıssadan hisse',
+        sourceLabel:'1934 İdeal Matbaası ilk baskı doğrulandı · yeniden kullanımı uygun tam tarama bekleniyor',
         rightsStatus:'public-domain-turkey-author-term',
-        originalYear:1924,authorDeathYear:1930,
+        originalYear:1934,authorDeathYear:1951,
         sourceGate:{
           status:'waiting-reusable-historical-scan',
-          acceptedEditionYears:[1924,1926],
+          acceptedEditionYears:[1934],
+          preferredScript:'latin',
+          selectionReason:'Tam siyer hacmi, öğretici tarih yaklaşımı ve Latin harfli Cumhuriyet dönemi baskısı nedeniyle birinci üretim adayıdır.',
           catalogRecords:[
             {
-              institution:'Türk Tarih Kurumu Kütüphanesi',
-              recordId:'761204',
-              callNumber:'AKM/K/20768',
-              url:'https://kutuphane.ttk.gov.tr/details?id=761204&materialType=NE&query=Mehmed+%C4%B0brahim',
-              edition:'2. baskı · İstanbul · Kitâbhâne-i Hilmi · 1926–1927 · 185 s.'
+              institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',
+              callNumber:'297.92 AKS.P',
+              inventory:'09768',
+              edition:'Ankara · İdeal Matbaası · 1934',
+              access:'physical-copy-no-public-reusable-file-confirmed'
+            }
+          ],
+          fallbackCandidates:[
+            {
+              id:'siyer-i-nebi-mehmed-ziya',
+              title:'Siyer-i Nebî',
+              author:'İhtifalci Mehmed Ziyâ',
+              editionYears:[1924,1926],
+              note:'Kamu malı güçlü tam siyer; Osmanlı harfli nüsha nedeniyle üretim için güvenilir literal çevriyazı ve tarama karşılaştırması gerekir.'
+            },
+            {
+              id:'yorukan-peygamberimiz-1926',
+              title:'Peygamberimiz',
+              author:'Yusuf Ziya Yörükân',
+              editionYears:[1926,1927],
+              note:'Hacimli başlangıç siyeri; yalnız özgün tarihî baskı kabul edilir, modern sadeleştirme kabul edilmez.'
             }
           ],
           knownRejectedSources:[
             {
-              label:'KSÜ SAMER modern sadeleştirme',
+              label:'KSÜ SAMER Yörükân sadeleştirmesi',
               url:'https://siyerinebi.ksu.edu.tr/depo/belgeler/64-%20Yusuf%20Ziy%C3%A2%20-%20Peygamberimiz%20(Sadele%C5%9Ftiren%20Merve%20Kantaro%C4%9Flu)_2102231654141093.pdf',
               reason:'Modern sadeleştirme; cümle dizimi ve kelimeler editoryal olarak değiştirilmiştir.'
             },
             {
-              label:'Wikilala tam metin erişimi',
+              label:'Wikilala Mehmed Ziyâ tam metin erişimi',
               url:'https://www.wikilala.com/kitaplar/siyer-i-nebi-liselerin-birinci-devre-ikinci-siniflari-ile-kiz-ve-erkek-muallimleri-icin-en-son-tertib-olunan-programa-tevfikten-kaleme-alinmistir-265649',
               reason:'Production için ticari yeniden kullanım izni doğrulanmamıştır.'
             }
           ],
           reject:[
-            'modern transliteration or simplification',
+            'modern transliteration or simplification presented as the historical text',
             'academic thesis transcription as production text',
             'commercial or access-gated platform text without redistribution permission',
-            'modern edited reprint'
+            'modern edited reprint without separable author text'
           ]
         },
-        rightsNote:'Müellif koruma süresi dışındadır. Production reader yalnız 1924/1926 tarihî baskının yeniden kullanımı uygun taramasından üretilecek; modern çevriyazı, sadeleştirme veya akademik tez metni eser asset’i olarak kullanılmayacaktır.'
+        rightsNote:'Müellif koruma süresi dışındadır. Reader yalnız kaynak kimliği ve yeniden kullanım hakkı doğrulanmış 1934 tarihî baskıdan veya aynı müellif metnini editoryal katkıdan ayırabildiğimiz kurumsal bir dijital nüshadan üretilecektir.'
       },
   {
         order:7,stage:'level-4',id:'islam-fitri-tabii-umumi',title:'İslâm Fıtrî, Tabiî ve Umumî Bir Dindir',author:'Ahmed Hamdi Akseki',field:'İman · İslâm düşüncesi',level:'Seviye 4',
