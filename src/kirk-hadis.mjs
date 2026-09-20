@@ -153,11 +153,12 @@ export function todayHadisPlan(state,today){
   const mode=heavy>=2?'Sadeleştirilmiş':completedRecent>=4&&heavy===0?'Dengeli + hatırlama':'Dengeli';
   return {date:today,hadis:current,dueReviews:due,minutes:heavy>=2?7:10,mode,confidence,reviewFirst:due.length>=2,why:heavy>=2?'Son günlerde zorlanma arttığı için açıklama bölümünü sade tutuyoruz.':due.length>=2?'Bugün iki veya daha fazla tekrar bekliyor; yeni okumadan önce kısa geri çağırma öneriliyor.':recent.length<3?'İlk günlerde amaç hız değil, sürdürülebilir bir okuma ritmi bulmak.':'Gerçek okuma kayıtlarına göre bir hadislik günlük tempo korunuyor.'};
 }
-export function recordHadisSession(state,{hadisId,date,minutes=10,feedback='ideal',completed=true}){
+export function recordHadisSession(state,{hadisId,date,minutes=10,feedback='ideal',completed=true,understanding=null}){
   const s=state; const id=Number(hadisId); if(!getHadis(id))throw new Error('Hadis bulunamadı');
   if(!s.startedAt)s.startedAt=date;
   const prev=s.sessions.filter(x=>x.date===date&&x.hadisId===id).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)))[0];
-  const session={id:uid('hs'),hadisId:id,date,minutes:Math.max(1,Number(minutes)||10),feedback,completed:!!completed,createdAt:new Date().toISOString()};
+  const u=Number(understanding);
+  const session={id:uid('hs'),hadisId:id,date,minutes:Math.max(1,Number(minutes)||10),feedback,completed:!!completed,...(Number.isFinite(u)&&u>=1&&u<=5?{understanding:u}:{}),createdAt:new Date().toISOString()};
   if(prev){const i=s.sessions.findIndex(x=>x.id===prev.id);s.sessions[i]=session}else s.sessions.push(session);
   if(completed&&!s.completed.includes(id))s.completed.push(id);
   if(completed){scheduleHadisReviews(s,id,date);if(id===s.currentId)s.currentId=Math.min(KIRK_HADIS_META.totalUnits,id+1)};
