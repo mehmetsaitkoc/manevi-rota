@@ -5,6 +5,11 @@ const candidates=[
     id:'peygamberimiz-aleyhisselam',
     titles:['Peygamberimiz Aleyhisselam','Peygamberimiz Aleyhisselâm','Peygamber'],
     creators:['Ömer Rıza Doğrul','Omer Riza Dogrul','Mevlana Muhammed Ali','Muhammed Ali'],
+    extraQueries:[
+      '(creator:("Omer Riza") OR creator:("Ömer Rıza")) AND year:1925 AND mediatype:texts',
+      '(creator:("Muhammed Ali") AND year:1925) AND mediatype:texts',
+      '(title:(Peygamberimiz) AND year:[1924 TO 1926]) AND mediatype:texts'
+    ],
     expectedYears:[1925],
     catalogEvidence:[
       {label:'İBB Kütüphaneleri',url:'https://kutuphane.osmanlica.com/tr/search',note:'1925 / Mahmud Bey Matbaası / Osmanlıca bibliyografik kayıt'},
@@ -42,7 +47,9 @@ const candidates=[
       'creator:(Akseki) AND mediatype:texts',
       '(Akseki AND Vecizeleri) AND mediatype:texts',
       '(Akseki AND "Kuvvetli İman") AND mediatype:texts',
-      '(Akseki AND Peygamberimiz) AND mediatype:texts'
+      '(Akseki AND Peygamberimiz) AND mediatype:texts',
+      '(creator:(Akseki) AND year:1934) AND mediatype:texts',
+      '(title:(Peygamberimiz) AND year:1934) AND mediatype:texts'
     ],
     probeText:true
   },
@@ -54,7 +61,10 @@ const candidates=[
       'title:(Saadet) AND mediatype:texts',
       'title:(Siyreti) AND mediatype:texts',
       '("Ömer Rıza" AND Şibli) AND mediatype:texts',
-      '("Omer Riza" AND Shibli) AND mediatype:texts'
+      '("Omer Riza" AND Shibli) AND mediatype:texts',
+      '(creator:("Omer Riza") AND year:1928) AND mediatype:texts',
+      '(creator:(Şibli) AND year:1928) AND mediatype:texts',
+      '(title:("Islam Tarihi") AND year:1928) AND mediatype:texts'
     ],
     expectedYears:[1928],
     catalogEvidence:[
