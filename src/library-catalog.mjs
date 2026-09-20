@@ -1,0 +1,101 @@
+export const STARTER_LIBRARY_VERSION='2026.09';
+
+export const STARTER_LIBRARY=[
+  {
+    order:1,id:'quran',title:'Kur’ân-ı Kerîm',author:'—',field:'Kur’ân',level:'Başlangıç',
+    readerType:'quran',availability:'ready',coverGlyph:'ق',tone:'emerald',
+    shortLabel:'114 sûre · Arapça metin',
+    sourceLabel:'Quran Uthmani Hafs',
+    rightsStatus:'scripture-source',
+    originalYear:null,authorDeathYear:null,
+    rightsNote:'Arapça Kur’ân metni yerel veri olarak paketlenir; meal bu okuyucuya karıştırılmaz.'
+  },
+  {
+    order:2,id:'kirk-hadis',title:'Kırk Hadis',author:'İmam Nevevî',field:'Hadis',level:'Başlangıç',
+    readerType:'hadith',availability:'ready',coverGlyph:'ح',tone:'forest',
+    shortLabel:'42 hadis · aktif tekrar',
+    sourceLabel:'Nevevî Kırk Hadis',
+    rightsStatus:'classical-public-domain',
+    originalYear:null,authorDeathYear:1277,
+    rightsNote:'Klasik eser; Türkçe tercüme Manevî Rota içinde ayrı editoryal katman olarak tutulur.'
+  },
+  {
+    order:3,id:'islam-dini',title:'İslâm Dini',author:'Ahmed Hamdi Akseki',field:'İtikat · İbadet · Ahlâk',level:'Başlangıç',
+    readerType:'islam',availability:'ready',coverGlyph:'ك',tone:'gold',
+    shortLabel:'Temel din bilgisi',
+    sourceLabel:'1933 tarihli tarihî tarama/OCR',
+    rightsStatus:'public-domain-turkey-author-term',
+    originalYear:1933,authorDeathYear:1951,
+    rightsNote:'Müellif metni korunur; OCR/dizgi hataları ayrıca belirtilir.'
+  },
+  {
+    order:4,id:'namaz-sureleri-tefsiri',title:'Namaz Sûrelerinin Türkçe Terceme ve Tefsiri',author:'Ahmed Hamdi Akseki',field:'Kur’ân · Namaz',level:'Başlangıç',
+    readerType:'generic',availability:'ready',coverGlyph:'ن',tone:'navy',
+    shortLabel:'Fâtiha · kısa sûreler · dualar',
+    sourceLabel:'1949 müellif metni · DİB dijital nüsha',
+    rightsStatus:'public-domain-turkey-author-term',
+    originalYear:1949,authorDeathYear:1951,requiresEditionReview:true,
+    asset:'public/data/books/namaz-sureleri-tefsiri.json',
+    rightsNote:'Dijital baskının yayınevi ön maddeleri alınmaz; müellif metni AI ile modernize edilmez.'
+  },
+  {
+    order:5,id:'yavrularimiza-din-dersleri',title:'Yavrularımıza Din Dersleri',author:'Ahmed Hamdi Akseki',field:'Temel din eğitimi',level:'Başlangıç',
+    readerType:'generic',availability:'source-verified',coverGlyph:'ي',tone:'sage',
+    shortLabel:'Sade ve kademeli din bilgisi',
+    sourceLabel:'1940’lar tarihî baskıları doğrulandı',
+    rightsStatus:'public-domain-turkey-author-term',
+    originalYear:1941,authorDeathYear:1951,
+    rightsNote:'Tam metin yalnız güvenilir tarihî nüsha doğrulandıktan sonra açılacaktır.'
+  },
+  {
+    order:6,id:'muslumanlik-nedir',title:'Müslümanlık Nedir?',author:'Ömer Rıza Doğrul',field:'İman · Temel esaslar',level:'Başlangıç',
+    readerType:'generic',availability:'source-verified',coverGlyph:'م',tone:'clay',
+    shortLabel:'155 soru-cevap',
+    sourceLabel:'1933 ilk baskı bibliyografik olarak doğrulandı',
+    rightsStatus:'public-domain-turkey-author-term',
+    originalYear:1933,authorDeathYear:1952,
+    rightsNote:'Tam metin yalnız ilk/erken baskı taraması doğrulanınca açılacaktır.'
+  },
+  {
+    order:7,id:'peygamberimiz-muhammed',title:'Peygamberimiz Hz. Muhammed ve Müslümanlık',author:'Ahmed Hamdi Akseki',field:'Siyer',level:'Başlangıç',
+    readerType:'generic',availability:'source-verified',coverGlyph:'ص',tone:'burgundy',
+    shortLabel:'Siyer ve temel Müslümanlık bilgisi',
+    sourceLabel:'1934 baskısı bibliyografik olarak doğrulandı',
+    rightsStatus:'public-domain-turkey-author-term',
+    originalYear:1934,authorDeathYear:1951,
+    rightsNote:'Metin tarihî nüshadan aktarılacak; modern sadeleştirme kullanılmayacaktır.'
+  },
+  {
+    order:8,id:'peygamberimizin-vecizeleri',title:'Peygamberimizin Vecizeleri',author:'Ahmed Hamdi Akseki',field:'Hadis · Ahlâk',level:'Başlangıç',
+    readerType:'generic',availability:'source-verified',coverGlyph:'و',tone:'ink',
+    shortLabel:'Hadis metinleri, tercüme ve şerh',
+    sourceLabel:'1945 ilk baskı doğrulandı',
+    rightsStatus:'public-domain-turkey-author-term',
+    originalYear:1945,authorDeathYear:1951,
+    rightsNote:'İlk baskıda dizgi hataları bulunduğu için metin ayrıca tashih karşılaştırmasından geçmeden canlıya açılmaz.'
+  },
+  {
+    order:9,id:'vel-asr-tefsiri',title:'Ve’l-Asr Sûresinin Tefsiri',author:'Ahmed Hamdi Akseki',field:'Tefsir',level:'Başlangıç',
+    readerType:'generic',availability:'source-verified',coverGlyph:'ع',tone:'olive',
+    shortLabel:'Kısa sûre üzerinden tefsir okuması',
+    sourceLabel:'1928 tarihli eser bibliyografik olarak doğrulandı',
+    rightsStatus:'public-domain-turkey-author-term',
+    originalYear:1928,authorDeathYear:1951,
+    rightsNote:'Doğrulanmış tarihî tam metin bulunmadan uygulama metin üretmez.'
+  },
+  {
+    order:10,id:'ahlak-dersleri',title:'Ahlâk Dersleri',author:'Ahmed Hamdi Akseki',field:'Ahlâk',level:'Başlangıç +',
+    readerType:'generic',availability:'ready',coverGlyph:'ا',tone:'plum',
+    shortLabel:'Ahlâk ilmi ve İslâm ahlâkı',
+    sourceLabel:'1924 müellif metni · DİB dijital nüsha',
+    rightsStatus:'public-domain-turkey-author-term',
+    originalYear:1924,authorDeathYear:1951,requiresEditionReview:true,
+    asset:'public/data/books/ahlak-dersleri.json',
+    rightsNote:'Yayınevi ön maddeleri alınmaz; müellif metni özgün dilinde korunur ve AI açıklaması metne karıştırılmaz.'
+  }
+];
+
+export const STARTER_LIBRARY_BY_ID=Object.fromEntries(STARTER_LIBRARY.map(book=>[book.id,book]));
+export const starterBook=id=>STARTER_LIBRARY_BY_ID[id]||null;
+export const readyStarterBooks=()=>STARTER_LIBRARY.filter(book=>book.availability==='ready');
+export const pendingStarterBooks=()=>STARTER_LIBRARY.filter(book=>book.availability!=='ready');
