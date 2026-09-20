@@ -4,7 +4,7 @@ const object=value=>value&&typeof value==='object'&&!Array.isArray(value)?value:
 const uniq=list=>[...new Set(Array.isArray(list)?list.map(String):[])];
 
 export function emptyLibraryPathState(){
-  return {completedBooks:[],completedAt:{}};
+  return {completedBooks:[],completedAt:{},acknowledgedLevel:1};
 }
 
 export function normalizeLibraryPathState(input={}){
@@ -17,7 +17,8 @@ export function normalizeLibraryPathState(input={}){
       if(!Number.isNaN(date.getTime()))completedAt[id]=date.toISOString();
     }
   }
-  return {completedBooks,completedAt};
+  const acknowledgedLevel=Math.max(1,Math.min(5,Math.round(Number(raw.acknowledgedLevel)||1)));
+  return {completedBooks,completedAt,acknowledgedLevel};
 }
 
 export function setGenericBookCompleted(state,bookId,completed=true,at=new Date().toISOString()){
@@ -32,7 +33,7 @@ export function setGenericBookCompleted(state,bookId,completed=true,at=new Date(
   }else{
     set.delete(bookId);delete completedAt[bookId];
   }
-  return {completedBooks:[...set],completedAt};
+  return {completedBooks:[...set],completedAt,acknowledgedLevel:next.acknowledgedLevel};
 }
 
 export function isPathBookCompleted({book,pathState,hadithCompletedCount=0}){
@@ -87,6 +88,14 @@ export function libraryPathSnapshot({
     completedLevels,
     totalLevels:levels.length,
     completedBooks:state.completedBooks,
+    acknowledgedLevel:state.acknowledgedLevel,
+    transitionReady:currentLevel>state.acknowledgedLevel,
     levels
   };
+}
+
+
+export function acknowledgeLibraryLevel(state,level){
+  const next=normalizeLibraryPathState(state);
+  return {...next,acknowledgedLevel:Math.max(next.acknowledgedLevel,Math.max(1,Math.min(5,Math.round(Number(level)||1))))};
 }
