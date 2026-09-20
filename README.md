@@ -1,5 +1,7 @@
 # Manevî Rota v3.0
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fmehmetsaitkoc%2Fmanevi-rota)
+
 Manevî Rota; günlük manevî rutin, namaz/kaza takibi ve kişiselleştirilmiş **İlim Rotası**nı tek bir motorda birleştiren ürün prototipidir.
 
 ## Şu an çalışan çekirdek
