@@ -43,6 +43,7 @@ jobs:
             echo "No asset changes"
           else
             git commit -m "data: generate in-app library assets [skip library]"
+            git pull --rebase origin main
             git push origin HEAD:main
           fi
       - name: Sync generated assets to gh-pages
