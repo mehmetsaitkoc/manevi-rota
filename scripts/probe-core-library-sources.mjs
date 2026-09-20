@@ -88,6 +88,15 @@ const candidates=[
     expectedYears:[1926,1927],
     secondaryProbe:true,
     probeText:true,
+    knownCatalogRecords:[
+      {
+        institution:'Türk Tarih Kurumu Kütüphanesi',
+        recordId:'466358',
+        callNumber:'A.II/9030',
+        edition:'1. baskı · İstanbul · Kanaat Kütüphanesi · 1926 · 235+[4] s.',
+        access:'catalog-only-no-public-reusable-file-confirmed'
+      }
+    ],
     catalogEvidence:[
       {label:'TDV İslâm Ansiklopedisi',url:'https://islamansiklopedisi.org.tr/yorukan-yusuf-ziya',note:'Yusuf Ziya Yörükân (ö. 1954), Peygamberimiz, İstanbul 1926'},
       {label:'Marmara din eğitimi araştırması',url:'https://katalog.marmara.edu.tr/veriler/yordambt/cokluortam/3A/0FB88DCF-A7A7-F54B-8363-CCBC21E0C7BE.pdf',note:'1926 ilk neşir; 1927 ikinci baskı; orta mektep ikinci sınıf din dersleri bağlamı'}
@@ -105,6 +114,20 @@ const candidates=[
     expectedYears:[1924,1926],
     secondaryProbe:true,
     probeText:true,
+    knownCatalogRecords:[
+      {
+        institution:'Türk Tarih Kurumu Kütüphanesi',
+        recordId:'761204',
+        callNumber:'AKM/K/20768',
+        edition:'2. baskı · İstanbul · Kitâbhâne-i Hilmi · 1926–1927 · 185 s.',
+        access:'catalog-only-no-public-reusable-file-confirmed'
+      }
+    ],
+    productionGate:{
+      acceptedEditionYears:[1924,1926],
+      require:'reusable historical scan with edition identity and text-vs-scan review',
+      reject:['modern transliteration','simplified reprint','academic thesis transcription','gated commercial text without redistribution permission']
+    },
     catalogEvidence:[
       {label:'TDV İslâm Ansiklopedisi',url:'https://islamansiklopedisi.org.tr/ihtifalci-mehmed-ziya',note:'Mehmed Ziyâ (ö. 1930), Siyer-i Nebî, İstanbul 1340/1924'},
       {label:'Marmara Üniversitesi araştırması',url:'https://openaccess.marmara.edu.tr/entities/publication/e47e8b5d-bac7-4aa4-b069-3f7ac3687995',note:'1924 birinci ve 1926 ikinci baskı; tam kronolojik siyer ders kitabı olarak incelenmiştir'}
