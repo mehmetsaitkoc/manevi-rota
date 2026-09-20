@@ -463,13 +463,13 @@ function renderStarterBookCard(book,completedCount){
      ?`${esc(quranMeta(S.library.quran.surah).turkish)} · ${S.library.quran.ayah}. âyet`
      :ready&&book.readerType==='generic'
        ?`Okuma ${saved?.page||1} · kaldığın yerden`
-       :'Kaynak doğrulanıyor';
+       :book.availability==='source-verified'?'Tam metin nüshası bekleniyor':'Kaynak doğrulanıyor';
  const byline=book.author==='—'?'Arapça metin':book.author;
  return `<button class="starterBookCard tone-${esc(book.tone||'forest')} ${ready?'ready':'pending'}" data-starter-book="${esc(book.id)}" ${ready?'':'disabled'} aria-label="${esc(book.title)}">
    <div class="starterBookOrder">${book.order}</div>
    <div class="starterBookCover"><span>${esc(book.coverGlyph||'ك')}</span><small>${esc(book.field)}</small></div>
    <div class="starterBookInfo">
-     <div class="starterBookBadges"><span>${esc(book.level)}</span><span class="${ready?'available':'checking'}">${ready?'Okunabilir':'Kaynak doğrulanıyor'}</span></div>
+     <div class="starterBookBadges"><span>${esc(book.level)}</span><span class="${ready?'available':'checking'}">${ready?'Okunabilir':book.availability==='source-verified'?'Kaynak doğrulandı':'Kaynak doğrulanıyor'}</span></div>
      <b>${esc(book.title)}</b><small>${esc(byline)}</small><p>${esc(book.shortLabel)}</p><em>${progress}</em>
    </div>
    <i>${ready?'›':'·'}</i>
@@ -539,7 +539,7 @@ function renderIlimHome(){
  <section class="card libraryShelf premiumStarterShelf">
    <div class="sectionHead starterShelfHead">
      <div><div class="eyebrow">BAŞLANGIÇ KÜTÜPHANESİ</div><h2>10 eserlik sağlam başlangıç</h2><p>Az ama nitelikli. Metni ve kaynağı hazır olmayan eser okunabilir görünmez.</p></div>
-     <span class="sourcePill">${readyBookCount} okunabilir · ${STARTER_LIBRARY.length-readyBookCount} doğrulamada</span>
+     <span class="sourcePill">${readyBookCount} okunabilir · ${STARTER_LIBRARY.length-readyBookCount} tam metin bekliyor</span>
    </div>
    <div class="starterPath">${starterShelf}</div>
  </section>
