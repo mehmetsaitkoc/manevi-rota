@@ -42,3 +42,218 @@ nav{grid-template-columns:repeat(6,1fr)}
 .translationCard small{display:block;letter-spacing:.12em;font-size:.66rem;font-weight:900;color:#e8ca85;margin-bottom:11px}
 .translationCard p{font-family:Georgia,serif;line-height:1.82;color:#fffaf0;margin:0}
 .translationCard i{display:block;margin-top:12px;font-style:normal;font-size:.72rem;line-height:1.5;color:#cfe0da}
+
+
+/* v4.0 — premium visual system inspired by the Manevî Rota campaign art */
+:root{
+  --bg:#f2eadb;
+  --paper:#fffaf0;
+  --ink:#14372e;
+  --muted:#6f746d;
+  --brand:#123f34;
+  --brand2:#205a49;
+  --soft:#eef2e9;
+  --line:#dfd7c7;
+  --gold:#b68d49;
+  --shadow:0 20px 55px rgba(48,53,42,.10);
+}
+body{
+  background:
+    radial-gradient(circle at 8% 5%,rgba(76,112,83,.12),transparent 26rem),
+    radial-gradient(circle at 92% 4%,rgba(196,154,86,.14),transparent 25rem),
+    linear-gradient(180deg,#eee1ca 0,#f5efe5 36rem,#f2eadb 100%);
+  min-height:100vh;
+}
+.shell{width:min(940px,100%);padding:22px 16px 128px}
+.card{
+  background:rgba(255,250,240,.96);
+  border-color:rgba(102,90,63,.15);
+  border-radius:26px;
+  box-shadow:0 14px 38px rgba(41,52,44,.07);
+}
+.eyebrow{color:var(--gold);letter-spacing:.14em}
+h1,h2{letter-spacing:-.02em}
+h1{color:#143c31}
+
+/* Today screen */
+.premiumTodayHero{
+  background:
+    radial-gradient(circle at 88% 8%,rgba(225,196,132,.12),transparent 18rem),
+    linear-gradient(145deg,#0f3a30 0%,#174b3d 58%,#1e5948 100%);
+  color:#fff;
+  overflow:hidden;
+  position:relative;
+  border-color:rgba(255,255,255,.08);
+  padding:28px;
+  box-shadow:0 24px 58px rgba(15,58,48,.20);
+}
+.premiumTodayHero:before{
+  content:"";
+  position:absolute;
+  width:260px;height:260px;
+  border:1px solid rgba(222,192,126,.18);
+  border-radius:50% 50% 44% 44%;
+  right:-70px;top:-120px;
+}
+.premiumTodayHero .eyebrow{color:#e3c479}
+.premiumTodayHero h1{color:#fff;font-size:clamp(38px,7vw,58px);margin:6px 0 4px;font-family:Georgia,serif}
+.premiumTodayHero p{color:#d8e6df;margin:0}
+.premiumHeroTop{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.heroProgress{
+  width:88px;height:88px;flex:0 0 88px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:inset 0 0 0 7px rgba(255,255,255,.05);
+  display:grid;place-items:center;text-align:center;
+}
+.heroProgress b{font-size:24px;line-height:1}.heroProgress span{font-size:9px;color:#cfe0d9}
+.premiumRouteSummary{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 12px}
+.premiumRouteSummary span{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;color:#eef6f1}
+.premiumTodayHero .metrics{margin-top:10px}
+.premiumTodayHero .metric{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.09)}
+.premiumTodayHero .metric b{color:#fff}.premiumTodayHero .metric span{color:#c7d8d1}
+.premiumTodayHero .explain{background:rgba(255,255,255,.08);color:#e6efe9;border:1px solid rgba(255,255,255,.09)}
+
+.slotGroup{margin:12px 0 18px}
+.slotHead{padding:0 5px 9px}
+.slotHead b{font-family:Georgia,serif;font-size:18px;color:#173e34}
+.task{
+  border-radius:20px;
+  border-color:rgba(102,90,63,.14);
+  box-shadow:0 8px 24px rgba(38,51,43,.05);
+  background:rgba(255,252,245,.98);
+}
+.taskTop{grid-template-columns:40px 1fr auto}
+.ico{
+  width:40px;height:40px;border-radius:13px;
+  display:grid;place-items:center;
+  background:#16483b;color:#fff;
+  font-size:19px;
+}
+.task h3{font-family:Georgia,serif;font-size:17px}
+.task .method{color:#977637}
+.toggle{border-color:#b7b0a0}.task.done .toggle{background:#2c8a68}
+.taskDeepLink{background:#edf2e9;color:#1d5848}
+.prayerStrip{border-radius:22px!important;box-shadow:0 10px 28px rgba(37,53,44,.06)}
+
+/* Analysis / progress screen */
+.progressHero{
+  background:
+    radial-gradient(circle at 90% 8%,rgba(221,188,121,.12),transparent 17rem),
+    linear-gradient(145deg,#0e3b31,#174e3f);
+  color:#fff;
+  border-color:rgba(255,255,255,.08);
+  box-shadow:0 24px 58px rgba(15,58,48,.18);
+}
+.progressHero .eyebrow{color:#e4c77f}
+.progressHero h1{color:#fff;font-family:Georgia,serif;font-size:clamp(36px,6vw,52px)}
+.progressHero .lead{color:#d3e1db}
+.progressHero .metric{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08)}
+.progressHero .metric b{color:#fff}.progressHero .metric span{color:#c9dad3}
+.progressHero .explain{background:rgba(255,255,255,.08);color:#dbe8e2}
+.timeline{gap:10px}.day{border-radius:18px;background:rgba(255,252,245,.96);border-color:rgba(102,90,63,.13)}
+.day.today{border-color:#1b5b49;box-shadow:0 8px 26px rgba(24,76,61,.08)}
+.bar{height:9px;background:#e6e0d4}.bar>i{background:linear-gradient(90deg,#3c9872,#17533f)}
+
+/* Reader */
+.readerTop{
+  background:rgba(248,242,229,.93);
+  border:1px solid rgba(103,91,65,.10);
+  border-radius:18px;
+  padding:9px;
+  margin-bottom:14px;
+}
+.readerBack,.readerTools button{background:#fffaf0;color:#163f34;border:1px solid rgba(103,91,65,.10)}
+.hadisReader{
+  background:linear-gradient(180deg,#fffdf7,#fbf7ec);
+  border:1px solid rgba(103,91,65,.12);
+  box-shadow:0 20px 55px rgba(37,48,41,.08);
+  padding:30px 28px 44px;
+}
+.hadisReader>h1{font-size:clamp(34px,6vw,50px);color:#153d32}
+.hadithOriginal{
+  background:#fffaf0;
+  border-color:#e8dcc5;
+  box-shadow:0 10px 26px rgba(57,49,31,.04);
+}
+.hadithOriginal>p[dir=rtl]{font-size:1.65rem;line-height:2.25!important;color:#182a24}
+.translationCard{
+  background:#fffaf0;
+  color:#1d332b;
+  border:1px solid #eadfc9;
+  box-shadow:none;
+}
+.translationCard small{color:#a57b35}
+.translationCard p{color:#263d35}
+.translationCard i{color:#807b6f}
+.meaningCard{background:#173f36;color:#f8f2e3}
+.ilimParagraph p{font-size:1.08rem;line-height:2.08}
+.ilimSentence{padding:1px 2px}
+.ilimSentence.underlined{
+  background:linear-gradient(transparent 58%,var(--hl,rgba(230,196,111,.46)) 58%,var(--hl,rgba(230,196,111,.46)) 92%,transparent 92%);
+  border-bottom:2px solid var(--hl-line,rgba(177,138,75,.85));
+}
+.highlightPalette{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin:18px 0 6px;padding:12px 14px;border:1px solid #e7dec9;
+  border-radius:16px;background:#f8f3e7;
+}
+.highlightPalette>span{font-size:11px;font-weight:900;color:#775f32;letter-spacing:.05em}
+.highlightPalette>div{display:flex;gap:7px;align-items:center}
+.highlightPalette>small{width:100%;color:#898176;font-size:10px}
+.highlightSwatch{
+  width:30px;height:30px;border-radius:50%;border:2px solid transparent;
+  background:var(--sw);cursor:pointer;box-shadow:inset 0 0 0 1px rgba(30,40,35,.08)
+}
+.highlightSwatch.sel{border-color:#153f34;box-shadow:0 0 0 2px #fff,0 0 0 4px #153f34}
+.customHighlightColor{
+  width:34px;height:32px;padding:2px;border:1px solid #d8cfba;border-radius:10px;background:#fff;cursor:pointer
+}
+.noteComposer{background:#f4efdf}
+.reflectionCard{background:#edf2e9;border:1px solid #dce5dc}
+
+/* Ilim home */
+.ilimHero{
+  background:linear-gradient(145deg,#f8f0df,#fffaf1);
+  border-color:#e7dcc6;
+}
+.ilimHero h1{font-size:clamp(36px,6vw,52px);font-family:Georgia,serif}
+.todayHadis{
+  background:
+    radial-gradient(circle at 90% 5%,rgba(218,187,120,.13),transparent 15rem),
+    linear-gradient(145deg,#103c32,#1d5948);
+  color:white;border-color:rgba(255,255,255,.08);
+}
+.todayHadis .eyebrow{color:#e7c77a}.todayHadis h2{color:#fff;font-family:Georgia,serif;font-size:28px}
+.todayHadis p{color:#d8e4de}.todayHadis .sourcePill{background:rgba(255,255,255,.10);color:#e8efe9}
+.quickTile{border-radius:19px;background:#fffaf2;border-color:#e1d8c6}
+
+/* Navigation like the campaign mockup */
+nav{
+  bottom:14px;
+  width:min(820px,calc(100% - 22px));
+  border-radius:24px;
+  padding:8px;
+  background:rgba(255,251,242,.92);
+  border:1px solid rgba(98,88,65,.14);
+  box-shadow:0 18px 48px rgba(32,45,38,.15);
+}
+nav button{border-radius:16px;color:#7b8079;transition:.16s ease}
+nav button.active{background:#173f36;color:#fff;box-shadow:0 8px 20px rgba(23,63,54,.18)}
+nav button:hover{transform:translateY(-1px)}
+
+@media(max-width:700px){
+  .shell{padding-left:11px;padding-right:11px}
+  .premiumTodayHero{padding:22px 18px}
+  .premiumHeroTop{align-items:flex-start}
+  .heroProgress{width:72px;height:72px;flex-basis:72px}
+  .heroProgress b{font-size:20px}
+  .premiumTodayHero .metrics{grid-template-columns:1fr 1fr}
+  .hadisReader{padding:22px 16px 38px}
+  .readerTop{margin-left:0;margin-right:0}
+}
+@media(max-width:430px){
+  nav{gap:3px;padding:6px}
+  nav button{padding:8px 1px}
+  .taskTop{grid-template-columns:36px 1fr auto}
+  .ico{width:36px;height:36px}
+}
