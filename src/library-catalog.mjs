@@ -114,7 +114,20 @@ export const STARTER_LIBRARY=[
               institution:'Türk Tarih Kurumu Kütüphanesi',
               recordId:'761204',
               callNumber:'AKM/K/20768',
+              url:'https://kutuphane.ttk.gov.tr/details?id=761204&materialType=NE&query=Mehmed+%C4%B0brahim',
               edition:'2. baskı · İstanbul · Kitâbhâne-i Hilmi · 1926–1927 · 185 s.'
+            }
+          ],
+          knownRejectedSources:[
+            {
+              label:'KSÜ SAMER modern sadeleştirme',
+              url:'https://siyerinebi.ksu.edu.tr/depo/belgeler/64-%20Yusuf%20Ziy%C3%A2%20-%20Peygamberimiz%20(Sadele%C5%9Ftiren%20Merve%20Kantaro%C4%9Flu)_2102231654141093.pdf',
+              reason:'Modern sadeleştirme; cümle dizimi ve kelimeler editoryal olarak değiştirilmiştir.'
+            },
+            {
+              label:'Wikilala tam metin erişimi',
+              url:'https://www.wikilala.com/kitaplar/siyer-i-nebi-liselerin-birinci-devre-ikinci-siniflari-ile-kiz-ve-erkek-muallimleri-icin-en-son-tertib-olunan-programa-tevfikten-kaleme-alinmistir-265649',
+              reason:'Production için ticari yeniden kullanım izni doğrulanmamıştır.'
             }
           ],
           reject:[
