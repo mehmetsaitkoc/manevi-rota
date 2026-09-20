@@ -491,3 +491,24 @@ nav button:hover{transform:translateY(-1px)}
 }
 
 .starterBookBadges .alwaysOn{background:#e8edf5;color:#35516b}
+
+
+/* v4.8 — five-level guided library progression */
+.libraryLevelCard{padding:20px 22px;background:linear-gradient(145deg,#173f36,#214f43);border-color:#214f43;color:#fff;overflow:hidden}
+.libraryLevelTop{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start}
+.libraryLevelCard .eyebrow{color:#e7c77b}.libraryLevelCard h2{font-family:Georgia,serif;font-size:clamp(24px,5vw,33px);margin:5px 0 6px;color:#fff}.libraryLevelCard p{color:#d6e1dc;margin:0}.libraryLevelCard .small{margin-top:11px;color:#c7d6d0}
+.libraryLevelBadge{min-width:92px;padding:12px;border:1px solid rgba(255,255,255,.15);border-radius:16px;background:rgba(255,255,255,.08);text-align:center}.libraryLevelBadge b{display:block;font-size:22px}.libraryLevelBadge span{display:block;margin-top:3px;font-size:8px;line-height:1.25;color:#cbdad4;text-transform:uppercase;letter-spacing:.05em}
+.libraryLevelProgress{height:8px;margin:15px 0 10px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}.libraryLevelProgress i{display:block;height:100%;border-radius:inherit;background:#e3c276;transition:width .25s ease}
+.libraryLevelMeta{display:flex;flex-wrap:wrap;gap:7px}.libraryLevelMeta span{display:inline-flex;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.09);font-size:9px;font-weight:800;color:#e8f0ed}
+.libraryLevelCard .btn{margin-top:13px;background:#f4ead0;border-color:#f4ead0;color:#173f36;width:auto}
+.starterStage.current{border-color:#b99a5f;box-shadow:0 10px 30px rgba(53,62,52,.07)}.starterStage.complete{background:#f2f7f3;border-color:#cbded3}.starterStage.next{border-color:#d7d1c5}
+.starterStageStatus.complete{background:#dcece3;color:#285a49}.starterStageStatus.current{background:#173f36;color:#fff}.starterStageStatus.next{background:#eee1bd;color:#725a24}.starterStageStatus.later{background:#eee9df;color:#786f62}
+.starterStageMeta{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 11px 49px}.starterStageMeta span{font-size:8px;font-weight:800;padding:5px 7px;border-radius:999px;background:#f0ece2;color:#746c60}.starterStageMeta .sourcePending{background:#f5e9df;color:#8a5d43}
+.starterBookCard.completed{border-color:#bfd7c8;background:#f3f8f4}.starterBookCard.completed .starterBookOrder{background:#2d6553;color:#fff}.starterBookBadges .done{background:#dcece3;color:#285a49}
+.genericBookCompletion{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:12px 0;padding:16px 17px;border:1px solid #ded4c0;border-radius:19px;background:#fffaf0}.genericBookCompletion.done{background:#eef6f0;border-color:#c7ddcf}.genericBookCompletion>div{min-width:0}.genericBookCompletion small{display:block;color:#9b7a43;font-size:8px;font-weight:900;letter-spacing:.08em}.genericBookCompletion b{display:block;margin:3px 0 3px;color:#173f36;font-family:Georgia,serif;font-size:17px}.genericBookCompletion p{margin:0;font-size:10px;line-height:1.45;color:#777064}.genericBookCompletion .btn{margin:0;width:auto;white-space:nowrap;font-size:10px;padding:10px 12px}
+.genericBookFocusMode .genericBookCompletion{display:none}
+@media(max-width:620px){
+ .libraryLevelTop{grid-template-columns:1fr}.libraryLevelBadge{width:max-content;min-width:86px;text-align:left}.libraryLevelBadge b,.libraryLevelBadge span{display:inline}.libraryLevelBadge span{margin-left:5px}
+ .starterStageMeta{margin-left:43px}
+ .genericBookCompletion{align-items:stretch;flex-direction:column}.genericBookCompletion .btn{width:100%}
+}
