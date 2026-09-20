@@ -118,6 +118,8 @@ jobs:
             await page.click('#genericBookFocus');
             await page.click('#genericBookBack');
             await page.waitForSelector('[data-starter-book="quran"]',{timeout:10000});
+            const resumeTitle=await page.locator('.continueReadingCard h2').innerText();
+            if(!resumeTitle.includes('Namaz Sûrelerinin'))throw new Error('Last-read library card did not resume the actual book: '+resumeTitle);
 
             await page.click('[data-starter-book="quran"]');
             await page.waitForSelector('.quranAyah',{timeout:10000});
