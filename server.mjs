@@ -3,12 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {PILOT_SCHEMA_VERSION,sanitizePilotBatch} from './src/pilot-telemetry.mjs';
+import {pilotEventsToSupabaseRows} from './src/pilot-supabase.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
 const port=Number(process.env.PORT||3000);
 const version='3.0.0';
 const pilotIngestUrl=String(process.env.PILOT_INGEST_URL||'').trim();
 const pilotIngestToken=String(process.env.PILOT_INGEST_TOKEN||'').trim();
+const pilotSupabaseUrl=String(process.env.PILOT_SUPABASE_URL||'').replace(/\/$/,'');
+const pilotSupabaseKey=String(process.env.PILOT_SUPABASE_KEY||'').trim();
+const pilotCollectorConfigured=Boolean((pilotSupabaseUrl&&pilotSupabaseKey)||pilotIngestUrl);
 const types={
   '.html':'text/html; charset=utf-8',
   '.js':'text/javascript; charset=utf-8',
@@ -82,21 +86,42 @@ async function handlePilotEvents(req,res){
   }
   const events=sanitizePilotBatch(body);
   if(!events.length)return json(res,400,{ok:false,error:'no_valid_events'});
-  if(!pilotIngestUrl){
+  if(!pilotCollectorConfigured){
     return json(res,202,{ok:true,accepted:0,collectorConfigured:false,schemaVersion:PILOT_SCHEMA_VERSION});
   }
   try{
-    const headers={'content-type':'application/json'};
-    if(pilotIngestToken)headers.authorization=`Bearer ${pilotIngestToken}`;
-    const upstream=await fetch(pilotIngestUrl,{
-      method:'POST',
-      headers,
-      body:JSON.stringify({source:'manevi-rota',schemaVersion:PILOT_SCHEMA_VERSION,events}),
-      signal:AbortSignal.timeout(8000)
-    });
-    if(!upstream.ok)return json(res,502,{ok:false,error:'collector_rejected',collectorConfigured:true});
+    let upstream;
+    if(pilotSupabaseUrl&&pilotSupabaseKey){
+      const rows=pilotEventsToSupabaseRows(events);
+      upstream=await fetch(`${pilotSupabaseUrl}/rest/v1/pilot_events`,{
+        method:'POST',
+        headers:{
+          'content-type':'application/json',
+          'apikey':pilotSupabaseKey,
+          'authorization':`Bearer ${pilotSupabaseKey}`,
+          'prefer':'resolution=ignore-duplicates,return=minimal'
+        },
+        body:JSON.stringify(rows),
+        signal:AbortSignal.timeout(8000)
+      });
+    }else{
+      const headers={'content-type':'application/json'};
+      if(pilotIngestToken)headers.authorization=`Bearer ${pilotIngestToken}`;
+      upstream=await fetch(pilotIngestUrl,{
+        method:'POST',
+        headers,
+        body:JSON.stringify({source:'manevi-rota',schemaVersion:PILOT_SCHEMA_VERSION,events}),
+        signal:AbortSignal.timeout(8000)
+      });
+    }
+    if(!upstream.ok){
+      const detail=await upstream.text().catch(()=>'');
+      console.warn('Pilot collector rejected batch',upstream.status,detail.slice(0,300));
+      return json(res,502,{ok:false,error:'collector_rejected',collectorConfigured:true});
+    }
     return json(res,200,{ok:true,accepted:events.length,collectorConfigured:true,schemaVersion:PILOT_SCHEMA_VERSION});
-  }catch{
+  }catch(err){
+    console.warn('Pilot collector unavailable',err?.message||err);
     return json(res,503,{ok:false,error:'collector_unavailable',collectorConfigured:true});
   }
 }
@@ -104,10 +129,10 @@ async function handlePilotEvents(req,res){
 http.createServer(async(req,res)=>{
   const pathname=(req.url||'/').split('?')[0];
   if(pathname==='/healthz'){
-    return json(res,200,{ok:true,service:'manevi-rota',version,pilotCollectorConfigured:Boolean(pilotIngestUrl)});
+    return json(res,200,{ok:true,service:'manevi-rota',version,pilotCollectorConfigured});
   }
   if(pathname==='/api/pilot/status'&&req.method==='GET'){
-    return json(res,200,{ok:true,schemaVersion:PILOT_SCHEMA_VERSION,collectorConfigured:Boolean(pilotIngestUrl)});
+    return json(res,200,{ok:true,schemaVersion:PILOT_SCHEMA_VERSION,collectorConfigured:pilotCollectorConfigured});
   }
   if(pathname==='/api/pilot/events'&&req.method==='POST'){
     return handlePilotEvents(req,res);
