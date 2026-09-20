@@ -14,8 +14,10 @@ on:
       - 'src/quran-reader.mjs'
       - 'src/library-catalog.mjs'
       - 'src/book-reader.mjs'
+      - 'src/library-path.mjs'
       - 'scripts/library-catalog.mjs'
       - 'scripts/book-reader.mjs'
+      - 'scripts/library-path.mjs'
       - 'src/pilot-telemetry.mjs'
       - 'scripts/pilot-telemetry.mjs'
       - 'scripts/pilot-server.mjs'
@@ -100,6 +102,9 @@ jobs:
             if(shelfCount!==10)throw new Error('Starter library must render exactly 10 works, got '+shelfCount);
             const starterStages=await page.locator('[data-starter-stage]').count();
             if(starterStages!==5)throw new Error('Starter library must render five reading levels, got '+starterStages);
+            await page.waitForSelector('.libraryLevelCard',{timeout:5000});
+            const levelCardText=await page.locator('.libraryLevelCard').innerText();
+            if(!levelCardText.includes('Seviye 1'))throw new Error('Library level guidance did not start at level 1');
 
             await page.click('[data-starter-book="namaz-sureleri-tefsiri"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
@@ -116,10 +121,26 @@ jobs:
             await page.waitForTimeout(120);
             await page.screenshot({path:'visual-review/03b-premium-book-focus.png',fullPage:true});
             await page.click('#genericBookFocus');
+            const completeInitiallyDisabled=await page.locator('#genericBookComplete').isDisabled();
+            if(!completeInitiallyDisabled)throw new Error('Book completion must stay disabled before the last 15 percent');
+            const maxPage=Number(await page.locator('#genericBookPageInput').getAttribute('max'));
+            await page.locator('#genericBookPageInput').fill(String(maxPage));
+            await page.locator('#genericBookPageInput').dispatchEvent('change');
+            await page.waitForTimeout(180);
+            if(await page.locator('#genericBookComplete').isDisabled())throw new Error('Book completion did not unlock near the end');
+            await page.click('#genericBookComplete');
+            const pathState=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.path,key);
+            if(!pathState?.completedBooks?.includes('namaz-sureleri-tefsiri'))throw new Error('Completed book was not persisted in library path state');
+            await page.evaluate(()=>window.scrollTo(0,0));
+            await page.waitForTimeout(100);
+            await page.screenshot({path:'visual-review/03c-premium-book-completed.png',fullPage:true});
             await page.click('#genericBookBack');
             await page.waitForSelector('[data-starter-book="quran"]',{timeout:10000});
             const resumeTitle=await page.locator('.continueReadingCard h2').innerText();
             if(!resumeTitle.includes('Namaz Sûrelerinin'))throw new Error('Last-read library card did not resume the actual book: '+resumeTitle);
+            const completedBadge=await page.locator('[data-starter-book="namaz-sureleri-tefsiri"] .starterBookBadges').innerText();
+            if(!completedBadge.includes('Tamamlandı'))throw new Error('Completed library book badge did not update');
+            await page.screenshot({path:'visual-review/03d-library-level-progress.png',fullPage:true});
 
             await page.click('[data-starter-book="quran"]');
             await page.waitForSelector('.quranAyah',{timeout:10000});
