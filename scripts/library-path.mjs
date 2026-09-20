@@ -21,6 +21,8 @@ const initial=libraryPathSnapshot({pathState:state,hadithCompletedCount:0});
 assert.equal(initial.totalLevels,5);
 assert.equal(initial.currentLevel,1);
 assert.equal(initial.levels[0].status,'current');
+assert.equal(initial.levels[0].goals.length,3);
+assert.ok(initial.levels[0].goals.every(goal=>goal.length>=40));
 assert.equal(initial.levels[0].sourcePending,false,'level one must be fully readable so the path can genuinely begin');
 
 const completedReady=setGenericBookCompleted(state,'islam-dini',true);
