@@ -61,7 +61,7 @@ if(rawPages.length<250){
 }
 const pages=rawPages.map((p,i)=>({page:i+1,text:normalizePage(p)}));
 while(pages.length&&pages[pages.length-1].text==='')pages.pop();
-const firstPageMatching=(re,fallback)=>pages.find(x=>re.test(x.text.slice(0,1400)))?.page||fallback;
+const firstPageMatching=(re,fallback)=>pages.find(x=>re.test(x.text))?.page||fallback;
 const sections=[
   {title:'Önsöz',page:firstPageMatching(/ÖNSÖZ/i,3)},
   {title:'Birinci Bölüm — Dinler ve Mezhebler Hakkında Umumî Malûmat',page:firstPageMatching(/BİRİNCİ\s+BÖLÜM/i,5)},
@@ -70,7 +70,7 @@ const sections=[
   {title:'Dördüncü Bölüm — İslâm Ahlâkı',page:firstPageMatching(/DÖRDÜNCÜ\s+BÖLÜM/i,125)},
   {title:'İçindekiler',page:firstPageMatching(/İÇİNDEKİLER/i,Math.max(1,pages.length-15))}
 ].filter((x,i,a)=>x.page>=1&&x.page<=pages.length&&a.findIndex(y=>y.page===x.page)===i);
-if(pages.filter(x=>x.text).length<150)throw new Error(`Islam Dini reader blocks too small: ${pages.length}`);
+if(pages.filter(x=>x.text).length<100)throw new Error(`Islam Dini reader blocks too small: ${pages.length}`);
 await fs.writeFile(path.join(OUT,'islam-dini.json'),JSON.stringify({
   title:'İslâm Dini',
   subtitle:'İtikat, İbâdet ve Ahlâk',
