@@ -155,6 +155,11 @@ export const STARTER_LIBRARY=[
           ],
           knownRejectedSources:[
             {
+              label:'Diyanet 2015 Hâtemü’l-Enbiyâ',
+              url:'https://dijital.diyanet.gov.tr/File/Download?id=4042&path=4042_1.pdf',
+              reason:'Farklı müellif eseri; 2015 baskı, modern tashih ve © Diyanet editoryal katmanı içerir.'
+            },
+            {
               label:'KSÜ SAMER Yörükân sadeleştirmesi',
               url:'https://siyerinebi.ksu.edu.tr/depo/belgeler/64-%20Yusuf%20Ziy%C3%A2%20-%20Peygamberimiz%20(Sadele%C5%9Ftiren%20Merve%20Kantaro%C4%9Flu)_2102231654141093.pdf',
               reason:'Modern sadeleştirme; cümle dizimi ve kelimeler editoryal olarak değiştirilmiştir.'
