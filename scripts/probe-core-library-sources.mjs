@@ -35,6 +35,25 @@ async function json(url,timeout=10000){
   if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);
   return r.json();
 }
+const clean=s=>String(s||'').replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+const ctx=(src,index,radius=220)=>index<0?null:clean(src.slice(Math.max(0,index-radius),Math.min(src.length,index+radius)));
+async function textProbe(identifier,files){
+  const djvu=files.find(f=>/djvu\.txt$/i.test(String(f?.name||'')));
+  if(!djvu?.name)return null;
+  try{
+    const u=`https://archive.org/download/${identifier}/${encodeURIComponent(djvu.name)}`;
+    const r=await fetch(u,{headers:{'user-agent':UA,'accept':'text/plain,*/*'},signal:AbortSignal.timeout(30000)});
+    if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);
+    const text=await r.text();
+    const needles=['Ahmed Cevdet','Ahmet Cevdet','Cevdet Paşa','Kısas-ı Enbiya','Kısas-ı Enbiyâ','Hazreti Muhammed','Hz. Muhammed','Muhammed aleyhisselam','Resûlullah','Peygamberimiz'];
+    const hits={};
+    for(const needle of needles){
+      const i=text.toLocaleLowerCase('tr-TR').indexOf(needle.toLocaleLowerCase('tr-TR'));
+      if(i>=0)hits[needle]={index:i,context:ctx(text,i)};
+    }
+    return {url:u,charCount:text.length,head:clean(text.slice(0,1800)),hits};
+  }catch(err){return {error:String(err.message||err)}}
+}
 async function searchOne(c){
   const queries=[];
   for(const title of c.titles){
@@ -59,10 +78,12 @@ async function searchOne(c){
       const files=(m?.files||[]).filter(f=>/(djvu\.txt|\.txt$|\.pdf$|\.epub$)/i.test(String(f?.name||''))).map(f=>({
         name:f.name,size:Number(f.size||0)||null,format:f.format||null,source:f.source||null
       }));
+      const contentProbe=c.id==='kisas-cevdet'?await textProbe(row.identifier,files):null;
       return {
         identifier:row.identifier,title:row.title||'',creator:row.creator||'',year:row.year||null,
         metadata:{date:m?.metadata?.date||null,year:m?.metadata?.year||null,language:m?.metadata?.language||null,rights:m?.metadata?.rights||null,licenseurl:m?.metadata?.licenseurl||null},
-        files:files.slice(0,20)
+        files:files.slice(0,20),
+        ...(contentProbe?{contentProbe}:{})
       };
     }catch(err){return {identifier:row.identifier,title:row.title||'',error:String(err.message||err)}}
   }));
