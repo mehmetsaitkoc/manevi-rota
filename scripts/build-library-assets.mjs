@@ -48,7 +48,7 @@ const normalizePdfPage=text=>String(text||'')
   .filter(line=>!/\.indd\b/i.test(line))
   .filter(line=>!/Semih Ofset/i.test(line))
   .join('\n')
-  .replace(/([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])-\n([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])/g,'$1$2')
+  .replace(/([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])[\-‐‑‒–—]\s*\n\s*([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])/g,'$1$2')
   .replace(/\n{3,}/g,'\n\n')
   .trim();
 
@@ -81,7 +81,11 @@ async function buildTextBook({
   let pages=rawPages.map((page,i)=>({page:i+1,text:normalizeArchivePage(page)})).filter(x=>x.text);
   if(startAtMatcher){
     const start=pages.findIndex(x=>startAtMatcher.test(x.text));
-    if(start>0)pages=pages.slice(start).map((x,i)=>({...x,page:i+1,sourcePage:x.page}));
+    if(start>=0){
+      pages=pages.slice(start).map((x,i)=>({...x,page:i+1,sourcePage:x.sourcePage||x.page}));
+      const first=pages[0],match=first?.text?.match(startAtMatcher);
+      if(match?.index>0)pages[0]={...first,text:first.text.slice(match.index).trim()};
+    }
   }
   const joined=pages.map(x=>x.text).join('\n\n');
   if(pages.length<minReaderPages)throw new Error(`${title}: reader pages too small (${pages.length})`);
