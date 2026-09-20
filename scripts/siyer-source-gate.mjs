@@ -16,6 +16,11 @@ assert.ok(siyer.sourceGate?.catalogRecords?.some(x=>x.recordId==='423781'&&x.cal
 assert.equal(siyer.sourceGate?.preferredScript,'latin');
 assert.match(siyer.sourceGate?.selectionReason||'',/Latin harfli|Latin/i);
 assert.ok(siyer.sourceGate?.catalogRecords?.some(x=>x.institution==='Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi'&&x.callNumber==='297.92 AKS.P'&&x.inventory==='09768'));
+assert.ok(siyer.sourceGate?.contentQualityGate?.approvalRequiredBeforeReady===true);
+assert.equal(siyer.sourceGate?.contentQualityGate?.status,'review-required');
+assert.ok(siyer.sourceGate?.contentQualityGate?.knownConcerns?.some(x=>x.type==='historical-claim'));
+assert.match(siyer.sourceGate?.contentQualityGate?.decisionRule||'',/READY yapılmaz/);
+assert.ok(siyer.sourceGate?.fallbackCandidates?.some(x=>x.id==='asri-saadet-siyret'&&x.editionYears?.includes(1928)&&/ciddi tahlil|ilmî/i.test(x.contentEvidence||'')));
 assert.ok(siyer.sourceGate?.fallbackCandidates?.some(x=>x.id==='siyer-i-nebi-mehmed-ziya'&&x.editionYears?.includes(1924)));
 assert.ok(siyer.sourceGate?.fallbackCandidates?.some(x=>x.id==='yorukan-peygamberimiz-1926'&&x.editionYears?.includes(1926)));
 assert.ok((siyer.sourceGate?.reject||[]).some(x=>/academic thesis/i.test(x)));
