@@ -15,6 +15,16 @@ const candidates=[
     id:'tanri-buyrugu',
     titles:['Tanrı Buyruğu','Tanri Buyrugu'],
     creators:['Ömer Rıza Doğrul','Omer Riza Dogrul']
+  },
+  {
+    id:'kisas-cevdet',
+    titles:['Kısas-ı Enbiya','Kısas-ı Enbiyâ','Kısas-ı Enbiya ve Tevarih-i Hulefa','Peygamber Efendimizin Hayatı'],
+    creators:['Ahmed Cevdet Paşa','Ahmet Cevdet Paşa','Cevdet Paşa','Ahmed Cevdet']
+  },
+  {
+    id:'kurandan-ayetler',
+    titles:["Kur'an'dan Ayetler","Kur’ân’dan Âyetler",'Kurandan Ayetler','Kur’an’dan Ayetler ve Nesirler'],
+    creators:['Mehmet Akif Ersoy','Mehmed Akif Ersoy','Ömer Rıza Doğrul','Omer Riza Dogrul']
   }
 ];
 
