@@ -37,7 +37,7 @@ jobs:
       - name: Capture real UI
         run: |
           mkdir -p visual-review
-          cat > /tmp/capture.cjs <<'NODE'
+          cat > capture.cjs <<'NODE'
           const { chromium } = require('playwright');
           (async () => {
             const browser = await chromium.launch({headless:true});
@@ -93,7 +93,7 @@ jobs:
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
-          node /tmp/capture.cjs
+          node capture.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: visual-review
