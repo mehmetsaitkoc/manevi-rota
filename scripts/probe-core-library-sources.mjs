@@ -72,6 +72,44 @@ const candidates=[
     ]
   },
   {
+    id:'akseki-peygamberimiz-1955',
+    titles:['Peygamberimiz Hazret-i Muhammed Aleyhisselam ve Müslümanlık','Peygamberimiz Hazreti Muhammed Aleyhisselam ve Müslümanlık','Peygamberimiz Hazret-i Muhammed ve Müslümanlık'],
+    creators:['Ahmed Hamdi Akseki','Ahmet Hamdi Akseki','A. Hamdi Akseki'],
+    extraQueries:[
+      '(title:(Peygamberimiz) AND creator:(Akseki) AND year:1955) AND mediatype:texts',
+      '(creator:(Akseki) AND year:1955) AND mediatype:texts',
+      '("Peygamberimiz" AND "Müslümanlık" AND year:1955) AND mediatype:texts'
+    ],
+    expectedYears:[1955],
+    secondaryProbe:true,
+    probeText:true,
+    preferredScript:'latin',
+    knownCatalogRecords:[
+      {
+        institution:'Diyanet İşleri Başkanlığı yayın bibliyografyası',
+        publicationNo:'40',
+        edition:'2. baskı · Ankara · 1955 · 160 s.',
+        access:'bibliographic-record-no-public-reusable-file-confirmed'
+      },
+      {
+        institution:'Sakarya Üniversitesi Mehmet Uzun (Baboğlu) Koleksiyonu',
+        recordId:'Baboğlu 065840',
+        edition:'Ankara · Diyanet İşleri Yayınları · 1955 · 159 s.',
+        access:'catalog-only-no-public-reusable-file-confirmed'
+      }
+    ],
+    productionGate:{
+      conditional:true,
+      require:'full reusable scan plus body comparison against the 1934 author text',
+      editionComparisonRequired:true,
+      reject:['publisher or Diyanet front matter mixed into author text','posthumous editorial additions not separable from author text','preview/snippet-only source','gated text without redistribution permission']
+    },
+    catalogEvidence:[
+      {label:'Diyanet yayın bibliyografyası',url:'https://makale.isam.org.tr/server/api/core/bitstreams/824e1fd4-bbd0-47c5-94ad-bfa27a46156b/content',note:'2. baskı · Ankara 1955 · 160 s. · Yayın No: 40'},
+      {label:'Sakarya Üniversitesi bağış kitapları bibliyografyası',url:'https://acikerisim.sakarya.edu.tr/bitstream/handle/20.500.12619/97274/Sakarya%20%C3%9Cniversitesi%20Mehmet%20Uzun%20%28Babo%C4%9Flu%29%20Ba%C4%9F%C4%B1%C5%9F%20Kitaplar%20Bibliyografyas%C4%B1%20%281%29.pdf?isAllowed=y&sequence=1',note:'Baboğlu 065840 · Ankara 1955 · 159 s.'}
+    ]
+  },
+  {
     id:'akseki-missing-core',
     secondaryProbe:true,
     titles:['Peygamberimizin Vecizeleri','Kuvvetli İman Kuvvetli İrade'],
