@@ -8,6 +8,7 @@ import {normalizeBookReaderState,bookHighlight,bookNote,toggleBookHighlight,setB
 import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,isPathBookCompleted,libraryPathSnapshot,acknowledgeLibraryLevel} from '../src/library-path.mjs';
 import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilotRoutePayload,pilotDayPayload} from '../src/pilot-telemetry.mjs';
 import {genericNotebookRefs,quranNotebookRefs,filterNotebookEntries,groupNotebookEntries,notebookSummary} from '../src/ilim-notebook.mjs';
+import {rankReadingRecommendations} from '../src/reading-recommendation.mjs';
 
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
@@ -284,8 +285,21 @@ function renderToday(){
  const hidden=new Set(d.dismissedTimeSuggestions||[]),suggestion=(r.timeSuggestions||[]).find(x=>!hidden.has(x.taskId));
  const grouped=Object.keys(TIME_SLOTS).map(slot=>({slot,tasks:r.tasks.filter(x=>x.slot===slot)})).filter(g=>g.tasks.length);
  const ps=prayerSummary(),qp=qadaTargetProgress(S.qada,today());
+ const bookTotals=Object.fromEntries([...genericBookCache.entries()].map(([id,data])=>[id,Number(data?.pages?.length||0)]));
+ const readingCandidates=rankReadingRecommendations({date:today(),profile:S.profile,checkin:d.checkin,library:S.library,ilim:S.ilim,records:records(),bookTotals});
+ const candidateCount=Math.min(3,readingCandidates.length);
+ const storedRecommendationIndex=S.library.recommendationDay===today()?Number(S.library.recommendationIndex||0):0;
+ const readingIndex=candidateCount?Math.max(0,storedRecommendationIndex)%candidateCount:0;
+ const readingRec=readingCandidates[readingIndex]||null;
  const taskHtml=x=>{const t=TASK_CATALOG[x.id],isDone=done.has(x.id),fb=d.taskFeedback?.[x.id],ilimLink=['learning','reading'].includes(x.id);return `<section class="task premiumTask ${isDone?'done':''}"><div class="taskTop"><div class="ico">${t.icon}</div><div class="taskMain"><div class="taskTitleLine"><h3>${t.title}</h3><span>${x.duration} dk</span></div><div class="reason">${esc(t.description)}</div><div class="method">${esc(x.method)}</div>${ilimLink?`<button class="taskDeepLink" data-open-ilim="1">Kitaplığı aç →</button>`:''}<details class="taskWhy"><summary>Neden bugün?</summary><p>${x.reasons.length?x.reasons.map(esc).join(' · '):'Genel denge için'}</p></details></div><button class="toggle" data-task="${x.id}" aria-label="Görevi tamamla">✓</button></div>${isDone?`<div class="taskFeedback"><button class="${fb==='hard'?'sel':''}" data-tf="${x.id}:hard">Zor</button><button class="${fb==='normal'?'sel':''}" data-tf="${x.id}:normal">Tam kıvamında</button><button class="${fb==='easy'?'sel':''}" data-tf="${x.id}:easy">Rahat</button></div>`:''}</section>`};
- app.innerHTML=`<section class="card hero premiumTodayHero"><div class="premiumHeroTop"><div><div class="eyebrow">MANEVÎ ROTA · BUGÜN</div><h1>Bugünün Rotası</h1><p>Küçük adımlar, sürdürülebilir bir düzen.</p></div><div class="heroProgress"><b>${progress}%</b><span>tamamlandı</span></div></div><div class="premiumRouteSummary"><span>${r.mode}</span><span>${r.totalMinutes} dk</span><span>${r.tasks.length} görev</span><span>Motor: ${r.confidenceLabel}</span></div><div class="metrics"><div class="metric"><b>${r.totalMinutes} dk</b><span>Plan</span></div><div class="metric"><b>${r.tasks.length}</b><span>Görev</span></div><div class="metric"><b>${progress}%</b><span>Tamamlandı</span></div><div class="metric"><b>${r.evidence.days}</b><span>Kanıt günü</span></div></div><div class="explain">🧠 ${r.why.map(esc).join(' ')}</div></section>
+ app.innerHTML=`${readingRec?`<section class="card readingRecommendationCard" data-reading-kind="${esc(readingRec.kind)}">
+   <div class="readingRecommendationTop"><div><div class="eyebrow">BUGÜN NE OKUYAYIM?</div><h2><span>${readingRec.minutes} dk</span> ${esc(readingRec.title)}</h2><p>Tek bir net öneri; gerçek okuma ritmin ve bugünkü kapasitenle sınırlandı.</p></div><span class="readingRecommendationLevel">Seviye ${readingRec.activeLevel}</span></div>
+   <div class="readingRecommendationLocation"><small>${readingRec.kind==='hadith-review'?'ÖNCE TEKRAR':'KALDIĞIN YER'}</small><b>${esc(readingRec.locator||readingRec.title)}</b></div>
+   <details class="readingRecommendationWhy"><summary>Neden bunu seçtim?</summary><ul>${(readingRec.reasons||[]).slice(0,4).map(reason=>`<li>${esc(reason)}</li>`).join('')||'<li>Bugünkü süre ve okuma rotanla uyumlu.</li>'}</ul></details>
+   <div class="readingRecommendationActions"><button class="btn primary" id="startReadingRecommendation">Okumaya Başla</button>${candidateCount>1?'<button class="readingRecommendationAlt" id="nextReadingRecommendation">Başka öneri</button>':''}</div>
+ </section>`:''}
+ <section class="card hero premiumTodayHero"><div class="premiumHeroTop"><div><div class="eyebrow">MANEVÎ ROTA · BUGÜN</div><h1>Bugünün Rotası</h1><p>Küçük adımlar, sürdürülebilir bir düzen.</p></div><div class="heroProgress"><b>${progress}%</b><span>tamamlandı</span></div></div><div class="premiumRouteSummary"><span>${r.mode}</span><span>${r.totalMinutes} dk</span><span>${r.tasks.length} görev</span><span>Motor: ${r.confidenceLabel}</span></div><div class="metrics"><div class="metric"><b>${r.totalMinutes} dk</b><span>Plan</span></div><div class="metric"><b>${r.tasks.length}</b><span>Görev</span></div><div class="metric"><b>${progress}%</b><span>Tamamlandı</span></div><div class="metric"><b>${r.evidence.days}</b><span>Kanıt günü</span></div></div><div class="explain">🧠 ${r.why.map(esc).join(' ')}</div></section>
+
  <section class="card engineAnalysis compactEngine"><details><summary><span>🧠 Rota neden böyle?</span><b>${esc(a.decision||r.mode)}</b></summary><div class="engineGrid"><div><small>Kanıt</small><b>${a.evidenceDays||0} gün</b></div><div><small>Etkin kanıt</small><b>${a.effectiveEvidenceDays??0} gün</b></div><div><small>Kanıt tazeliği</small><b>${esc(a.evidenceStatus||'—')} · %${a.evidenceFreshness??0}</b></div><div><small>Motor güveni</small><b>${a.confidence??r.confidence}%</b></div><div><small>Başlangıç profili etkisi</small><b>%${a.priorWeight??100}</b></div><div><small>Aşırı yük riski</small><b>%${a.overloadRisk??0}</b></div><div><small>Dönemsel kapasite</small><b>${esc(a.capacityPhase||'Veri topluyor')}</b></div><div><small>Davranış değişimi</small><b>${esc(a.behaviorShift||'Belirsiz')}</b></div><div><small>Yakın dönem tamamlama</small><b>${behaviorReady?`%${a.recentCompletion}`:'Veri bekliyor'}</b></div><div><small>Öğrenilmiş günlük doz</small><b>${a.learnedSustainableMinutes?`${a.learnedSustainableMinutes} dk`:'Henüz yok'}</b></div><div><small>Doğrulanmış rutin</small><b>${a.verifiedRoutines?.length||0}</b></div><div><small>Yeniden doğrulama</small><b>${a.revalidationRoutines?.length||0}</b></div><div><small>Yumuşak geri dönüş</small><b>${a.returnAreas?.length?`${a.returnAreas.length} rutin`:'Yok'}</b></div><div><small>Müdahale hafızası</small><b>${a.interventionInsights?.length?`${a.interventionInsights.length} örüntü`:'Veri topluyor'}</b></div></div>${a.contradictions?.length?`<div class="analysisSignals">${a.contradictions.map(x=>`<p>↳ ${esc(x)}</p>`).join('')}</div>`:''}${a.interventionInsights?.length?`<div class="analysisSignals"><p><b>Motorun öğrendiği müdahaleler</b></p>${a.interventionInsights.slice(0,3).map(x=>{const ctx=Object.entries(x.contexts||{}).sort((a,b)=>(b[1].samples||0)-(a[1].samples||0))[0];const ctxText=ctx?` · ${policyContextLabel(ctx[0])}: ${ctx[1].policy==='repeat'?'işe yarıyor':ctx[1].policy==='change'?'yaklaşımı değiştir':ctx[1].policy==='revalidate'?'yeniden doğrula':'izleniyor'}`:'';return `<p>↳ ${esc(TASK_CATALOG[x.taskId]?.title||x.taskId)} · ${esc(x.kind)} · ${x.policy==='repeat'?'tekrar edilebilir':x.policy==='change'?'yaklaşımı değiştir':x.policy==='revalidate'?'yeniden doğrula':'izleniyor'}${esc(ctxText)} (${x.samples} örnek)</p>`}).join('')}</div>`:''}<p class="small">Başlangıç cevapların kalıcı etiket değildir. Motor v2.1 eski kanıtı zamanla zayıflatır; bir rutini ancak zamana yayılmış güncel verilerle doğrular ve müdahale sonuçlarını benzer koşullarda ayrı öğrenir.</p></details></section>
  ${S.profile.prayerTracking?`<section class="prayerStrip" data-view="prayer"><div><span class="prayerStripIcon">🕌</span><div><small>NAMAZ MERKEZİ</small><b>${ps?`${ps.next.label} · ${ps.next.time}`:'Vakitlerini bağla'}</b><span>${ps?`${formatDuration(ps.minutesUntil)} kaldı · ${esc(ps.label)}`:'Konum veya şehir seçerek bugünün vakitlerini getir.'}</span></div></div><div class="qadaMini">${S.qada.enabled?`Kaza hedefi <b>${qp.done}/${qp.target}</b>`:'Aç →'}</div></section>`:''}
  <div class="actions" style="margin:0 0 12px"><button class="btn ghost" id="edit">Bugünkü durumu değiştir</button><button class="btn ${d.lightDay?'primary':'ghost'}" id="light">${d.lightDay?'Hafif gün açık':'Bugünü hafiflet'}</button></div>
@@ -296,6 +310,22 @@ function renderToday(){
  document.querySelectorAll('[data-open-ilim]').forEach(b=>b.onclick=()=>{S.view='ilim';S.ilim.ui={...S.ilim.ui,screen:'home'};save();render()});
  document.querySelectorAll('[data-tf]').forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.tf.split(':');d.taskFeedback=d.taskFeedback||{};d.taskFeedback[id]=d.taskFeedback[id]===v?null:v;if(!d.taskFeedback[id])delete d.taskFeedback[id];save();pilotRecordDay('task-feedback',d);renderToday()});
  document.querySelectorAll('[data-dayf]').forEach(b=>b.onclick=()=>{d.feedback=d.feedback===b.dataset.dayf?null:b.dataset.dayf;save();pilotRecordDay('day-feedback',d);renderToday()});
+ const startReading=document.querySelector('#startReadingRecommendation');
+ if(startReading&&readingRec)startReading.onclick=()=>{
+   S.view='ilim';
+   S.library.recommendationDay=today();
+   S.library.recommendationIndex=readingIndex;
+   if(readingRec.action?.type==='open-reviews'){
+     S.ilim.ui={...(S.ilim.ui||{}),screen:'reviews'};save();return render();
+   }
+   save();return openStarterBook(readingRec.bookId);
+ };
+ const nextReading=document.querySelector('#nextReadingRecommendation');
+ if(nextReading&&candidateCount>1)nextReading.onclick=()=>{
+   S.library.recommendationDay=today();
+   S.library.recommendationIndex=(readingIndex+1)%candidateCount;
+   save();renderToday();
+ };
  document.querySelector('#edit').onclick=()=>{S.view='checkin';save();render()};
  document.querySelector('#light').onclick=()=>{d.lightDay=!d.lightDay;d.route=null;d.done=[];d.taskFeedback={};makeRoute(true);save();pilotRecordRoute(d.route,d.checkin,d.lightDay);pilotRecordDay('light-day',d);renderToday()};
  const accept=document.querySelector('#acceptTiming');if(accept)accept.onclick=()=>{const id=accept.dataset.id,slot=accept.dataset.slot;S.profile.slotOverrides[id]=slot;delete S.profile.slotSuggestionSnooze[id];d.route=null;makeRoute(true);save();renderToday()};
@@ -674,6 +704,7 @@ async function renderGenericBookReader(){
  }
  const data=genericBookCache.get(bookId),total=data.pages.length;
  let state=genericBookState(bookId);
+ if(Number(state.totalPages)!==total){state={...state,totalPages:total};S.library.books[bookId]=state;save()}
  if(!state.activeSession){state=beginBookReadingSession(state,{page:state.page,at:new Date().toISOString()});S.library.books[bookId]=state;save();}
  const pageNo=Math.max(1,Math.min(total,Number(state.page)||1)),page=data.pages[pageNo-1],scale=Number(state.fontScale||1);
  const completed=isPathBookCompleted({book,pathState:S.library.path,hadithCompletedCount:S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length});
