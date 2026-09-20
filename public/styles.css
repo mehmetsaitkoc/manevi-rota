@@ -489,3 +489,5 @@ nav button:hover{transform:translateY(-1px)}
  .starterStageHead>div:nth-child(2)>p{font-size:9px}
  .starterStageHead>span{font-size:7px;padding:5px 7px}
 }
+
+.starterBookBadges .alwaysOn{background:#e8edf5;color:#35516b}
