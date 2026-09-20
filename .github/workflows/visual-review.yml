@@ -151,6 +151,20 @@ jobs:
             await page.click('#genericBookBack');
             await page.waitForSelector('[data-starter-book="namaz-sureleri-tefsiri"]',{timeout:10000});
 
+            const tanriButton=page.locator('[data-starter-book="tanri-buyrugu"]');
+            if(await tanriButton.isDisabled())throw new Error('Tanri Buyrugu should be readable');
+            await tanriButton.click();
+            await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            const tanriTitle=await page.locator('.genericBookTitleCard h1').innerText();
+            if(!tanriTitle.includes('Tanrı Buyruğu'))throw new Error('Tanri Buyrugu reader title mismatch');
+            const tanriText=await page.locator('.genericBookPaper').innerText();
+            if(!tanriText.includes('BİRİNCİ BÖLÜM')||!/KUR.?AN/.test(tanriText))throw new Error('Tanri Buyrugu reader start is not the verified author text');
+            const tanriEdition=await page.locator('.genericBookEdition').innerText();
+            if(!tanriEdition.includes('1955'))throw new Error('Tanri Buyrugu historical edition disclosure missing');
+            await page.screenshot({path:'visual-review/03aa-tanri-buyrugu-reader.png',fullPage:true});
+            await page.click('#genericBookBack');
+            await page.waitForSelector('[data-starter-book="namaz-sureleri-tefsiri"]',{timeout:10000});
+
             await page.click('[data-starter-book="namaz-sureleri-tefsiri"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
             await page.click('[data-book-highlight="1"]');
