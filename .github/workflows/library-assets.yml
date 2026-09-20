@@ -22,6 +22,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install PDF text tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - name: Build local library assets
         run: node scripts/build-library-assets.mjs
       - name: Validate assets
@@ -29,7 +31,9 @@ jobs:
           test -f public/data/quran/1.json
           test -f public/data/quran/114.json
           test -f public/data/islam-dini.json
-          node -e "const fs=require('fs'); const q=JSON.parse(fs.readFileSync('public/data/quran/2.json')); const i=JSON.parse(fs.readFileSync('public/data/islam-dini.json')); if(q.verses.length!==286) process.exit(2); if(i.pages.length<250) process.exit(3); console.log('assets validated', q.verses.length, i.pages.length)"
+          test -f public/data/books/namaz-sureleri-tefsiri.json
+          test -f public/data/books/ahlak-dersleri.json
+          node -e "const fs=require('fs'); const q=JSON.parse(fs.readFileSync('public/data/quran/2.json')); const i=JSON.parse(fs.readFileSync('public/data/islam-dini.json')); const n=JSON.parse(fs.readFileSync('public/data/books/namaz-sureleri-tefsiri.json')); const a=JSON.parse(fs.readFileSync('public/data/books/ahlak-dersleri.json')); if(q.verses.length!==286) process.exit(2); if(i.pages.length<250) process.exit(3); if(n.pages.length<60) process.exit(4); if(a.pages.length<350) process.exit(5); if(n.pages.some(x=>/Yayın Yönetmeni|© Diyanet/i.test(x.text))) process.exit(6); if(a.pages.some(x=>/Yayın Yönetmeni|© Diyanet/i.test(x.text))) process.exit(7); console.log('assets validated', q.verses.length, i.pages.length, n.pages.length, a.pages.length)"
       - name: Commit generated assets to main
         run: |
           git config user.name "github-actions[bot]"
