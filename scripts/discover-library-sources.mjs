@@ -13,7 +13,8 @@ const works=[
   {id:'alt-dini-dersler',title:'Dini Dersler',author:'Ahmet Hamdi Akseki',aliases:['Dini Dersler','Dinî Dersler']},
   {id:'alt-peygamberimiz-aleyhisselam',title:'Peygamberimiz Aleyhisselam',author:'Ömer Rıza Doğrul',aliases:['Peygamberimiz Aleyhisselam','Peygamberimiz Aleyhisselâm','Peygamberimiz','Peygamber']},
   {id:'alt-kuran-nedir',title:'Kur’an Nedir',author:'Ömer Rıza Doğrul',aliases:['Kur’an Nedir','Kuran Nedir','Kur\'an Nedir']},
-  {id:'alt-ruh-islam',title:'Ruh-ı İslam',author:'Ömer Rıza Doğrul',aliases:['Ruh-ı İslam','Ruh-i İslam','Ruhı İslam','Ruh-ı İslâm']}
+  {id:'alt-ruh-islam',title:'Ruh-ı İslam',author:'Ömer Rıza Doğrul',aliases:['Ruh-ı İslam','Ruh-i İslam','Ruhı İslam','Ruh-ı İslâm']},
+  {id:'alt-asri-saadet-siyret',title:'İslam Tarihi Asr-ı Saadet Peygamberimizin Siyreti',author:'Mevlana Şibli',aliases:['İslam Tarihi Asr-ı Saadet Peygamberimizin Siyreti','İslâm Tarihi Asr-ı Saâdet Peygamberimizin Siyreti','Asr-ı Saadet Peygamberimizin Siyreti','Peygamberimizin Siyreti','İslam Tarihi Asrı Saadet']}
 ];
 
 const UA='Manevi-Rota-Source-Audit/1.0';
