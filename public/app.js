@@ -10,13 +10,13 @@ import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilot
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
 const app=document.querySelector('#app'),nav=document.querySelector('#nav');
-const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:emptyQuranReaderState(),islam:{page:5,fontScale:1},books:{},lastBook:'hadith'},pilot:emptyPilotState()});
+const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:emptyQuranReaderState(),islam:{page:2,fontScale:1},books:{},lastBook:'hadith'},pilot:emptyPilotState()});
 function load(){try{const own=localStorage.getItem(KEY);if(own)return JSON.parse(own);for(const k of LEGACY_KEYS){const v=localStorage.getItem(k);if(v)return {...fresh(),...JSON.parse(v)}}}catch{}return fresh()}
 let S=load();
 S.profile=S.profile||{priorities:[]};S.profile.slotOverrides=S.profile.slotOverrides||{};S.profile.slotSuggestionSnooze=S.profile.slotSuggestionSnooze||{};
 S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:normalizeQuranReaderState({...libraryBase.quran,...(S.library?.quran||{})}),islam:{...libraryBase.islam,...(S.library?.islam||{})},books:{...(S.library?.books||{})}};
 S.library.books=Object.fromEntries(Object.entries(S.library.books||{}).map(([id,state])=>[id,normalizeBookReaderState(state)]));
-if(!S.library.books['islam-dini'])S.library.books['islam-dini']=normalizeBookReaderState({page:S.library.islam?.page||5,fontScale:S.library.islam?.fontScale||1});
+if(!S.library.books['islam-dini'])S.library.books['islam-dini']=normalizeBookReaderState({page:S.library.lastBook==='islam'?(S.library.islam?.page||2):2,fontScale:S.library.islam?.fontScale||1});
 S.pilot=normalizePilotState(S.pilot||{});
 const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
 const APP_VERSION='3.0.0';
