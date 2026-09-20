@@ -650,7 +650,7 @@ async function renderGenericBookReader(){
    ${sectionOptions?`<div class="genericBookSectionJump"><select id="genericBookSectionSelect"><option value="">Bölüme git…</option>${sectionOptions}</select></div>`:''}
    <header class="genericBookTitleCard">
      <div class="genericBookMonogram tone-${esc(book.tone||'forest')}">${esc(book.coverGlyph||'ك')}</div>
-     <div><div class="eyebrow">${esc(book.field)} · ${esc(book.level)}</div><h1>${esc(book.title)}</h1><p>${esc(book.author)} · Okuma ${pageNo}/${total}</p></div>
+     <div><div class="eyebrow">${esc(book.field)} · ${esc(book.level)}</div><h1>${esc(book.title)}</h1><p>${esc(book.author)} · Okuma ${pageNo}/${total}</p><small class="genericBookEdition">${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</small></div>
    </header>
    <div class="genericBookMarkupBar"><div><span>Vurgu rengi</span><div class="bookColorPalette">${palette}<input id="genericBookCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div><small>Vurgular ve notlar kaynak metne karıştırılmaz.</small></div>
    <article class="genericBookPaper"><div class="genericBookPageMarker">OKUMA ${pageNo} · KAYNAK SAYFA ${page?.page||pageNo}</div>${content||'<div class="emptyState">Bu sayfada aktarılabilir metin bulunamadı.</div>'}</article>
