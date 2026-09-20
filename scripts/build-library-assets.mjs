@@ -80,7 +80,7 @@ const normalizeArchivePage=text=>String(text||'')
 
 async function buildTextBook({
   id,title,subtitle,author,url,minReaderPages,minChars,originalYear,sourceEditionYear,sourceLabel,
-  signature,startAtMatcher=null,sectionMatchers=[]
+  signature,startAtMatcher=null,sectionMatchers=[],ocrFixups=[],normalizationVersion=null
 }){
   console.log(`Preparing ${title} from OCR text…`);
   const localPath=path.join(BOUT,`${id}.json`);
@@ -89,7 +89,8 @@ async function buildTextBook({
       const existing=JSON.parse(await fs.readFile(localPath,'utf8'));
       const localPages=Array.isArray(existing?.pages)?existing.pages:[];
       const localText=localPages.map(x=>String(x?.text||'')).join('\n\n');
-      if(existing?.id===id&&localPages.length>=minReaderPages&&localText.length>=minChars&&existing?.source?.url===url){
+      const normalizationCurrent=normalizationVersion==null||existing?.source?.normalizationVersion===normalizationVersion;
+      if(existing?.id===id&&localPages.length>=minReaderPages&&localText.length>=minChars&&existing?.source?.url===url&&normalizationCurrent){
         console.log(`Using verified local ${title} asset (${localPages.length} reader pages).`);
         return existing;
       }
@@ -108,7 +109,11 @@ async function buildTextBook({
     console.warn(`${title}: form-feed pagination too small (${rawPages.length}); using reader chunks.`);
     rawPages=chunkFallback(raw,1900);
   }
-  let pages=rawPages.map((page,i)=>({page:i+1,text:normalizeArchivePage(page)})).filter(x=>x.text);
+  let pages=rawPages.map((page,i)=>{
+    let text=normalizeArchivePage(page);
+    for(const fix of ocrFixups)text=text.replace(fix.from,fix.to);
+    return {page:i+1,text};
+  }).filter(x=>x.text);
   if(startAtMatcher){
     const start=pages.findIndex(x=>startAtMatcher.test(x.text));
     if(start>=0){
@@ -129,6 +134,7 @@ async function buildTextBook({
     source:{
       kind:'public-domain-author-text-from-historical-scan-ocr',
       sourceLabel,url,originalYear,sourceEditionYear,
+      ...(normalizationVersion==null?{}:{normalizationVersion}),
       textPolicy:'Historical OCR is normalized only for line-break noise. Author text is preserved; no AI summary, modernization or commentary is mixed into the work.',
       reviewNote:'The author is outside the Turkish copyright term, but this reader uses OCR from a later historical edition. Commercial release must retain a final human comparison for publisher/editorial additions and OCR errors.'
     }
@@ -317,6 +323,14 @@ const kurandanAyetler=await buildTextBook({
   sourceLabel:'Internet Archive · 1944 Yüksel Yayınevi tarihî taraması',
   signature:/MEHMET\s+AK[Iİ]F|KUR.?AN.?DAN|KURANDAN/i,
   startAtMatcher:/(?:ÖN\s*SÖZ|On\s+Söz)/i,
+  normalizationVersion:2,
+  ocrFixups:[
+    {from:/\bKur W onum\b/g,to:'Kur’an onun'},
+    {from:/\bKur'ao\b/g,to:'Kur’an'},
+    {from:/\bKur an\b/g,to:'Kur’an'},
+    {from:/\bMehmet Akilde\b/g,to:'Mehmet Akif de'},
+    {from:/^•(?=Hazreti Peygamberin)/gm,to:''}
+  ],
   sectionMatchers:[
     {title:'Ön Söz',re:/(?:ÖN\s*SÖZ|On\s+Söz)/i},
     {title:'Fâtiha Sûresi',re:/FAT[Iİ]HA\s+S[UÛÜ]RES[Iİ]/i},
