@@ -14,7 +14,6 @@ const QURAN_URL='https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ar
 const ISLAM_URL='https://archive.org/download/islamdinia.hamdiakseki1933.pdf_201912/%C4%B0slam%20Dini%20A.Hamdi%20Akseki1933.pdf_djvu.txt';
 const YAVRULAR_URL='https://archive.org/download/yavrularimiza-di-n-dersleri-ahmet-hamdi-akseki/YAVRULARIMIZA%20D%C4%B0N%20DERSLER%C4%B0%20-%20AHMET%20HAMD%C4%B0%20AKSEK%C4%B0_djvu.txt';
 const ISLAM_FITRI_URL='https://archive.org/download/i-slam-fitri-tabii-ve-umumi-bi-r-di-ndi-r-ahmed-hamdi-akseki-di-yanet/%C4%B0SLAM%20FITR%C4%B0%20TAB%C4%B0%C4%B0%20VE%20UMUM%C4%B0%20B%C4%B0R%20D%C4%B0ND%C4%B0R%20-%20AHMED%20HAMD%C4%B0%20AKSEK%C4%B0%20-%20D%C4%B0YANET_djvu.txt';
-const IBN_SINA_IHLAS_URL='https://archive.org/download/IbnSinahlasSuresiTefsiri/ibn%20Sina%20-%20%C4%B0hlas%20Suresi%20tefsiri_djvu.txt';
 const ASKERE_DIN_URL='https://archive.org/download/McGillLibrary-isl_askere-din-kitabi_BP1883S6A41945-18890/isl_askere-din-kitabi_BP1883S6A41945_djvu.txt';
 
 async function fetchOk(url,type='text'){
@@ -39,6 +38,9 @@ function chunkFallback(text,size=2400){
 
 await fs.mkdir(QOUT,{recursive:true});
 await fs.mkdir(BOUT,{recursive:true});
+/* Rejected/mislabeled candidate cleanup: never ship modern prepared text as Akseki. */
+await fs.rm(path.join(BOUT,'ibn-sina-ihlas-tefsiri.json'),{force:true});
+
 
 const normalizePdfPage=text=>String(text||'')
   .replace(/\r/g,'')
@@ -298,26 +300,6 @@ const islamFitri=await buildTextBook({
   ]
 });
 
-const ibnSinaIhlas=await buildTextBook({
-  id:'ibn-sina-ihlas-tefsiri',
-  title:'İbn Sînâ’nın İhlâs Sûresi Tefsiri',
-  subtitle:'Tercüme ve şerh',
-  author:'Ahmed Hamdi Akseki',
-  url:IBN_SINA_IHLAS_URL,
-  minReaderPages:10,
-  minChars:15000,
-  originalYear:1937,
-  sourceEditionYear:null,
-  sourceLabel:'Internet Archive · bağımsız İhlâs Sûresi tefsiri taraması',
-  signature:/[İI]HLAS\s+SURES[Iİ]|IHLAS\s+SURESI/i,
-  startAtMatcher:/(?:ÖN\s*SÖZ|[İI]HLAS\s+SURES[Iİ]|[İI]BN[Iİ]?\s+S[Iİ]NA)/i,
-  sectionMatchers:[
-    {title:'Giriş',re:/ÖN\s*SÖZ|G[Iİ]R[Iİ][ŞS]/i},
-    {title:'İhlâs Sûresi',re:/[İI]HL[ÂA]S\s+S[ÛU]RES[Iİ]/i},
-    {title:'Tercüme ve Şerh',re:/TERC[ÜU]ME|[ŞS]ERH/i}
-  ]
-});
-
 const namazSureleri=await buildPdfBook({
   id:'namaz-sureleri-tefsiri',
   title:'Namaz Sûrelerinin Türkçe Terceme ve Tefsiri',
@@ -367,5 +349,5 @@ const ahlakDersleri=await buildPdfBook({
   ]
 });
 
-console.log(`Library assets ready: Quran ${byChapter.size} surahs; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Askere Din ${askereDin.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Ibn Sina Ihlas ${ibnSinaIhlas.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
+console.log(`Library assets ready: Quran ${byChapter.size} surahs; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Askere Din ${askereDin.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
 
