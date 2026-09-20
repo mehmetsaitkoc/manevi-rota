@@ -485,6 +485,8 @@ function renderStarterBookCard(book,completedCount,completedBookIds=[]){
  const ready=book.availability==='ready';
  const completed=book.readerType==='generic'?completedBookIds.includes(book.id):isPathBookCompleted({book,pathState:S.library.path,hadithCompletedCount:completedCount});
  const saved=book.readerType==='generic'?normalizeBookReaderState(S.library.books?.[book.id]||{}):null;
+ const annotations=saved?genericBookAnnotationSummary(saved):{notes:0,highlights:0,bookmarks:0};
+ const annotationText=[annotations.notes?annotations.notes+' not':'',annotations.highlights?annotations.highlights+' vurgu':'',annotations.bookmarks?annotations.bookmarks+' yer imi':''].filter(Boolean).join(' · ');
  const progress=completed
    ?'Tamamlandı'
    :book.id==='kirk-hadis'
@@ -500,7 +502,7 @@ function renderStarterBookCard(book,completedCount,completedBookIds=[]){
    <div class="starterBookCover"><span>${esc(book.coverGlyph||'ك')}</span><small>${esc(book.field)}</small></div>
    <div class="starterBookInfo">
      <div class="starterBookBadges"><span>${esc(book.level)}</span>${book.alwaysOn?'<span class="alwaysOn">Her seviyede</span>':''}<span class="${completed?'done':ready?'available':'checking'}">${completed?'Tamamlandı':ready?'Okunabilir':book.availability==='source-verified'?'Kaynak doğrulandı':'Kaynak doğrulanıyor'}</span></div>
-     <b>${esc(book.title)}</b><small>${esc(byline)}</small><p>${esc(book.shortLabel)}</p><em>${progress}</em>
+     <b>${esc(book.title)}</b><small>${esc(byline)}</small><p>${esc(book.shortLabel)}</p><em>${progress}</em>${annotationText?`<span class="starterBookAnnotations">${esc(annotationText)}</span>`:''}
    </div>
    <i>${ready?'›':'·'}</i>
  </button>`;
