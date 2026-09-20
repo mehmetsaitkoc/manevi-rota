@@ -23,45 +23,44 @@ const enc=encodeURIComponent;
 
 async function archiveCandidates(work){
   const titles=[...new Set([work.title,...(work.aliases||[])])];
-  const queries=[
-    ...titles.flatMap(title=>[
-      `title:"${title}" AND creator:"${work.author}"`,
-      `title:"${title}"`,
-      `"${title}" AND "${work.author}"`
-    ]),
-    `creator:"${work.author}" AND mediatype:texts`
-  ];
-  const seen=new Set(),out=[];
-  for(const q of queries){
+  const queries=titles.flatMap(title=>[
+    `title:"${title}" AND creator:"${work.author}"`,
+    `title:"${title}"`,
+    `"${title}" AND "${work.author}"`
+  ]);
+  const docs=new Map(),errors=[];
+  await Promise.all(queries.map(async q=>{
     try{
-      const url=`https://archive.org/advancedsearch.php?q=${enc(q)}&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=creator&fl%5B%5D=year&fl%5B%5D=mediatype&fl%5B%5D=licenseurl&rows=20&page=1&output=json`;
+      const url=`https://archive.org/advancedsearch.php?q=${enc(q)}&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=creator&fl%5B%5D=year&fl%5B%5D=mediatype&fl%5B%5D=licenseurl&rows=12&page=1&output=json`;
       const data=await getJson(url);
       for(const doc of data?.response?.docs||[]){
-        if(!doc?.identifier||seen.has(doc.identifier))continue;
-        seen.add(doc.identifier);
-        let metadata=null;
-        try{
-          const meta=await getJson(`https://archive.org/metadata/${doc.identifier}`);
-          const files=(meta?.files||[]).filter(file=>/\.(pdf|djvu\.txt|txt|epub)$/i.test(String(file?.name||''))).map(file=>({
-            name:file.name,size:Number(file.size||0)||null,format:file.format||null,source:file.source||null
-          })).slice(0,20);
-          metadata={
-            title:meta?.metadata?.title||null,creator:meta?.metadata?.creator||null,date:meta?.metadata?.date||null,
-            year:meta?.metadata?.year||null,licenseurl:meta?.metadata?.licenseurl||null,rights:meta?.metadata?.rights||null,
-            uploader:meta?.metadata?.uploader||null,files
-          };
-        }catch(err){metadata={error:String(err.message||err)}}
-        out.push({
-          identifier:doc.identifier,title:doc.title||'',creator:doc.creator||'',year:doc.year||null,
-          mediatype:doc.mediatype||'',licenseurl:doc.licenseurl||null,
-          detailsUrl:`https://archive.org/details/${doc.identifier}`,
-          metadataUrl:`https://archive.org/metadata/${doc.identifier}`,
-          metadata
-        });
+        if(doc?.identifier&&!docs.has(doc.identifier))docs.set(doc.identifier,doc);
       }
-    }catch(err){out.push({error:String(err.message||err),query:q})}
-  }
-  return out.slice(0,12);
+    }catch(err){errors.push({error:String(err.message||err),query:q})}
+  }));
+  const chosen=[...docs.values()].slice(0,12);
+  const enriched=await Promise.all(chosen.map(async doc=>{
+    let metadata=null;
+    try{
+      const meta=await getJson(`https://archive.org/metadata/${doc.identifier}`);
+      const files=(meta?.files||[]).filter(file=>/\.(pdf|djvu\.txt|txt|epub)$/i.test(String(file?.name||''))).map(file=>({
+        name:file.name,size:Number(file.size||0)||null,format:file.format||null,source:file.source||null
+      })).slice(0,20);
+      metadata={
+        title:meta?.metadata?.title||null,creator:meta?.metadata?.creator||null,date:meta?.metadata?.date||null,
+        year:meta?.metadata?.year||null,licenseurl:meta?.metadata?.licenseurl||null,rights:meta?.metadata?.rights||null,
+        uploader:meta?.metadata?.uploader||null,files
+      };
+    }catch(err){metadata={error:String(err.message||err)}}
+    return {
+      identifier:doc.identifier,title:doc.title||'',creator:doc.creator||'',year:doc.year||null,
+      mediatype:doc.mediatype||'',licenseurl:doc.licenseurl||null,
+      detailsUrl:`https://archive.org/details/${doc.identifier}`,
+      metadataUrl:`https://archive.org/metadata/${doc.identifier}`,
+      metadata
+    };
+  }));
+  return [...enriched,...errors].slice(0,12);
 }
 
 async function googleCandidates(work){
