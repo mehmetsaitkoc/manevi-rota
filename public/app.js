@@ -519,11 +519,14 @@ function renderIlimHome(){
  const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,p=hadisProgressPct(S.ilim),due=dueHadisReviews(S.ilim,today(),9),entries=notebookEntries(S.ilim),overview=knowledgeOverview(S.ilim,today());
  const counts=overview.reduce((a,x)=>(a[x.key]=(a[x.key]||0)+1,a),{});
  const completedCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
+ const pathSnapshot=libraryPathSnapshot({pathState:S.library.path,hadithCompletedCount:completedCount});
+ const activeLevel=pathSnapshot.levels.find(level=>level.order===pathSnapshot.currentLevel)||pathSnapshot.levels[0];
+ const activeLevelNotice=activeLevel.sourcePending?`Bu seviyede ${activeLevel.unavailableCount} tam metin hazırlanıyor.`:'Seviye geçişi okuma/tamamlama verisine dayanır.';
  const current=getHadis(S.ilim.currentId)||h;
  const resume=libraryResume(current,completedCount);
  const nextDue=due[0];
  const readyBookCount=STARTER_LIBRARY.filter(x=>x.availability==='ready').length;
- const starterShelf=renderStarterPath(completedCount);
+ const starterShelf=renderStarterPath(completedCount,pathSnapshot);
  app.innerHTML=`
  <section class="card libraryHero">
    <div class="libraryHeroTop">
@@ -534,6 +537,17 @@ function renderIlimHome(){
      </div>
      <div class="ilimProgressRing" style="--p:${p}"><b>${p}%</b><span>Kırk Hadis</span></div>
    </div>
+ </section>
+
+ <section class="card libraryLevelCard">
+   <div class="libraryLevelTop">
+     <div><div class="eyebrow">OKUMA YOLUN</div><h2>Seviye ${pathSnapshot.currentLevel} · ${esc(activeLevel.title)}</h2><p>${esc(activeLevel.subtitle)}</p></div>
+     <div class="libraryLevelBadge"><b>${pathSnapshot.completedLevels}/${pathSnapshot.totalLevels}</b><span>seviye tamamlandı</span></div>
+   </div>
+   <div class="libraryLevelProgress"><i style="width:${Math.round((pathSnapshot.completedLevels/pathSnapshot.totalLevels)*100)}%"></i></div>
+   <div class="libraryLevelMeta"><span>${activeLevel.completedCount}/${activeLevel.requiredCount} eser tamamlandı</span><span>${esc(activeLevelNotice)}</span></div>
+   <p class="small">Bu seviye bir maneviyat veya iman puanı değildir; yalnızca 10 kitaplık okuma yolundaki konumunu gösterir. Sonraki seviyelerdeki hazır eserleri de istediğin zaman açabilirsin.</p>
+   <button class="btn ghost" id="jumpCurrentLevel">Aktif seviyeye git ↓</button>
  </section>
 
  <section class="continueReadingCard">
@@ -578,6 +592,7 @@ function renderIlimHome(){
  <section class="card sourceCard"><details><summary>Metin ve kaynak politikası</summary><p>${esc(KIRK_HADIS_META.rightsNote)}</p><p>${esc(KIRK_HADIS_META.editorialNote)}</p></details></section>`;
  const open=()=>ilimGo('reader',S.ilim.currentId);
  document.querySelector('#continueLibrary').onclick=resume.action;
+ document.querySelector('#jumpCurrentLevel').onclick=()=>document.querySelector(`[data-starter-stage="level-${pathSnapshot.currentLevel}"]`)?.scrollIntoView({behavior:'smooth',block:'start'});
  document.querySelector('#openTodayHadis').onclick=()=>ilimGo('reader',h.id);
  document.querySelectorAll('[data-starter-book]').forEach(btn=>btn.onclick=()=>openStarterBook(btn.dataset.starterBook));
  document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');
