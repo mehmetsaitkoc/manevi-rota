@@ -525,3 +525,23 @@ nav button:hover{transform:translateY(-1px)}
 .levelTransitionNext span{font-size:10px;line-height:1.45;color:#756e62}
 .levelTransitionCard .btn{margin-top:12px;width:auto}
 @media(max-width:620px){.levelTransitionCard{grid-template-columns:1fr;padding:19px}.levelTransitionMark{width:46px;height:46px;border-radius:15px}}
+
+
+/* v5.0 — awareness goals */
+.libraryAwarenessGoals{margin-top:14px;padding:14px 15px;border-radius:17px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13)}
+.libraryAwarenessGoals>small{display:block;margin-bottom:9px;color:#e7c77b;font-size:8px;font-weight:900;letter-spacing:.10em}
+.libraryAwarenessGoals ol{display:grid;gap:8px;margin:0;padding:0;list-style:none;counter-reset:awareness}
+.libraryAwarenessGoals li{position:relative;padding-left:31px;color:#edf4f1;font-size:11px;line-height:1.5;counter-increment:awareness}
+.libraryAwarenessGoals li:before{content:counter(awareness);position:absolute;left:0;top:0;width:22px;height:22px;border-radius:8px;display:grid;place-items:center;background:rgba(231,199,123,.15);color:#f0d99f;font-size:9px;font-weight:900}
+.starterStageGoals{margin:0 0 12px 49px;border:1px solid #e5dccb;border-radius:14px;background:rgba(255,255,255,.52);overflow:hidden}
+.starterStageGoals summary{cursor:pointer;padding:10px 12px;color:#3d554d;font-size:9px;font-weight:900;letter-spacing:.03em}
+.starterStageGoals[open] summary{border-bottom:1px solid #e7dfd0;background:#faf7ef}
+.starterStageGoals ol{display:grid;gap:7px;margin:0;padding:11px 16px 7px 31px}
+.starterStageGoals li{padding-left:2px;color:#615e57;font-size:9px;line-height:1.5}
+.starterStageGoals p{margin:0;padding:0 13px 11px;color:#958c7e;font-size:8px;line-height:1.45}
+.levelTransitionNext ul{display:grid;gap:5px;margin:8px 0 0;padding-left:17px}
+.levelTransitionNext li{color:#6f675a;font-size:9px;line-height:1.45}
+@media(max-width:620px){
+ .starterStageGoals{margin-left:43px}
+ .libraryAwarenessGoals li{font-size:10px}
+}
