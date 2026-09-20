@@ -4,7 +4,7 @@ import {PRAYERS,emptyQada,normalizePrayerPayload,prayerStatus,formatDuration,qad
 import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisState,getHadis,progressPct as hadisProgressPct,todayHadisPlan,recordHadisSession,scheduleHadisReviews,dueReviews as dueHadisReviews,recordRecallAttempt,recallPromptFor,knowledgeSignal,knowledgeOverview,addHadisHighlight,addHadisNote,toggleHadisBookmark,notebookEntries} from '../src/kirk-hadis.mjs';
 import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,toggleQuranVerseHighlight,setQuranVerseNote} from '../src/quran-reader.mjs';
 import {STARTER_LIBRARY,STARTER_LIBRARY_STAGES,starterBook,starterBooksByStage} from '../src/library-catalog.mjs';
-import {normalizeBookReaderState,bookHighlight,bookNote,toggleBookHighlight,setBookNote,toggleBookPageBookmark} from '../src/book-reader.mjs';
+import {normalizeBookReaderState,bookHighlight,bookNote,toggleBookHighlight,setBookNote,toggleBookPageBookmark,beginBookReadingSession,touchBookReadingSession,finishBookReadingSession,bookReadingSummary,searchBookPages} from '../src/book-reader.mjs';
 import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,isPathBookCompleted,libraryPathSnapshot,acknowledgeLibraryLevel} from '../src/library-path.mjs';
 import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilotRoutePayload,pilotDayPayload} from '../src/pilot-telemetry.mjs';
 
@@ -146,6 +146,29 @@ function genericBookHeading(text){
  const value=String(text||'').trim();
  return value.length>0&&value.length<=130&&/[A-ZÇĞİÖŞÜÂÎÛ]/.test(value)&&value===value.toLocaleUpperCase('tr-TR');
 }
+function genericBookAnnotationSummary(state){
+ const s=normalizeBookReaderState(state||{});
+ return {notes:Object.keys(s.notes||{}).length,highlights:Object.keys(s.highlights||{}).length,bookmarks:(s.bookmarks||[]).length};
+}
+function syncGenericReadingSession(bookId,session){
+ if(!session)return;
+ const date=today(),d=ensure(date),row={...session,bookId,date};
+ d.readingSessions=[row,...(d.readingSessions||[])].slice(0,40);
+ const planned=(d.route?.tasks||[]).map(x=>x.id);
+ const target=planned.includes('reading')?'reading':planned.includes('learning')?'learning':null;
+ if(target&&(session.minutes>=2||session.pages>=1)){
+   const done=new Set(d.done||[]);done.add(target);d.done=[...done];
+   d.taskFeedback=d.taskFeedback||{};
+   d.taskFeedback[target]=session.feedback==='heavy'?'hard':session.feedback==='easy'?'easy':'normal';
+ }
+ save();
+}
+function finalizeGenericBookSession(bookId,page,feedback='ideal'){
+ const current=genericBookState(bookId),result=finishBookReadingSession(current,{page,at:new Date().toISOString(),feedback});
+ S.library.books[bookId]=result.state;
+ if(result.session)syncGenericReadingSession(bookId,result.session);
+ return result.session;
+}
 function openStarterBook(id){
  const book=starterBook(id);if(!book||book.availability!=='ready')return;
  S.library.lastBook=id;save();
@@ -153,6 +176,8 @@ function openStarterBook(id){
  if(book.readerType==='hadith')return ilimGo('reader',S.ilim.currentId);
  if(book.readerType==='islam')return ilimGo('islam');
  if(book.readerType==='generic'){
+   const state=genericBookState(id);
+   S.library.books[id]=beginBookReadingSession(state,{page:state.page,at:new Date().toISOString()});
    S.ilim.ui={...(S.ilim.ui||{}),screen:'book',bookId:id};
    save();return renderIlim();
  }
