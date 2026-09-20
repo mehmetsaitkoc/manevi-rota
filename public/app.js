@@ -152,10 +152,11 @@ function genericBookAnnotationSummary(state){
 }
 function syncGenericReadingSession(bookId,session){
  if(!session)return;
- const date=today(),d=ensure(date),row={...session,bookId,date};
- d.readingSessions=[row,...(d.readingSessions||[])].slice(0,40);
+ const date=today(),d=ensure(date);
  const planned=(d.route?.tasks||[]).map(x=>x.id);
  const target=planned.includes('reading')?'reading':planned.includes('learning')?'learning':null;
+ const row={...session,bookId,date,taskId:target};
+ d.readingSessions=[row,...(d.readingSessions||[])].slice(0,40);
  if(target&&(session.minutes>=2||session.pages>=1)){
    const done=new Set(d.done||[]);done.add(target);d.done=[...done];
    d.taskFeedback=d.taskFeedback||{};
