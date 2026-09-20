@@ -16,6 +16,7 @@ const ISLAM_URL='https://archive.org/download/islamdinia.hamdiakseki1933.pdf_201
 const YAVRULAR_URL='https://archive.org/download/yavrularimiza-di-n-dersleri-ahmet-hamdi-akseki/YAVRULARIMIZA%20D%C4%B0N%20DERSLER%C4%B0%20-%20AHMET%20HAMD%C4%B0%20AKSEK%C4%B0_djvu.txt';
 const ISLAM_FITRI_URL='https://archive.org/download/i-slam-fitri-tabii-ve-umumi-bi-r-di-ndi-r-ahmed-hamdi-akseki-di-yanet/%C4%B0SLAM%20FITR%C4%B0%20TAB%C4%B0%C4%B0%20VE%20UMUM%C4%B0%20B%C4%B0R%20D%C4%B0ND%C4%B0R%20-%20AHMED%20HAMD%C4%B0%20AKSEK%C4%B0%20-%20D%C4%B0YANET_djvu.txt';
 const ASKERE_DIN_URL='https://archive.org/download/McGillLibrary-isl_askere-din-kitabi_BP1883S6A41945-18890/isl_askere-din-kitabi_BP1883S6A41945_djvu.txt';
+const KURANDAN_AYETLER_URL=archiveDownload('kurandanayetlert00mehm','kurandanayetlert00mehm_djvu.txt');
 const TANRI_BUYRUGU_URL=archiveDownload(
   'tanri-buyrugu-kuran-i-kerimin-tercume-ve-tefsir-i-serifi-omer-riza-dogrul',
   "Tanrı Buyruğu (Kur'an-ı Kerim'in Tercüme ve Tefsir-i Şerifi ) Ömer Rıza Doğrul_djvu.txt"
@@ -303,6 +304,26 @@ const islamFitri=await buildTextBook({
   ]
 });
 
+const kurandanAyetler=await buildTextBook({
+  id:'kurandan-ayetler',
+  title:'Kur’an’dan Âyetler ve Nesirler',
+  subtitle:'Mehmet Âkif’in Kur’ân merkezli tefekkürleri',
+  author:'Mehmet Âkif Ersoy · Ömer Rıza Doğrul',
+  url:KURANDAN_AYETLER_URL,
+  minReaderPages:300,
+  minChars:500000,
+  originalYear:1944,
+  sourceEditionYear:1944,
+  sourceLabel:'Internet Archive · 1944 Yüksel Yayınevi tarihî taraması',
+  signature:/MEHMET\s+AK[Iİ]F|KUR.?AN.?DAN|KURANDAN/i,
+  startAtMatcher:/(?:ÖN\s*SÖZ|On\s+Söz)/i,
+  sectionMatchers:[
+    {title:'Ön Söz',re:/(?:ÖN\s*SÖZ|On\s+Söz)/i},
+    {title:'Fâtiha Sûresi',re:/FAT[Iİ]HA\s+S[UÛÜ]RES[Iİ]/i},
+    {title:'Kur’ân’dan Âyetler',re:/KUR.?AN.?DAN\s+[ÂA]YETLER|KURANDAN\s+[ÂA]YETLER/i}
+  ]
+});
+
 const tanriBuyrugu=await buildTextBook({
   id:'tanri-buyrugu',
   title:'Tanrı Buyruğu',
@@ -375,5 +396,5 @@ const ahlakDersleri=await buildPdfBook({
   ]
 });
 
-console.log(`Library assets ready: Quran ${byChapter.size}; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Tanrı Buyruğu ${tanriBuyrugu.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
+console.log(`Library assets ready: Quran ${byChapter.size}; Islam Dini ${pages.length}; Yavrularımıza ${yavrularimiza.pages.length}; Islam Fıtri ${islamFitri.pages.length}; Kur’an’dan Âyetler ${kurandanAyetler.pages.length}; Tanrı Buyruğu ${tanriBuyrugu.pages.length}; Namaz Sûreleri ${namazSureleri.pages.length}; Ahlâk Dersleri ${ahlakDersleri.pages.length}.`);
 
