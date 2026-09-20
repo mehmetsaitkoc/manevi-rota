@@ -8,3 +8,8 @@ services:
     startCommand: npm start
     healthCheckPath: /healthz
     autoDeployTrigger: checksPass
+    envVars:
+      - key: PILOT_SUPABASE_URL
+        value: https://ysrrfepvqvlcbejkbuwn.supabase.co
+      - key: PILOT_SUPABASE_KEY
+        value: sb_publishable_1fK0IgEjvUp-VPiEAoGGQA_O81p0amE
