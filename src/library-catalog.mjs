@@ -23,11 +23,12 @@ export const STARTER_LIBRARY=[
     order:3,id:'islam-dini',title:'İslâm Dini',author:'Ahmed Hamdi Akseki',field:'İtikat · İbadet · Ahlâk',level:'Başlangıç',
     readerType:'generic',availability:'ready',coverGlyph:'ك',tone:'gold',
     shortLabel:'Temel din bilgisi',
-    sourceLabel:'1933 tarihli tarihî tarama/OCR',
+    sourceLabel:'İlk baskı 1933 · kullanılan OCR taraması 20. baskı',
     asset:'public/data/islam-dini.json',
+    requiresEditionReview:true,
     rightsStatus:'public-domain-turkey-author-term',
     originalYear:1933,authorDeathYear:1951,
-    rightsNote:'Müellif metni korunur; OCR/dizgi hataları ayrıca belirtilir.'
+    rightsNote:'Müellifin koruma süresi sona ermiştir; kullanılan geç baskı OCR taramasındaki tashih/editoryal katkılar ticari yayın öncesi ayrıca kontrol edilecektir.'
   },
   {
     order:4,id:'namaz-sureleri-tefsiri',title:'Namaz Sûrelerinin Türkçe Terceme ve Tefsiri',author:'Ahmed Hamdi Akseki',field:'Kur’ân · Namaz',level:'Başlangıç',
