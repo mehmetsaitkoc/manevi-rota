@@ -14,7 +14,10 @@ const works=[
   {id:'alt-peygamberimiz-aleyhisselam',title:'Peygamberimiz Aleyhisselam',author:'Ömer Rıza Doğrul',aliases:['Peygamberimiz Aleyhisselam','Peygamberimiz Aleyhisselâm','Peygamberimiz','Peygamber']},
   {id:'alt-kuran-nedir',title:'Kur’an Nedir',author:'Ömer Rıza Doğrul',aliases:['Kur’an Nedir','Kuran Nedir','Kur\'an Nedir']},
   {id:'alt-ruh-islam',title:'Ruh-ı İslam',author:'Ömer Rıza Doğrul',aliases:['Ruh-ı İslam','Ruh-i İslam','Ruhı İslam','Ruh-ı İslâm']},
-  {id:'alt-asri-saadet-siyret',title:'İslam Tarihi Asr-ı Saadet Peygamberimizin Siyreti',author:'Mevlana Şibli',aliases:['İslam Tarihi Asr-ı Saadet Peygamberimizin Siyreti','İslâm Tarihi Asr-ı Saâdet Peygamberimizin Siyreti','Asr-ı Saadet Peygamberimizin Siyreti','Peygamberimizin Siyreti','İslam Tarihi Asrı Saadet']}
+  {id:'alt-asri-saadet-siyret',title:'İslam Tarihi Asr-ı Saadet Peygamberimizin Siyreti',author:'Mevlana Şibli',aliases:['İslam Tarihi Asr-ı Saadet Peygamberimizin Siyreti','İslâm Tarihi Asr-ı Saâdet Peygamberimizin Siyreti','Asr-ı Saadet Peygamberimizin Siyreti','Peygamberimizin Siyreti','İslam Tarihi Asrı Saadet']},
+  {id:'alt-peygamberimiz-ali',title:'Peygamberimiz Aleyhisselâm',author:'Mevlana Muhammed Ali',aliases:['Peygamberimiz Aleyhisselam','Peygamberimiz Aleyhisselâm','Peygamberimiz','Peygamber']},
+  {id:'alt-safahat',title:'Safahat',author:'Mehmet Akif Ersoy',aliases:['Safahat','Mehmed Akif Safahat','Mehmet Akif Safahat']},
+  {id:'alt-tanri-buyrugu',title:'Tanrı Buyruğu',author:'Ömer Rıza Doğrul',aliases:['Tanrı Buyruğu','Tanri Buyrugu','Kur’an-ı Kerim Tercüme ve Tefsiri Tanrı Buyruğu']}
 ];
 
 const UA='Manevi-Rota-Source-Audit/1.0';
