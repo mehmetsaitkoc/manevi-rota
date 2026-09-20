@@ -103,16 +103,74 @@ export const STARTER_LIBRARY=[
         order:6,stage:'level-3',id:'peygamberimiz-muhammed',title:'İslâm Tarihi: Asr-ı Saâdet — Peygamberimizin Sîreti',author:'Şiblî Nu‘mânî · Süleyman Nedvî',translator:'Ömer Rıza Doğrul',field:'Siyer · Sünnet · Peygamber örnekliği',level:'Seviye 3',
         readerType:'generic',availability:'source-verified',coverGlyph:'ص',tone:'burgundy',
         shortLabel:'Hz. Peygamber’in hayatı · risalet · şahsiyet · tahlil',
-        sourceLabel:'1928 tarihî baskı doğrulandı · ticari yeniden kullanımı uygun tarama bekleniyor',
+        sourceLabel:'1928 özgün baskı doğrulandı · fizikî kaynak edinimi mümkün · kendi taramamız bekleniyor',
         rightsStatus:'public-domain-turkey-author-term',
         originalYear:1928,authorDeathYear:1953,
         sourceGate:{
-          status:'selected-waiting-reusable-historical-scan',
+          status:'selected-physical-source-available',
           selectedWorkId:'asri-saadet-siyret',
           acceptedEditionYears:[1928],
           preferredScript:'ottoman-turkish',
           selectionReason:'Seviye 3 için nihai siyer seçimi budur: TDV değerlendirmesinde İslâm kaynaklarının ciddi tahlil ve tenkidine dayanan, çağdaş çalışmalarla mukayese yapan ve dönemin önemli ilim adamlarınca takdir edilmiş güçlü bir çalışma olarak öne çıkar.',
-          productionPlan:'Yalnız ticari yeniden kullanıma izin veren 1928 tarihî tarama veya izinli kurumsal kopya kullanılacak; Osmanlıca metin güvenilir literal Latin çevriyazıyla aktarılacak ve taramayla karşılaştırılacak.',
+          productionPlan:'Özgün 1928 I–IV ciltler fizikî olarak temin edilip Manevî Rota için yeniden taranacak; OCR yalnız yardımcı katman olacak, Osmanlıca metin güvenilir literal Latin çevriyazıyla taramaya karşı satır/sayfa kontrolüyle aktarılacak. Üçüncü taraf pazar yeri görselleri veya modern sadeleştirmeler production asset olarak kullanılmayacak.',
+          acquisitionPlan:{
+            status:'physical-originals-available',
+            auditedAt:'2026-09-21',
+            preferredStrategy:'buy-volumes-1-to-4-and-self-digitize',
+            requiredVolumes:[1,2,3,4],
+            rightsReview:{
+              jurisdiction:'Türkiye',
+              rule:'FSEK m.27 · ölümden itibaren 70 yıl',
+              latestRelevantContributorDeathYear:1953,
+              apparentPublicDomainFrom:'2024-01-01',
+              commercialLaunchReviewRequired:true
+            },
+            currentListings:[
+              {
+                volume:1,
+                title:'Peygamberimizin Sîreti',
+                marketplace:'Kitantik',
+                edition:'Amedî Matbaası · İstanbul · 1928 · 560 s.',
+                url:'https://www.kitantik.com/product/Islam-Tarihi-Asr-i-Saadet-Birinci-1-Cilt-Peygamberimizin-sireti-Mevlana-Sibli-cev-Omer-Riza-Osmanlica-kitap-Ottoman-Book_1br9qfymor5m0ll1nvj',
+                observedPriceTRY:645,
+                access:'physical-copy-for-self-digitization'
+              },
+              {
+                volume:2,
+                title:'Peygamberimizin Risâleti ve Şahsiyeti',
+                marketplace:'NadirKitap',
+                edition:'Amedî Matbaası · İstanbul · 1928',
+                url:'https://www.nadirkitap.com/islam-tarihi-asr-i-saadet-2-cilt-peygamberimizin-risaleti-ve-sahsiyeti-mevlana-sibli-kitap42035521.html',
+                observedPriceTRY:450,
+                access:'physical-copy-for-self-digitization'
+              },
+              {
+                volume:3,
+                title:'Peygamberimizin Ruhanî Hayatı',
+                marketplace:'NadirKitap',
+                edition:'Amedî Matbaası · İstanbul · 1928',
+                url:'https://www.nadirkitap.com/kitapara.php?ara=aramayap&birincibaski=0&ceviren=&cilt=0&dil=0&eskiyeni=0&fiyat1=&fiyat2=&guzelciltli=0&hazirlayan=&imzali=0&isbn=&kategori=0&kitap_Adi=&listele=&ortakkargo=0&page=4&satici=0&siralama=&tarih1=0&tarih2=0&tip=kitap&yayin_Evi=Amedi+Matbaas%C4%B1&yayin_Yeri=&yazar=',
+                observedPriceTRY:450,
+                access:'physical-copy-for-self-digitization'
+              },
+              {
+                volume:4,
+                title:'Peygamberimizin Ruhanî Hayatı',
+                marketplace:'NadirKitap',
+                edition:'Amedî Matbaası · İstanbul · 1928',
+                url:'https://www.nadirkitap.com/kitapara.php?ara=kitapdetay&birincibaski=0&ceviren=&cilt=0&dil=0&eskiyeni=0&fiyat1=&fiyat2=&guzelciltli=0&hazirlayan=&imzali=0&isbn=&kategori=3&kitap_Adi=islam+tarihi+18+cilt+takim&listele=&ortakkargo=0&page=7&satici=0&siralama=&tarih1=0&tarih2=0&tip=kitap&yayin_Evi=&yayin_Yeri=&yazar=m.asim+koksal',
+                observedPriceTRY:475.97,
+                access:'physical-copy-for-self-digitization'
+              }
+            ],
+            fallbackBundle:{
+              marketplace:'NadirKitap',
+              title:'İslam Tarihi – Asr-ı Saadet – Sadr-ı İslam – 9 Cilt',
+              edition:'1928 tarihî seri',
+              observedPriceTRY:3570,
+              note:'I–IV ciltleri tek alımda güvenceye almak için yedek seçenek; yalnız gerekli ciltler production taramasına alınır.'
+            }
+          },
           contentQualityGate:{
             status:'selected',
             approvalRequiredBeforeReady:false,
