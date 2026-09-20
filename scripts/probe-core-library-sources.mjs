@@ -25,7 +25,8 @@ const candidates=[
   {
     id:'kurandan-ayetler',
     titles:["Kur'an'dan Ayetler","Kur’ân’dan Âyetler",'Kurandan Ayetler','Kur’an’dan Ayetler ve Nesirler'],
-    creators:['Mehmet Akif Ersoy','Mehmed Akif Ersoy','Ömer Rıza Doğrul','Omer Riza Dogrul']
+    creators:['Mehmet Akif Ersoy','Mehmed Akif Ersoy','Ömer Rıza Doğrul','Omer Riza Dogrul'],
+    probeText:true
   },
   {
     id:'akseki-missing-core',
@@ -48,6 +49,18 @@ const candidates=[
       'title:(Siyreti) AND mediatype:texts',
       '("Ömer Rıza" AND Şibli) AND mediatype:texts',
       '("Omer Riza" AND Shibli) AND mediatype:texts'
+    ],
+    probeText:true
+  },
+  {
+    id:'latin-siyer-public-domain-window',
+    titles:[],
+    creators:[],
+    extraQueries:[
+      'title:(Peygamberimiz) AND mediatype:texts AND language:tur AND year:[1928 TO 1955]',
+      'title:(Muhammed) AND mediatype:texts AND language:tur AND year:[1928 TO 1955]',
+      '(Peygamberimiz AND Muhammed) AND mediatype:texts AND year:[1928 TO 1955]',
+      '(Hazreti AND Muhammed) AND mediatype:texts AND language:tur AND year:[1928 TO 1955]'
     ],
     probeText:true
   }
