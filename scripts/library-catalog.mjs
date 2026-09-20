@@ -13,13 +13,15 @@ assert.ok(STARTER_LIBRARY_STAGES.flatMap(x=>x.goals).every(goal=>typeof goal==='
 assert.ok(STARTER_LIBRARY.every(x=>x.title&&x.author&&x.field&&x.level&&x.rightsStatus));
 assert.ok(STARTER_LIBRARY.every(x=>x.level===`Seviye ${x.order<=2?1:x.order<=4?2:x.order<=6?3:x.order<=8?4:5}`));
 assert.ok(STARTER_LIBRARY.every(x=>x.rightsStatus!=='unknown'));
-assert.equal(readyStarterBooks().length,7,'premium library should expose seven genuinely readable works');
-assert.equal(pendingStarterBooks().length,3);
+assert.equal(readyStarterBooks().length,8,'premium library should expose eight genuinely readable works');
+assert.equal(pendingStarterBooks().length,2);
 assert.equal(starterBook('yavrularimiza-din-dersleri').asset,'public/data/books/yavrularimiza-din-dersleri.json');
 assert.equal(starterBook('yavrularimiza-din-dersleri').requiresEditionReview,true);
 assert.equal(starterBook('namaz-sureleri-tefsiri').asset,'public/data/books/namaz-sureleri-tefsiri.json');
 assert.equal(starterBook('islam-fitri-tabii-umumi').asset,'public/data/books/islam-fitri-tabii-umumi.json');
 assert.equal(starterBook('islam-fitri-tabii-umumi').availability,'ready');
+assert.equal(starterBook('tanri-buyrugu').asset,'public/data/books/tanri-buyrugu.json');
+assert.equal(starterBook('tanri-buyrugu').requiresEditionReview,true);
 assert.equal(starterBook('ahlak-dersleri').availability,'ready');
 assert.ok(STARTER_LIBRARY.filter(x=>x.authorDeathYear).every(x=>x.authorDeathYear<=1952));
 
