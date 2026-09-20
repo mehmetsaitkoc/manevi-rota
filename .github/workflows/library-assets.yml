@@ -31,9 +31,10 @@ jobs:
           test -f public/data/quran/1.json
           test -f public/data/quran/114.json
           test -f public/data/islam-dini.json
+          test -f public/data/books/yavrularimiza-din-dersleri.json
           test -f public/data/books/namaz-sureleri-tefsiri.json
           test -f public/data/books/ahlak-dersleri.json
-          node -e "const fs=require('fs'); const q=JSON.parse(fs.readFileSync('public/data/quran/2.json')); const i=JSON.parse(fs.readFileSync('public/data/islam-dini.json')); const n=JSON.parse(fs.readFileSync('public/data/books/namaz-sureleri-tefsiri.json')); const a=JSON.parse(fs.readFileSync('public/data/books/ahlak-dersleri.json')); if(q.verses.length!==286) process.exit(2); if(i.pages.length<250) process.exit(3); if(n.pages.length<60) process.exit(4); if(a.pages.length<350) process.exit(5); if(n.pages.some(x=>/Yayın Yönetmeni|© Diyanet/i.test(x.text))) process.exit(6); if(a.pages.some(x=>/Yayın Yönetmeni|© Diyanet/i.test(x.text))) process.exit(7); console.log('assets validated', q.verses.length, i.pages.length, n.pages.length, a.pages.length)"
+          node -e "const fs=require('fs'); const q=JSON.parse(fs.readFileSync('public/data/quran/2.json')); const i=JSON.parse(fs.readFileSync('public/data/islam-dini.json')); const y=JSON.parse(fs.readFileSync('public/data/books/yavrularimiza-din-dersleri.json')); const n=JSON.parse(fs.readFileSync('public/data/books/namaz-sureleri-tefsiri.json')); const a=JSON.parse(fs.readFileSync('public/data/books/ahlak-dersleri.json')); if(q.verses.length!==286) process.exit(2); if(i.pages.length<250) process.exit(3); if(y.pages.length<180) process.exit(4); if(n.pages.length<60) process.exit(5); if(a.pages.length<350) process.exit(6); if(!/Yavrularımıza Din Dersleri/i.test(y.title)) process.exit(7); if(y.pages.some(x=>/Internet Archive HTML5 Uploader/i.test(x.text))) process.exit(8); if(n.pages.some(x=>/Yayın Yönetmeni|© Diyanet/i.test(x.text))) process.exit(9); if(a.pages.some(x=>/Yayın Yönetmeni|© Diyanet/i.test(x.text))) process.exit(10); console.log('assets validated', q.verses.length, i.pages.length, y.pages.length, n.pages.length, a.pages.length)"
       - name: Commit generated assets to main
         run: |
           git config user.name "github-actions[bot]"
