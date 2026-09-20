@@ -41,17 +41,45 @@ const candidates=[
     probeText:true
   },
   {
+    id:'akseki-peygamberimiz-1934',
+    titles:['Peygamberimiz Hz. Muhammed Aleyhisselam ve Müslümanlık','Peygamberimiz Hazreti Muhammed Aleyhisselam ve Müslümanlık','Peygamberimiz Hz. Muhammed ve Müslümanlık'],
+    creators:['Ahmed Hamdi Akseki','Ahmet Hamdi Akseki','A. Hamdi Akseki'],
+    extraQueries:[
+      '(title:(Peygamberimiz) AND creator:(Akseki) AND year:1934) AND mediatype:texts',
+      '(creator:(Akseki) AND year:1934) AND mediatype:texts',
+      '("Peygamberimiz" AND "Müslümanlık" AND year:1934) AND mediatype:texts'
+    ],
+    expectedYears:[1934],
+    secondaryProbe:true,
+    probeText:true,
+    preferredScript:'latin',
+    knownCatalogRecords:[
+      {
+        institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',
+        callNumber:'297.92 AKS.P',
+        inventory:'09768',
+        edition:'Ankara · İdeal Matbaası · 1934 · 244 s.',
+        access:'physical-copy-no-public-reusable-file-confirmed'
+      }
+    ],
+    productionGate:{
+      require:'reusable 1934 historical scan or a separable institutional digital copy of the author text',
+      reject:['modern edited reprint','modern simplification','preview/snippet-only source','gated text without redistribution permission']
+    },
+    catalogEvidence:[
+      {label:'TDV İslâm Ansiklopedisi',url:'https://islamansiklopedisi.org.tr/akseki-ahmet-hamdi',note:'Peygamberimiz Hz. Muhammed ve Müslümanlık, Ankara 1934'},
+      {label:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',url:'https://ilahiyatkutuphane.uludag.edu.tr/yordam/',note:'1934 basılı nüsha · 297.92 AKS.P · demirbaş 09768'}
+    ]
+  },
+  {
     id:'akseki-missing-core',
     secondaryProbe:true,
-    titles:['Peygamberimizin Vecizeleri','Kuvvetli İman Kuvvetli İrade','Peygamberimiz Hz. Muhammed ve Müslümanlık','Peygamberimiz Hazreti Muhammed ve Müslümanlık'],
+    titles:['Peygamberimizin Vecizeleri','Kuvvetli İman Kuvvetli İrade'],
     creators:['Ahmed Hamdi Akseki','Ahmet Hamdi Akseki','A. Hamdi Akseki'],
     extraQueries:[
       'creator:(Akseki) AND mediatype:texts',
       '(Akseki AND Vecizeleri) AND mediatype:texts',
-      '(Akseki AND "Kuvvetli İman") AND mediatype:texts',
-      '(Akseki AND Peygamberimiz) AND mediatype:texts',
-      '(creator:(Akseki) AND year:1934) AND mediatype:texts',
-      '(title:(Peygamberimiz) AND year:1934) AND mediatype:texts'
+      '(Akseki AND "Kuvvetli İman") AND mediatype:texts'
     ],
     probeText:true
   },
