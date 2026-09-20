@@ -69,10 +69,10 @@ async function googleCandidates(work){
     `intitle:"${title}" inauthor:"${work.author}"`,
     `"${title}" "${work.author}"`
   ]);
-  const seen=new Set(),out=[];
-  for(const q of qs){
+  const seen=new Set(),out=[],errors=[];
+  await Promise.all(qs.map(async q=>{
     try{
-      const data=await getJson(`https://www.googleapis.com/books/v1/volumes?q=${enc(q)}&maxResults=20&printType=books`);
+      const data=await getJson(`https://www.googleapis.com/books/v1/volumes?q=${enc(q)}&maxResults=12&printType=books`);
       for(const item of data?.items||[]){
         if(!item?.id||seen.has(item.id))continue;
         seen.add(item.id);
@@ -86,9 +86,9 @@ async function googleCandidates(work){
           infoLink:v.infoLink||null
         });
       }
-    }catch(err){out.push({error:String(err.message||err),query:q})}
-  }
-  return out.slice(0,12);
+    }catch(err){errors.push({error:String(err.message||err),query:q})}
+  }));
+  return [...out,...errors].slice(0,12);
 }
 
 const report={generatedAt:new Date().toISOString(),policy:{
