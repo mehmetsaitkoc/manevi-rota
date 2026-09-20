@@ -456,9 +456,9 @@ function sectionHighlight(hadisId,sectionIndex,text){return S.ilim.highlights.fi
 function hexToRgba(hex,alpha=.45){let h=String(hex||'#e6c46f').replace('#','');if(h.length===3)h=h.split('').map(x=>x+x).join('');const n=parseInt(h,16);if(!Number.isFinite(n))return `rgba(230,196,111,${alpha})`;return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${alpha})`}
 function highlightVars(h){const color=h?.color||'#e6c46f';return `style="--hl:${hexToRgba(color,.46)};--hl-line:${hexToRgba(color,.95)}"`}
 
-function renderStarterBookCard(book,completedCount,pathState){
+function renderStarterBookCard(book,completedCount,completedBookIds=[]){
  const ready=book.availability==='ready';
- const completed=isPathBookCompleted({book,pathState,hadithCompletedCount:completedCount});
+ const completed=book.readerType==='generic'?completedBookIds.includes(book.id):isPathBookCompleted({book,pathState:S.library.path,hadithCompletedCount:completedCount});
  const saved=book.readerType==='generic'?normalizeBookReaderState(S.library.books?.[book.id]||{}):null;
  const progress=completed
    ?'Tamamlandı'
@@ -492,7 +492,7 @@ function renderStarterPath(completedCount,pathSnapshot){
        <span class="starterStageStatus ${esc(level?.status||'later')}">${statusLabel}</span>
      </div>
      <div class="starterStageMeta"><span>${level?.completedCount||0}/${level?.requiredCount||0} tamamlandı</span><span>${ready}/${books.length} metin hazır</span>${level?.sourcePending?'<span class="sourcePending">Tam metin hazırlanıyor</span>':''}</div>
-     <div class="starterLibraryGrid">${books.map(book=>renderStarterBookCard(book,completedCount,S.library.path)).join('')}</div>
+     <div class="starterLibraryGrid">${books.map(book=>renderStarterBookCard(book,completedCount,pathSnapshot.completedBooks)).join('')}</div>
    </section>`;
  }).join('');
 }
