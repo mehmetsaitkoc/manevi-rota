@@ -10,7 +10,7 @@ const works=[
 
 const UA='Manevi-Rota-Source-Audit/1.0';
 async function getJson(url){
-  const res=await fetch(url,{headers:{'user-agent':UA,'accept':'application/json'}});
+  const res=await fetch(url,{headers:{'user-agent':UA,'accept':'application/json'},signal:AbortSignal.timeout(12000)});
   if(!res.ok)throw new Error(`${res.status} ${res.statusText} — ${url}`);
   return res.json();
 }
