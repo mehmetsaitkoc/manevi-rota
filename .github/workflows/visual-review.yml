@@ -10,6 +10,8 @@ on:
       - 'public/styles.css'
       - 'public/index.html'
       - 'src/kirk-hadis.mjs'
+      - 'src/quran-reader.mjs'
+      - 'scripts/quran-reader.mjs'
       - 'public/data/**'
   workflow_dispatch:
 
@@ -86,7 +88,15 @@ jobs:
 
             await page.click('#bookQuran');
             await page.waitForSelector('.quranAyah',{timeout:10000});
+            await page.click('[data-quran-highlight="1"]');
+            await page.click('[data-quran-note="1"]');
+            await page.fill('#quranNoteInput','Visual review — kişisel not katmanı');
+            await page.click('#quranNoteSave');
             await page.screenshot({path:'visual-review/03-quran.png',fullPage:true});
+            await page.click('#quranFocus');
+            await page.waitForSelector('.quranFocusMode',{timeout:5000});
+            await page.screenshot({path:'visual-review/03b-quran-focus.png',fullPage:true});
+            await page.click('#quranFocus');
             await page.click('#quranBack');
             await page.waitForSelector('#bookIslam',{timeout:10000});
 
