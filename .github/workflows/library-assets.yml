@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   build-library:
@@ -63,3 +64,7 @@ jobs:
             git commit -m "deploy: sync in-app library assets"
             git push origin gh-pages
           fi
+      - name: Trigger post-build visual review
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run visual-review.yml --ref main
