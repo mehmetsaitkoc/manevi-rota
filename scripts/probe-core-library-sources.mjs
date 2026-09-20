@@ -163,7 +163,7 @@ async function searchOne(c){
         name:f.name,size:Number(f.size||0)||null,format:f.format||null,source:f.source||null
       }));
       const contentProbe=(c.id==='kisas-cevdet'||c.probeText)?await textProbe(row.identifier,files):null;
-      return {
+      const result={
         identifier:row.identifier,title:row.title||'',creator:row.creator||'',year:row.year||null,
         metadata:{date:m?.metadata?.date||null,year:m?.metadata?.year||null,language:m?.metadata?.language||null,rights:m?.metadata?.rights||null,licenseurl:m?.metadata?.licenseurl||null},
         files:files.slice(0,20),
