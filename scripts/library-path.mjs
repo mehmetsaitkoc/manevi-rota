@@ -34,9 +34,12 @@ const acknowledged=acknowledgeLibraryLevel(levelTwo.completedBooks?.length?{...c
 const acknowledgedSnapshot=libraryPathSnapshot({pathState:acknowledged,hadithCompletedCount:0});
 assert.equal(acknowledgedSnapshot.transitionReady,false);
 assert.equal(acknowledgedSnapshot.acknowledgedLevel,2);
-assert.equal(levelTwo.levels[1].sourcePending,true,'a missing level-two full text must be disclosed');
-const withNamaz=setGenericBookCompleted(completedReady,'namaz-sureleri-tefsiri',true);
-const stillLevelTwo=libraryPathSnapshot({pathState:withNamaz,hadithCompletedCount:42});
-assert.equal(stillLevelTwo.currentLevel,2,'pending source must keep level two honest even if its available book is complete');
+assert.equal(levelTwo.levels[1].sourcePending,false,'level two must become fully readable once Yavrularımız is packaged');
+const withYavrular=setGenericBookCompleted(completedReady,'yavrularimiza-din-dersleri',true);
+const withLevelTwo=setGenericBookCompleted(withYavrular,'namaz-sureleri-tefsiri',true);
+const levelThree=libraryPathSnapshot({pathState:withLevelTwo,hadithCompletedCount:42});
+assert.equal(levelThree.currentLevel,3,'completing both level-two books should move guidance to level three');
+assert.equal(levelThree.levels[1].complete,true);
+assert.equal(levelThree.levels[2].sourcePending,true,'level three must still disclose the pending siyer full text');
 
 console.log('library-path: five-level soft progression and source-honesty checks passed');
