@@ -127,6 +127,18 @@ jobs:
             const acknowledgedLevel=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.path?.acknowledgedLevel,key);
             if(acknowledgedLevel!==2)throw new Error('Level transition acknowledgement was not persisted');
 
+            const yavrularButton=page.locator('[data-starter-book="yavrularimiza-din-dersleri"]');
+            if(await yavrularButton.isDisabled())throw new Error('Yavrularımıza Din Dersleri should be readable');
+            await yavrularButton.click();
+            await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            const yavrularTitle=await page.locator('.genericBookTitleCard h1').innerText();
+            if(!yavrularTitle.includes('Yavrularımıza Din Dersleri'))throw new Error('Yavrularımız reader title mismatch');
+            const sourceText=await page.locator('.genericBookSource').innerText();
+            if(!sourceText.includes('1967'))throw new Error('Yavrularımız source edition disclosure missing');
+            await page.screenshot({path:'visual-review/03-yavrularimiz-reader.png',fullPage:true});
+            await page.click('#genericBookBack');
+            await page.waitForSelector('[data-starter-book="namaz-sureleri-tefsiri"]',{timeout:10000});
+
             await page.click('[data-starter-book="namaz-sureleri-tefsiri"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
             await page.click('[data-book-highlight="1"]');
