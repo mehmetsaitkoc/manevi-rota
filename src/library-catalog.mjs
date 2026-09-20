@@ -1,11 +1,51 @@
 export const STARTER_LIBRARY_VERSION='2026.09';
 
 export const STARTER_LIBRARY_STAGES=[
-  {id:'level-1',order:1,title:'Temel Din Bilinci',subtitle:'Kur’ân ile bağ kur; iman, ibadet ve ahlâkın temel çerçevesini öğren.'},
-  {id:'level-2',order:2,title:'İbadeti Anlama ve Temeli Pekiştirme',subtitle:'Sade din bilgisiyle temeli pekiştir; namazda okuduklarının anlamına yaklaş.'},
-  {id:'level-3',order:3,title:'Sünnet ve Peygamber Örneği',subtitle:'Hadisleri ve Resûlullah’ın örnekliğini hayatla ilişkilendir.'},
-  {id:'level-4',order:4,title:'Müslüman Kimliği ve Ahlâk',subtitle:'İnancın karaktere, sorumluluğa ve davranışa nasıl dönüştüğünü işle.'},
-  {id:'level-5',order:5,title:'Tefekkür ve Şuur',subtitle:'Hadis ve tefsir okumalarıyla düşünme, muhasebe ve anlam derinliğini artır.'}
+  {
+    id:'level-1',order:1,title:'Temel Din Bilinci',
+    subtitle:'Kur’ân ile bağ kur; iman, ibadet ve ahlâkın temel çerçevesini öğren.',
+    goals:[
+      'İman, ibadet ve ahlâkın farklı ama birbirini tamamlayan alanlar olduğunu kendi cümlenle açıklayabilmek.',
+      'Temel din bilgisinden günlük hayata dokunan en az bir soru veya çıkarım üretebilmek.',
+      'Okuduğun bir temel kavramı kaynak metindeki bağlamıyla hatırlayabilmek.'
+    ]
+  },
+  {
+    id:'level-2',order:2,title:'İbadeti Anlama ve Temeli Pekiştirme',
+    subtitle:'Sade din bilgisiyle temeli pekiştir; namazda okuduklarının anlamına yaklaş.',
+    goals:[
+      'Namazda sık okunan sûre ve duaların ana anlamlarını tanımaya başlamak.',
+      'İbadetin şekli ile anlamı arasındaki bağı okuduğun metin üzerinden fark edebilmek.',
+      'Öğrendiğin bir anlamı kendi ibadet rutinine dair düşünsel bir notla ilişkilendirebilmek.'
+    ]
+  },
+  {
+    id:'level-3',order:3,title:'Sünnet ve Peygamber Örneği',
+    subtitle:'Hadisleri ve Resûlullah’ın örnekliğini hayatla ilişkilendir.',
+    goals:[
+      'Okuduğun bir hadisin ana mesajını kısa biçimde kendi cümlenle ifade edebilmek.',
+      'Bir hadis ile Hz. Peygamber’in örnekliği arasında temel bir bağlantı kurabilmek.',
+      'Metindeki bir ilkeden günlük davranışa yönelik somut bir düşünce çıkarabilmek.'
+    ]
+  },
+  {
+    id:'level-4',order:4,title:'Müslüman Kimliği ve Ahlâk',
+    subtitle:'İnancın karaktere, sorumluluğa ve davranışa nasıl dönüştüğünü işle.',
+    goals:[
+      'İnanç ile ahlâkî davranış arasındaki ilişkiyi metinden örneklerle ayırt edebilmek.',
+      'Niyet, sorumluluk ve davranış arasındaki bağı düşünerek açıklayabilmek.',
+      'Bir ahlâk konusundaki doğru ve problemli davranış örneklerini metne dayanarak karşılaştırabilmek.'
+    ]
+  },
+  {
+    id:'level-5',order:5,title:'Tefekkür ve Şuur',
+    subtitle:'Hadis ve tefsir okumalarıyla düşünme, muhasebe ve anlam derinliğini artır.',
+    goals:[
+      'Bir metnin ana fikri, gerekçesi ve sonucu arasında bağlantı kurabilmek.',
+      'Zaman, sorumluluk ve davranış temalarını birlikte değerlendirebilmek.',
+      'Hadis veya tefsir okumasından kendi araştırma ya da muhasebe sorunu üretebilmek.'
+    ]
+  }
 ];
 
 export const STARTER_LIBRARY=[
