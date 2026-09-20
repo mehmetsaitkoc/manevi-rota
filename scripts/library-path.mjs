@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import {STARTER_LIBRARY} from '../src/library-catalog.mjs';
-import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,isPathBookCompleted,libraryPathSnapshot} from '../src/library-path.mjs';
+import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,isPathBookCompleted,libraryPathSnapshot,acknowledgeLibraryLevel} from '../src/library-path.mjs';
 
-assert.deepEqual(emptyLibraryPathState(),{completedBooks:[],completedAt:{}});
+assert.deepEqual(emptyLibraryPathState(),{completedBooks:[],completedAt:{},acknowledgedLevel:1});
 
 let state=normalizeLibraryPathState({completedBooks:['islam-dini','islam-dini','quran','bad'],completedAt:{'islam-dini':'2026-09-20T12:00:00Z'}});
 assert.deepEqual(state.completedBooks,['islam-dini']);
+assert.equal(state.acknowledgedLevel,1);
 assert.equal(state.completedAt['islam-dini'],'2026-09-20T12:00:00.000Z');
 
 state=setGenericBookCompleted(state,'islam-dini',true,'2026-09-20T13:00:00Z');
@@ -26,6 +27,11 @@ const completedReady=setGenericBookCompleted(state,'islam-dini',true);
 const levelTwo=libraryPathSnapshot({pathState:completedReady,hadithCompletedCount:0});
 assert.equal(levelTwo.currentLevel,2,'finishing the level-one required book should move guidance to level two');
 assert.equal(levelTwo.levels[0].complete,true);
+assert.equal(levelTwo.transitionReady,true,'a newly reached level should wait for an explicit transition acknowledgement');
+const acknowledged=acknowledgeLibraryLevel(levelTwo.completedBooks?.length?{...completedReady,acknowledgedLevel:1}:completedReady,2);
+const acknowledgedSnapshot=libraryPathSnapshot({pathState:acknowledged,hadithCompletedCount:0});
+assert.equal(acknowledgedSnapshot.transitionReady,false);
+assert.equal(acknowledgedSnapshot.acknowledgedLevel,2);
 assert.equal(levelTwo.levels[1].sourcePending,true,'a missing level-two full text must be disclosed');
 const withNamaz=setGenericBookCompleted(completedReady,'namaz-sureleri-tefsiri',true);
 const stillLevelTwo=libraryPathSnapshot({pathState:withNamaz,hadithCompletedCount:42});
