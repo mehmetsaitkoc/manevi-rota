@@ -3,16 +3,20 @@ import {buildRoute,weeklyDigest,dayAdd,timeSlotLearning} from '../src/route-engi
 import {PRAYERS,emptyQada,normalizePrayerPayload,prayerStatus,formatDuration,qadaRemaining,qadaTargetProgress,setQadaBalance,recordQada,undoQada} from '../src/prayer-center.mjs';
 import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisState,getHadis,progressPct as hadisProgressPct,todayHadisPlan,recordHadisSession,scheduleHadisReviews,dueReviews as dueHadisReviews,recordRecallAttempt,recallPromptFor,knowledgeSignal,knowledgeOverview,addHadisHighlight,addHadisNote,toggleHadisBookmark,notebookEntries} from '../src/kirk-hadis.mjs';
 import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,toggleQuranVerseHighlight,setQuranVerseNote} from '../src/quran-reader.mjs';
+import {STARTER_LIBRARY,starterBook} from '../src/library-catalog.mjs';
+import {normalizeBookReaderState,bookHighlight,bookNote,toggleBookHighlight,setBookNote,toggleBookPageBookmark} from '../src/book-reader.mjs';
 import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilotRoutePayload,pilotDayPayload} from '../src/pilot-telemetry.mjs';
 
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
 const app=document.querySelector('#app'),nav=document.querySelector('#nav');
-const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:emptyQuranReaderState(),islam:{page:5,fontScale:1},lastBook:'hadith'},pilot:emptyPilotState()});
+const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:emptyQuranReaderState(),islam:{page:5,fontScale:1},books:{},lastBook:'hadith'},pilot:emptyPilotState()});
 function load(){try{const own=localStorage.getItem(KEY);if(own)return JSON.parse(own);for(const k of LEGACY_KEYS){const v=localStorage.getItem(k);if(v)return {...fresh(),...JSON.parse(v)}}}catch{}return fresh()}
 let S=load();
 S.profile=S.profile||{priorities:[]};S.profile.slotOverrides=S.profile.slotOverrides||{};S.profile.slotSuggestionSnooze=S.profile.slotSuggestionSnooze||{};
-S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:normalizeQuranReaderState({...libraryBase.quran,...(S.library?.quran||{})}),islam:{...libraryBase.islam,...(S.library?.islam||{})}};S.pilot=normalizePilotState(S.pilot||{});
+S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:normalizeQuranReaderState({...libraryBase.quran,...(S.library?.quran||{})}),islam:{...libraryBase.islam,...(S.library?.islam||{})},books:{...(S.library?.books||{})}};
+S.library.books=Object.fromEntries(Object.entries(S.library.books||{}).map(([id,state])=>[id,normalizeBookReaderState(state)]));
+S.pilot=normalizePilotState(S.pilot||{});
 const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
 const APP_VERSION='3.0.0';
 let pilotFlushBusy=false;
@@ -87,6 +91,7 @@ const arabicHadith=id=>nawawiArabic[Number(id)]||'';
 
 const QURAN_META=[[1,"Fâtiha","الفاتحة",7],[2,"Bakara","البقرة",286],[3,"Âl-i İmrân","آل عمران",200],[4,"Nisâ","النساء",176],[5,"Mâide","المائدة",120],[6,"En’âm","الأنعام",165],[7,"A’râf","الأعراف",206],[8,"Enfâl","الأنفال",75],[9,"Tevbe","التوبة",129],[10,"Yûnus","يونس",109],[11,"Hûd","هود",123],[12,"Yûsuf","يوسف",111],[13,"Ra’d","الرعد",43],[14,"İbrâhim","إبراهيم",52],[15,"Hicr","الحجر",99],[16,"Nahl","النحل",128],[17,"İsrâ","الإسراء",111],[18,"Kehf","الكهف",110],[19,"Meryem","مريم",98],[20,"Tâhâ","طه",135],[21,"Enbiyâ","الأنبياء",112],[22,"Hac","الحج",78],[23,"Mü’minûn","المؤمنون",118],[24,"Nûr","النور",64],[25,"Furkân","الفرقان",77],[26,"Şuarâ","الشعراء",227],[27,"Neml","النمل",93],[28,"Kasas","القصص",88],[29,"Ankebût","العنكبوت",69],[30,"Rûm","الروم",60],[31,"Lokmân","لقمان",34],[32,"Secde","السجدة",30],[33,"Ahzâb","الأحزاب",73],[34,"Sebe’","سبأ",54],[35,"Fâtır","فاطر",45],[36,"Yâsîn","يس",83],[37,"Sâffât","الصافات",182],[38,"Sâd","ص",88],[39,"Zümer","الزمر",75],[40,"Mü’min (Gâfir)","غافر",85],[41,"Fussilet","فصلت",54],[42,"Şûrâ","الشورى",53],[43,"Zuhruf","الزخرف",89],[44,"Duhân","الدخان",59],[45,"Câsiye","الجاثية",37],[46,"Ahkâf","الأحقاف",35],[47,"Muhammed","محمد",38],[48,"Fetih","الفتح",29],[49,"Hucurât","الحجرات",18],[50,"Kâf","ق",45],[51,"Zâriyât","الذاريات",60],[52,"Tûr","الطور",49],[53,"Necm","النجم",62],[54,"Kamer","القمر",55],[55,"Rahmân","الرحمن",78],[56,"Vâkıa","الواقعة",96],[57,"Hadîd","الحديد",29],[58,"Mücâdele","المجادلة",22],[59,"Haşr","الحشر",24],[60,"Mümtehine","الممتحنة",13],[61,"Saf","الصف",14],[62,"Cuma","الجمعة",11],[63,"Münâfikûn","المنافقون",11],[64,"Tegâbün","التغابن",18],[65,"Talâk","الطلاق",12],[66,"Tahrîm","التحريم",12],[67,"Mülk","الملك",30],[68,"Kalem","القلم",52],[69,"Hâkka","الحاقة",52],[70,"Meâric","المعارج",44],[71,"Nûh","نوح",28],[72,"Cin","الجن",28],[73,"Müzzemmil","المزمل",20],[74,"Müddessir","المدثر",56],[75,"Kıyâmet","القيامة",40],[76,"İnsan","الإنسان",31],[77,"Mürselât","المرسلات",50],[78,"Nebe’","النبأ",40],[79,"Nâziât","النازعات",46],[80,"Abese","عبس",42],[81,"Tekvîr","التكوير",29],[82,"İnfitâr","الإنفطار",19],[83,"Mutaffifîn","المطففين",36],[84,"İnşikâk","الانشقاق",25],[85,"Burûc","البروج",22],[86,"Târık","الطارق",17],[87,"A’lâ","الأعلى",19],[88,"Gâşiye","الغاشية",26],[89,"Fecr","الفجر",30],[90,"Beled","البلد",20],[91,"Şems","الشمس",15],[92,"Leyl","الليل",21],[93,"Duhâ","الضحى",11],[94,"İnşirâh","الشرح",8],[95,"Tîn","التين",8],[96,"Alak","العلق",19],[97,"Kadr","القدر",5],[98,"Beyyine","البينة",8],[99,"Zilzâl","الزلزلة",8],[100,"Âdiyât","العاديات",11],[101,"Kâria","القارعة",11],[102,"Tekâsür","التكاثر",8],[103,"Asr","العصر",3],[104,"Hümeze","الهمزة",9],[105,"Fîl","الفيل",5],[106,"Kureyş","قريش",4],[107,"Mâûn","الماعون",7],[108,"Kevser","الكوثر",3],[109,"Kâfirûn","الكافرون",6],[110,"Nasr","النصر",3],[111,"Tebbet (Mesed)","المسد",5],[112,"İhlâs","الإخلاص",4],[113,"Felak","الفلق",5],[114,"Nâs","الناس",6]];
 const quranChapterCache=new Map();
+const genericBookCache=new Map();
 let islamDiniLibrary=null,islamDiniLoading=null;
 let quranProgressObserver=null;
 const quranMeta=id=>{const x=QURAN_META.find(v=>v[0]===Number(id))||QURAN_META[0];return {id:x[0],turkish:x[1],arabic:x[2],verseCount:x[3]}};
@@ -98,6 +103,53 @@ async function loadQuranChapter(id){
 async function loadIslamDini(){
  if(islamDiniLibrary)return islamDiniLibrary;if(islamDiniLoading)return islamDiniLoading;
  islamDiniLoading=fetch('public/data/islam-dini.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('İslâm Dini metni yüklenemedi.');return r.json()}).then(j=>{if(!Array.isArray(j?.pages))throw new Error('İslâm Dini veri biçimi geçersiz.');islamDiniLibrary=j;return j}).finally(()=>{islamDiniLoading=null});return islamDiniLoading;
+}
+async function loadGenericBook(id){
+ const book=starterBook(id);
+ if(!book||book.readerType!=='generic'||book.availability!=='ready'||!book.asset)throw new Error('Bu eser henüz uygulama içi okumaya hazır değil.');
+ if(genericBookCache.has(id))return genericBookCache.get(id);
+ const r=await fetch(book.asset,{cache:'force-cache'});
+ if(!r.ok)throw new Error('Kitap metni yüklenemedi.');
+ const data=await r.json();
+ if(!Array.isArray(data?.pages)||!data.pages.length)throw new Error('Kitap veri biçimi geçersiz.');
+ genericBookCache.set(id,data);return data;
+}
+function genericBookState(id){
+ S.library.books=S.library.books||{};
+ S.library.books[id]=normalizeBookReaderState(S.library.books[id]||{});
+ return S.library.books[id];
+}
+function genericBookBlocks(text){
+ const raw=String(text||'').replace(/\r/g,'').split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+ const out=[];
+ for(const block of raw){
+   const clean=block.split(/\n+/).map(x=>x.trim()).filter(Boolean).join(' ').replace(/[ \t]{2,}/g,' ').trim();
+   if(!clean)continue;
+   if(clean.length<=900){out.push(clean);continue}
+   const sentences=clean.match(/[^.!?…]+[.!?…]+|[^.!?…]+$/g)?.map(x=>x.trim()).filter(Boolean)||[clean];
+   let group='';
+   for(const sentence of sentences){
+     if(group&&group.length+sentence.length>650){out.push(group);group=sentence}
+     else group=(group?group+' ':'')+sentence;
+   }
+   if(group)out.push(group);
+ }
+ return out.length?out:[String(text||'').trim()].filter(Boolean);
+}
+function genericBookHeading(text){
+ const value=String(text||'').trim();
+ return value.length>0&&value.length<=130&&/[A-ZÇĞİÖŞÜÂÎÛ]/.test(value)&&value===value.toLocaleUpperCase('tr-TR');
+}
+function openStarterBook(id){
+ const book=starterBook(id);if(!book||book.availability!=='ready')return;
+ S.library.lastBook=id;save();
+ if(book.readerType==='quran')return ilimGo('quran');
+ if(book.readerType==='hadith')return ilimGo('reader',S.ilim.currentId);
+ if(book.readerType==='islam')return ilimGo('islam');
+ if(book.readerType==='generic'){
+   S.ilim.ui={...(S.ilim.ui||{}),screen:'book',bookId:id};
+   save();return renderIlim();
+ }
 }
 function renderLibraryLoading(title,subtitle='Metin hazırlanıyor…'){
  app.innerHTML=`<section class="readerTop"><button class="readerBack" id="libraryBack">←</button><div><small>İLİM KÜTÜPHANESİ</small><b>${esc(title)}</b></div></section><section class="libraryReaderLoading"><i></i><h2>${esc(title)}</h2><p>${esc(subtitle)}</p></section>`;
@@ -382,13 +434,14 @@ function renderProfile(){
 
 function renderIlim(){
  const ui=S.ilim.ui||{};
- const fullReader=['reader','quran','islam'].includes(ui.screen);
+ const fullReader=['reader','quran','islam','book'].includes(ui.screen);
  nav.classList.toggle('hidden',fullReader);
  if(ui.screen==='reader')return renderIlimReader(ui.selectedId||S.ilim.currentId);
  if(ui.screen==='notebook')return renderIlimNotebook();
  if(ui.screen==='reviews')return renderIlimReviews();
  if(ui.screen==='quran')return renderQuranReader();
  if(ui.screen==='islam')return renderIslamDiniReader();
+ if(ui.screen==='book')return renderGenericBookReader();
  return renderIlimHome();
 }
 function ilimGo(screen,selectedId=null){S.ilim.ui={...(S.ilim.ui||{}),screen,...(selectedId?{selectedId:Number(selectedId)}:{})};save();renderIlim()}
@@ -403,6 +456,30 @@ function renderIlimHome(){
  const completedCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
  const current=getHadis(S.ilim.currentId)||h;
  const nextDue=due[0];
+ const readyBookCount=STARTER_LIBRARY.filter(x=>x.availability==='ready').length;
+ const starterShelf=STARTER_LIBRARY.map(book=>{
+   const ready=book.availability==='ready';
+   const saved=book.readerType==='generic'?normalizeBookReaderState(S.library.books?.[book.id]||{}):null;
+   const progress=book.id==='kirk-hadis'
+     ?`${completedCount}/42 okundu`
+     :book.id==='quran'
+       ?`${esc(quranMeta(S.library.quran.surah).turkish)} · ${S.library.quran.ayah}. âyet`
+       :book.id==='islam-dini'
+         ?`Okuma ${S.library.islam.page} · kaldığın yerden`
+         :ready
+           ?`Okuma ${saved?.page||1} · kaldığın yerden`
+           :'Kaynak doğrulanıyor';
+   const byline=book.author==='—'?'Arapça metin':book.author;
+   return `<button class="starterBookCard tone-${esc(book.tone||'forest')} ${ready?'ready':'pending'}" data-starter-book="${esc(book.id)}" ${ready?'':'disabled'} aria-label="${esc(book.title)}">
+     <div class="starterBookOrder">${book.order}</div>
+     <div class="starterBookCover"><span>${esc(book.coverGlyph||'ك')}</span><small>${esc(book.field)}</small></div>
+     <div class="starterBookInfo">
+       <div class="starterBookBadges"><span>${esc(book.level)}</span><span class="${ready?'available':'checking'}">${ready?'Okunabilir':'Kaynak doğrulanıyor'}</span></div>
+       <b>${esc(book.title)}</b><small>${esc(byline)}</small><p>${esc(book.shortLabel)}</p><em>${progress}</em>
+     </div>
+     <i>${ready?'›':'·'}</i>
+   </button>`;
+ }).join('');
  app.innerHTML=`
  <section class="card libraryHero">
    <div class="libraryHeroTop">
@@ -441,25 +518,12 @@ function renderIlimHome(){
    </article>
  </section>
 
- <section class="card libraryShelf">
-   <div class="sectionHead">
-     <div><div class="eyebrow">KİTAPLIK</div><h2>Temel eserler</h2></div>
-     <span class="sourcePill">Sade başlangıç</span>
+ <section class="card libraryShelf premiumStarterShelf">
+   <div class="sectionHead starterShelfHead">
+     <div><div class="eyebrow">BAŞLANGIÇ KÜTÜPHANESİ</div><h2>10 eserlik sağlam başlangıç</h2><p>Az ama nitelikli. Metni ve kaynağı hazır olmayan eser okunabilir görünmez.</p></div>
+     <span class="sourcePill">${readyBookCount} okunabilir · ${STARTER_LIBRARY.length-readyBookCount} doğrulamada</span>
    </div>
-   <div class="bookShelfGrid">
-     <button class="bookShelfCard primaryBook" id="bookKirkHadis">
-       <div class="bookCoverMini hadisBook">ح</div>
-       <div><b>Kırk Hadis</b><small>İmam Nevevî</small><span>${completedCount}/42 okundu</span></div><i>›</i>
-     </button>
-     <button class="bookShelfCard primaryBook" id="bookQuran">
-       <div class="bookCoverMini quranBook">ق</div>
-       <div><b>Kur’ân-ı Kerîm</b><small>Uthmanî Hafs · Arapça metin</small><span>${esc(quranMeta(S.library.quran.surah).turkish)} · ${S.library.quran.ayah}. âyet</span></div><i>›</i>
-     </button>
-     <button class="bookShelfCard primaryBook" id="bookIslam">
-       <div class="bookCoverMini islamBook">ك</div>
-       <div><b>İslâm Dini</b><small>Ahmed Hamdi Akseki</small><span>Okuma sayfası ${S.library.islam.page} · kaldığın yerden</span></div><i>›</i>
-     </button>
-   </div>
+   <div class="starterLibraryGrid">${starterShelf}</div>
  </section>
 
  <section class="card memorySummary compactMemory">
@@ -471,13 +535,73 @@ function renderIlimHome(){
  const open=()=>ilimGo('reader',S.ilim.currentId);
  document.querySelector('#continueHadis').onclick=open;
  document.querySelector('#openTodayHadis').onclick=()=>ilimGo('reader',h.id);
- document.querySelector('#bookKirkHadis').onclick=()=>{S.library.lastBook='hadith';save();open()};
- document.querySelector('#bookQuran').onclick=()=>{S.library.lastBook='quran';save();ilimGo('quran')};
- document.querySelector('#bookIslam').onclick=()=>{S.library.lastBook='islam';save();ilimGo('islam')};
+ document.querySelectorAll('[data-starter-book]').forEach(btn=>btn.onclick=()=>openStarterBook(btn.dataset.starterBook));
  document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');
  document.querySelector('#ilimNotebook').onclick=()=>ilimGo('notebook');
 }
 
+async function renderGenericBookReader(){
+ const bookId=S.ilim.ui?.bookId,book=starterBook(bookId),screen=S.ilim.ui?.screen;
+ if(!book||book.readerType!=='generic'||book.availability!=='ready'){
+   S.ilim.ui={...(S.ilim.ui||{}),screen:'home',bookId:null};save();return renderIlimHome();
+ }
+ if(!genericBookCache.has(bookId)){
+   renderLibraryLoading(book.title,'Kitap uygulama içinde hazırlanıyor…');
+   try{await loadGenericBook(bookId)}catch(err){if(S.ilim.ui?.screen==='book')renderLibraryError(book.title,err.message||String(err),renderGenericBookReader);return}
+   if(S.ilim.ui?.screen==='book'&&screen==='book')return renderGenericBookReader();return;
+ }
+ const data=genericBookCache.get(bookId),total=data.pages.length,state=genericBookState(bookId);
+ const pageNo=Math.max(1,Math.min(total,Number(state.page)||1)),page=data.pages[pageNo-1],scale=Number(state.fontScale||1);
+ const selectedColor=state.highlightColor||'#e6c46f',blocks=genericBookBlocks(page?.text||''),bookmarked=state.bookmarks.includes(pageNo);
+ const palette=['#e6c46f','#8fc7a2','#d998a2'].map(color=>`<button class="bookColorSwatch ${selectedColor===color?'sel':''}" data-book-color="${color}" style="--sw:${color}" aria-label="Vurgu rengi"></button>`).join('');
+ const sectionOptions=(data.sections||[]).map(section=>{
+   const target=data.pages.findIndex(x=>Number(x.page)===Number(section.page));
+   return target>=0?`<option value="${target+1}">${esc(section.title)}</option>`:'';
+ }).join('');
+ const content=blocks.map((text,index)=>{
+   const highlight=bookHighlight(state,pageNo,index),note=bookNote(state,pageNo,index),key=`${pageNo}:${index}`,editing=state.noteFor===key,heading=genericBookHeading(text);
+   const style=highlight?` style="--book-hl:${hexToRgba(highlight,.29)};--book-hl-line:${hexToRgba(highlight,.92)}"`:'';
+   return `<article class="genericBookBlock ${heading?'sourceHeading':''} ${highlight?'highlighted':''}" data-book-block="${index}"${style}>
+     ${heading?`<h2 dir="auto">${esc(text)}</h2>`:`<p dir="auto" style="font-size:${(1.04*scale).toFixed(2)}rem">${esc(text)}</p>`}
+     <div class="genericBookBlockTools"><button data-book-highlight="${index}" class="${highlight?'active':''}">✦ Vurgu</button><button data-book-note="${index}" class="${note?'active':''}">✎ Not</button></div>
+     ${note?`<aside class="genericBookUserNote"><small>KİŞİSEL NOT</small><p>${esc(note)}</p></aside>`:''}
+     ${editing?`<div class="genericBookNoteEditor"><label for="genericBookNoteInput">Kişisel notun</label><textarea id="genericBookNoteInput" rows="4" maxlength="2400" placeholder="Bu alan eser metninden ayrıdır.">${esc(note)}</textarea><div><button class="btn ghost" id="genericBookNoteCancel">Vazgeç</button><button class="btn primary" id="genericBookNoteSave">Kaydet</button></div></div>`:''}
+   </article>`;
+ }).join('');
+ app.innerHTML=`<section class="readerTop genericBookTop"><button class="readerBack" id="genericBookBack">←</button><div><small>BAŞLANGIÇ KÜTÜPHANESİ · ${book.order}/10</small><b>${esc(book.title)}</b></div><div class="readerTools"><button id="genericBookBookmark" class="${bookmarked?'active':''}" aria-label="Sayfa yer imi">${bookmarked?'★':'☆'}</button><button id="genericBookFocus" class="${state.focusMode?'active':''}">${state.focusMode?'Çık':'Odak'}</button><button id="genericBookFontDown">A−</button><button id="genericBookFontUp">A+</button></div></section>
+ <section class="genericBookReaderShell ${state.focusMode?'genericBookFocusMode':''}">
+   <div class="genericBookNav">
+     <button id="genericPrevPage" ${pageNo<=1?'disabled':''}>←</button>
+     <label>Okuma <input id="genericBookPageInput" type="number" inputmode="numeric" min="1" max="${total}" value="${pageNo}"> / ${total}</label>
+     <button id="genericNextPage" ${pageNo>=total?'disabled':''}>→</button>
+   </div>
+   ${sectionOptions?`<div class="genericBookSectionJump"><select id="genericBookSectionSelect"><option value="">Bölüme git…</option>${sectionOptions}</select></div>`:''}
+   <header class="genericBookTitleCard">
+     <div class="genericBookMonogram tone-${esc(book.tone||'forest')}">${esc(book.coverGlyph||'ك')}</div>
+     <div><div class="eyebrow">${esc(book.field)} · ${esc(book.level)}</div><h1>${esc(book.title)}</h1><p>${esc(book.author)} · Okuma ${pageNo}/${total}</p></div>
+   </header>
+   <div class="genericBookMarkupBar"><div><span>Vurgu rengi</span><div class="bookColorPalette">${palette}<input id="genericBookCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div><small>Vurgular ve notlar kaynak metne karıştırılmaz.</small></div>
+   <article class="genericBookPaper"><div class="genericBookPageMarker">OKUMA ${pageNo} · KAYNAK SAYFA ${page?.page||pageNo}</div>${content||'<div class="emptyState">Bu sayfada aktarılabilir metin bulunamadı.</div>'}</article>
+   <details class="readerSourceNote genericBookSource"><summary>Kaynak ve metin politikası</summary><p><b>${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</b></p><p>${esc(data.source?.textPolicy||book.rightsNote||'Eser metni değiştirilmeden gösterilir.')}</p>${data.source?.reviewNote?`<p>${esc(data.source.reviewNote)}</p>`:''}</details>
+ </section>`;
+ const persist=()=>{S.library.books[bookId]=normalizeBookReaderState(S.library.books[bookId]);S.library.lastBook=bookId;save()};
+ const goPage=value=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],page:Math.max(1,Math.min(total,Number(value)||pageNo)),noteFor:null});persist();renderGenericBookReader()};
+ document.querySelector('#genericBookBack').onclick=()=>ilimGo('home');
+ document.querySelector('#genericPrevPage').onclick=()=>goPage(pageNo-1);document.querySelector('#genericNextPage').onclick=()=>goPage(pageNo+1);
+ document.querySelector('#genericBookPageInput').onchange=e=>goPage(e.target.value);
+ const jump=document.querySelector('#genericBookSectionSelect');if(jump)jump.onchange=e=>{if(e.target.value)goPage(e.target.value)};
+ document.querySelector('#genericBookFontDown').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.max(.82,scale-.08)});persist();renderGenericBookReader()};
+ document.querySelector('#genericBookFontUp').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.min(1.5,scale+.08)});persist();renderGenericBookReader()};
+ document.querySelector('#genericBookFocus').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,focusMode:!state.focusMode,noteFor:null});persist();renderGenericBookReader()};
+ document.querySelector('#genericBookBookmark').onclick=()=>{S.library.books[bookId]=toggleBookPageBookmark(state,pageNo);persist();renderGenericBookReader()};
+ document.querySelectorAll('[data-book-color]').forEach(btn=>btn.onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,highlightColor:btn.dataset.bookColor});persist();renderGenericBookReader()});
+ document.querySelector('#genericBookCustomColor').onchange=e=>{S.library.books[bookId]=normalizeBookReaderState({...state,highlightColor:e.target.value});persist();renderGenericBookReader()};
+ document.querySelectorAll('[data-book-highlight]').forEach(btn=>btn.onclick=()=>{S.library.books[bookId]=toggleBookHighlight(S.library.books[bookId],pageNo,Number(btn.dataset.bookHighlight),S.library.books[bookId].highlightColor);persist();renderGenericBookReader()});
+ document.querySelectorAll('[data-book-note]').forEach(btn=>btn.onclick=()=>{const index=Number(btn.dataset.bookNote);S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],noteFor:`${pageNo}:${index}`});persist();renderGenericBookReader();setTimeout(()=>document.querySelector('#genericBookNoteInput')?.focus(),30)});
+ const noteSave=document.querySelector('#genericBookNoteSave'),noteCancel=document.querySelector('#genericBookNoteCancel');
+ if(noteSave)noteSave.onclick=()=>{const [p,i]=String(S.library.books[bookId].noteFor||'').split(':').map(Number);S.library.books[bookId]=setBookNote(S.library.books[bookId],p,i,document.querySelector('#genericBookNoteInput')?.value||'');S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],noteFor:null});persist();renderGenericBookReader()};
+ if(noteCancel)noteCancel.onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],noteFor:null});persist();renderGenericBookReader()};
+}
 async function renderQuranReader(){
  S.library.quran=normalizeQuranReaderState(S.library.quran);
  const state=S.library.quran,meta=quranMeta(state.surah),screen=S.ilim.ui?.screen;
