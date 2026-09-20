@@ -49,7 +49,8 @@ export function normalizeNotebookEntry(entry={}){
     highlight:text(raw.highlight),
     bookmarked:Boolean(raw.bookmarked),
     color:text(raw.color),
-    searchText:text(raw.searchText)
+    searchText:text(raw.searchText),
+    target:{...object(raw.target)}
   };
 }
 
