@@ -127,9 +127,9 @@ jobs:
             await page.waitForSelector('[data-starter-book="islam-dini"]',{timeout:10000});
 
             await page.click('[data-starter-book="islam-dini"]');
-            await page.waitForSelector('.islamPagePaper',{timeout:10000});
-            await page.screenshot({path:'visual-review/05-islam-dini.png',fullPage:true});
-            await page.click('#islamBack');
+            await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            await page.screenshot({path:'visual-review/05-islam-dini-premium.png',fullPage:true});
+            await page.click('#genericBookBack');
             await page.waitForSelector('#openTodayHadis',{timeout:10000});
 
             await page.click('#openTodayHadis');
