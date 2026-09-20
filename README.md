@@ -40,6 +40,35 @@ Repo kökündeki `render.yaml` Render Blueprint için hazırdır.
 
 Build sırasında tüm motor testleri çalışır. Testlerden biri bozulursa deploy başarısız olur; böylece canlıya hatalı rota motoru gönderilmez.
 
+
+
+## Pilot v1 — motor kalibrasyonu
+
+Pilot telemetrisi varsayılan olarak **kapalıdır** ve kullanıcı Profil ekranından açıkça katılmadıkça event üretmez.
+
+Toplanan teknik sinyaller:
+- rota modu, toplam süre ve görev sayısı
+- tamamlanma oranı
+- enerji / zihinsel yük / gün bağlamı
+- günlük ve görev sonrası zor-normal-rahat geri bildirimi
+- motorun kanıt, güven ve aşırı yük sinyalleri
+
+Toplanmayan içerikler:
+- kullanıcı notları veya yazdığı metinler
+- okunan âyet / hadis / kitap içeriği veya kimliği
+- namaz / kaza ayrıntıları
+- şehir, konum veya başka kişisel tanımlayıcılar
+
+Sunucu uçları:
+- `GET /api/pilot/status`
+- `POST /api/pilot/events`
+
+Kalıcı bir collector bağlamak için Render ortam değişkenleri:
+- `PILOT_INGEST_URL` — sanitize edilmiş event batch'lerinin gönderileceği HTTPS endpoint
+- `PILOT_INGEST_TOKEN` — isteğe bağlı Bearer token
+
+`PILOT_INGEST_URL` tanımlı değilse sunucu event'i gönderilmiş saymaz. Tarayıcı kuyruğu korunur ve kullanıcı Profil ekranından JSON olarak dışa aktarabilir.
+
 ## Mimari
 
 - `public/` — kullanıcı arayüzü
