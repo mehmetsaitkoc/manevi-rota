@@ -105,6 +105,9 @@ jobs:
             await page.waitForSelector('.libraryLevelCard',{timeout:5000});
             const levelCardText=await page.locator('.libraryLevelCard').innerText();
             if(!levelCardText.includes('Seviye 1'))throw new Error('Library level guidance did not start at level 1');
+            const awarenessCount=await page.locator('.libraryAwarenessGoals li').count();
+            if(awarenessCount!==3)throw new Error('Awareness goals must render exactly three items, got '+awarenessCount);
+            await page.screenshot({path:'visual-review/02a-awareness-goals.png',fullPage:true});
 
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));
@@ -116,6 +119,8 @@ jobs:
             await page.waitForSelector('.levelTransitionCard',{timeout:5000});
             const transitionText=await page.locator('.levelTransitionCard').innerText();
             if(!transitionText.includes('SEVİYE 1 TAMAMLANDI')||!transitionText.includes('Seviye 2'))throw new Error('Level transition card did not appear correctly');
+            const transitionGoals=await page.locator('.levelTransitionNext li').count();
+            if(transitionGoals!==2)throw new Error('Transition should preview two next-level awareness goals, got '+transitionGoals);
             await page.screenshot({path:'visual-review/02b-level-transition.png',fullPage:true});
             await page.click('#ackLibraryLevel');
             await page.waitForTimeout(160);
