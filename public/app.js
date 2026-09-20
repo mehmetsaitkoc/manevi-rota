@@ -657,11 +657,18 @@ async function renderGenericBookReader(){
    try{await loadGenericBook(bookId)}catch(err){if(S.ilim.ui?.screen==='book')renderLibraryError(book.title,err.message||String(err),renderGenericBookReader);return}
    if(S.ilim.ui?.screen==='book'&&screen==='book')return renderGenericBookReader();return;
  }
- const data=genericBookCache.get(bookId),total=data.pages.length,state=genericBookState(bookId);
+ const data=genericBookCache.get(bookId),total=data.pages.length;
+ let state=genericBookState(bookId);
+ if(!state.activeSession){state=beginBookReadingSession(state,{page:state.page,at:new Date().toISOString()});S.library.books[bookId]=state;save();}
  const pageNo=Math.max(1,Math.min(total,Number(state.page)||1)),page=data.pages[pageNo-1],scale=Number(state.fontScale||1);
  const completed=isPathBookCompleted({book,pathState:S.library.path,hadithCompletedCount:S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length});
  const completionEligible=completed||pageNo>=Math.ceil(total*.85);
  const selectedColor=state.highlightColor||'#e6c46f',blocks=genericBookBlocks(page?.text||''),bookmarked=state.bookmarks.includes(pageNo);
+ const progressPct=Math.max(1,Math.round(pageNo/Math.max(1,total)*100));
+ const annotations=genericBookAnnotationSummary(state),readingSummary=bookReadingSummary(state,{limit:12});
+ const searchResults=searchBookPages(data.pages,state.searchQuery,{limit:18});
+ const activeStarted=state.activeSession?.startedAt?new Date(state.activeSession.startedAt):null;
+ const activeMinutes=activeStarted?Math.max(1,Math.round((Date.now()-activeStarted.getTime())/60000)):0;
  const palette=['#e6c46f','#8fc7a2','#d998a2'].map(color=>`<button class="bookColorSwatch ${selectedColor===color?'sel':''}" data-book-color="${color}" style="--sw:${color}" aria-label="Vurgu rengi"></button>`).join('');
  const sectionOptions=(data.sections||[]).map(section=>{
    const target=data.pages.findIndex(x=>Number(x.page)===Number(section.page));
