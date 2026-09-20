@@ -545,3 +545,5 @@ nav button:hover{transform:translateY(-1px)}
  .starterStageGoals{margin-left:43px}
  .libraryAwarenessGoals li{font-size:10px}
 }
+
+.genericBookEdition{display:inline-block;margin-top:7px;padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.09);color:#d7e3de;font-size:8px;line-height:1.25}
