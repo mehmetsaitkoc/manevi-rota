@@ -691,11 +691,15 @@ async function renderGenericBookReader(){
      <label>Okuma <input id="genericBookPageInput" type="number" inputmode="numeric" min="1" max="${total}" value="${pageNo}"> / ${total}</label>
      <button id="genericNextPage" ${pageNo>=total?'disabled':''}>→</button>
    </div>
+   <div class="genericBookProgressBar"><i style="width:${progressPct}%"></i><span>%${progressPct}</span></div>
+   <form class="genericBookSearch" id="genericBookSearchForm"><span>⌕</span><input id="genericBookSearchInput" type="search" value="${esc(state.searchQuery||'')}" placeholder="Kitap içinde ara…" autocomplete="off"><button type="submit">Ara</button>${state.searchQuery?'<button type="button" id="genericBookSearchClear">Temizle</button>':''}</form>
+   ${state.searchQuery?`<section class="genericBookSearchResults"><div><small>ARAMA SONUÇLARI</small><b>${searchResults.length?searchResults.length+' eşleşme':'Eşleşme bulunamadı'}</b></div>${searchResults.map(hit=>`<button data-search-page="${hit.page}"><span>Okuma ${hit.page}</span><p>${esc(hit.excerpt)}</p></button>`).join('')}</section>`:''}
    ${sectionOptions?`<div class="genericBookSectionJump"><select id="genericBookSectionSelect"><option value="">Bölüme git…</option>${sectionOptions}</select></div>`:''}
    <header class="genericBookTitleCard">
      <div class="genericBookMonogram tone-${esc(book.tone||'forest')}">${esc(book.coverGlyph||'ك')}</div>
-     <div><div class="eyebrow">${esc(book.field)} · ${esc(book.level)}</div><h1>${esc(book.title)}</h1><p>${esc(book.author)} · Okuma ${pageNo}/${total}</p><small class="genericBookEdition">${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</small></div>
+     <div><div class="eyebrow">${esc(book.field)} · ${esc(book.level)}</div><h1>${esc(book.title)}</h1><p>${esc(book.author)} · Okuma ${pageNo}/${total}</p><small class="genericBookEdition">${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</small><div class="genericBookReaderStats"><span>${annotations.notes} not</span><span>${annotations.highlights} vurgu</span><span>${annotations.bookmarks} yer imi</span><span>${readingSummary.totalMinutes} dk kayıtlı okuma</span></div></div>
    </header>
+   <section class="genericBookSessionCard"><div><small>AKTİF OKUMA OTURUMU</small><b>${activeMinutes} dk · ${Math.abs(pageNo-(state.activeSession?.startPage||pageNo))} sayfa ilerleme</b><p>Oturumu bitirirken zorluk geri bildirimi, bugünkü Okuma/Öğrenme görevine gerçek kullanım verisi olarak bağlanır.</p></div><div><button data-reader-feedback="heavy">Zor</button><button data-reader-feedback="ideal" class="primary">Tam kıvamında</button><button data-reader-feedback="easy">Rahat</button></div></section>
    <div class="genericBookMarkupBar"><div><span>Vurgu rengi</span><div class="bookColorPalette">${palette}<input id="genericBookCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div><small>Vurgular ve notlar kaynak metne karıştırılmaz.</small></div>
    <article class="genericBookPaper"><div class="genericBookPageMarker">OKUMA ${pageNo} · KAYNAK SAYFA ${page?.page||pageNo}</div>${content||'<div class="emptyState">Bu sayfada aktarılabilir metin bulunamadı.</div>'}</article>
    <section class="genericBookCompletion ${completed?'done':''}">
@@ -705,12 +709,16 @@ async function renderGenericBookReader(){
    <details class="readerSourceNote genericBookSource"><summary>Kaynak ve metin politikası</summary><p><b>${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</b></p><p>${esc(data.source?.textPolicy||book.rightsNote||'Eser metni değiştirilmeden gösterilir.')}</p>${data.source?.reviewNote?`<p>${esc(data.source.reviewNote)}</p>`:''}</details>
  </section>`;
  const persist=()=>{S.library.books[bookId]=normalizeBookReaderState(S.library.books[bookId]);S.library.lastBook=bookId;save()};
- const goPage=value=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],page:Math.max(1,Math.min(total,Number(value)||pageNo)),noteFor:null});persist();renderGenericBookReader()};
- document.querySelector('#genericBookBack').onclick=()=>ilimGo('home');
+ const goPage=value=>{const nextPage=Math.max(1,Math.min(total,Number(value)||pageNo));S.library.books[bookId]=touchBookReadingSession(normalizeBookReaderState({...S.library.books[bookId],page:nextPage,noteFor:null}),nextPage);persist();renderGenericBookReader()};
+ document.querySelector('#genericBookBack').onclick=()=>{finalizeGenericBookSession(bookId,pageNo,'ideal');ilimGo('home')};
  document.querySelector('#genericBookComplete').onclick=()=>{if(!completionEligible)return;S.library.path=setGenericBookCompleted(S.library.path,bookId,!completed);save();renderGenericBookReader()};
  document.querySelector('#genericPrevPage').onclick=()=>goPage(pageNo-1);document.querySelector('#genericNextPage').onclick=()=>goPage(pageNo+1);
  document.querySelector('#genericBookPageInput').onchange=e=>goPage(e.target.value);
  const jump=document.querySelector('#genericBookSectionSelect');if(jump)jump.onchange=e=>{if(e.target.value)goPage(e.target.value)};
+ const searchForm=document.querySelector('#genericBookSearchForm');if(searchForm)searchForm.onsubmit=e=>{e.preventDefault();S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],searchQuery:document.querySelector('#genericBookSearchInput')?.value||''});persist();renderGenericBookReader()};
+ const searchClear=document.querySelector('#genericBookSearchClear');if(searchClear)searchClear.onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],searchQuery:''});persist();renderGenericBookReader()};
+ document.querySelectorAll('[data-search-page]').forEach(btn=>btn.onclick=()=>goPage(btn.dataset.searchPage));
+ document.querySelectorAll('[data-reader-feedback]').forEach(btn=>btn.onclick=()=>{const result=btn.dataset.readerFeedback||'ideal';finalizeGenericBookSession(bookId,pageNo,result);S.library.books[bookId]=beginBookReadingSession(S.library.books[bookId],{page:pageNo,at:new Date().toISOString()});save();renderGenericBookReader()});
  document.querySelector('#genericBookFontDown').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.max(.82,scale-.08)});persist();renderGenericBookReader()};
  document.querySelector('#genericBookFontUp').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.min(1.5,scale+.08)});persist();renderGenericBookReader()};
  document.querySelector('#genericBookFocus').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,focusMode:!state.focusMode,noteFor:null});persist();renderGenericBookReader()};
