@@ -79,7 +79,7 @@ jobs:
               const s=JSON.parse(localStorage.getItem(k));s.view='ilim';localStorage.setItem(k,JSON.stringify(s));
             },key);
             await page.reload({waitUntil:'networkidle'});
-            await page.waitForSelector('#app .ilimHero',{timeout:10000});
+            await page.waitForSelector('#app .libraryHero',{timeout:10000});
             await page.screenshot({path:'visual-review/02-ilim.png',fullPage:true});
 
             await page.click('#openTodayHadis');
