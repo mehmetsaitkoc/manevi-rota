@@ -6,7 +6,7 @@ const date='2026-09-21';
 const baseProfile={priorities:['reading','learning'],baseMinutes:15};
 const baseCheckin={minutes:15,energy:3,load:3,mood:'normal',context:'normal'};
 const library=(extra={})=>({quran:{surah:1,ayah:1},books:{},path:{completedBooks:[],completedAt:{},acknowledgedLevel:1},lastBook:'hadith',...extra});
-const session=(date,minutes=8,feedback='ideal',endPage=2)=>({id:`s-${date}-${endPage}`,date,startedAt:`${date}T18:00:00.000Z`,endedAt:`${date}T18:0${minutes}:00.000Z`,startPage:1,endPage,pages:Math.max(1,endPage-1),minutes,feedback});
+const session=(date,minutes=8,feedback='ideal',endPage=2)=>({id:`s-${date}-${endPage}`,date,startedAt:`${date}T18:00:00.000Z`,endedAt:`${date}T18:${String(Math.min(59,Math.max(1,minutes))).padStart(2,'0')}:00.000Z`,startPage:1,endPage,pages:Math.max(1,endPage-1),minutes,feedback});
 
 // A — new user, level 1
 let rec=buildReadingRecommendation({date,profile:baseProfile,checkin:baseCheckin,library:library(),ilim:emptyKirkHadisState(),records:[]});
