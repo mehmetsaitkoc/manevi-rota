@@ -5,7 +5,12 @@ const works=[
   {id:'peygamberimiz-muhammed',title:'Peygamberimiz Hz. Muhammed ve Müslümanlık',author:'Ahmet Hamdi Akseki',aliases:['Peygamberimiz Hz. Muhammed ve Müslümanlık','Peygamberimiz Hazreti Muhammed ve Müslümanlık','Peygamberimiz Muhammed ve Müslümanlık','Peygamberimiz ve Müslümanlık']},
   {id:'muslumanlik-nedir',title:'Müslümanlık Nedir',author:'Ömer Rıza Doğrul',aliases:['Müslümanlık Nedir','Muslumanlik Nedir','Müslümanlık Nedir?']},
   {id:'peygamberimizin-vecizeleri',title:'Peygamberimizin Vecizeleri',author:'Ahmet Hamdi Akseki',aliases:['Peygamberimizin Vecizeleri','Kuvvetli İman Kuvvetli İrade','Peygamberimizin Vecizeleri Kuvvetli İman']},
-  {id:'vel-asr-tefsiri',title:"Ve'l-Asr Suresinin Tefsiri",author:'Ahmet Hamdi Akseki',aliases:["Ve'l-Asr Suresinin Tefsiri",'Vel Asr Suresinin Tefsiri','Asr Suresinin Tefsiri','Velasr Suresinin Tefsiri']}
+  {id:'vel-asr-tefsiri',title:"Ve'l-Asr Suresinin Tefsiri",author:'Ahmet Hamdi Akseki',aliases:["Ve'l-Asr Suresinin Tefsiri",'Vel Asr Suresinin Tefsiri','Asr Suresinin Tefsiri','Velasr Suresinin Tefsiri']},
+  {id:'alt-islam-fitri',title:'İslam Fıtri Tabii ve Umumi Bir Dindir',author:'Ahmet Hamdi Akseki',aliases:['İslam Fıtri Tabii ve Umumi Bir Dindir','İslam Fıtrî Tabiî ve Umumî Bir Dindir']},
+  {id:'alt-ibni-sina-ihlas',title:'İbni Sina İhlas Suresi',author:'Ahmet Hamdi Akseki',aliases:['Ibni Sina Ihlas Suresi','İbn Sina İhlas Suresi','İhlas Suresi Akseki']},
+  {id:'alt-askere-din',title:'Askere Din Dersleri',author:'Ahmet Hamdi Akseki',aliases:['Askere Din Dersleri','Askere Din Kitabı']},
+  {id:'alt-koyluye-din',title:'Köylüye Din Dersleri',author:'Ahmet Hamdi Akseki',aliases:['Köylüye Din Dersleri']},
+  {id:'alt-dini-dersler',title:'Dini Dersler',author:'Ahmet Hamdi Akseki',aliases:['Dini Dersler','Dinî Dersler']}
 ];
 
 const UA='Manevi-Rota-Source-Audit/1.0';
