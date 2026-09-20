@@ -982,6 +982,7 @@ async function collectIlimNotebookEntries(){
 }
 
 async function renderIlimNotebook(){
+  window.scrollTo(0,0);
   const loadingScreen=S.ilim.ui?.screen;
   app.innerHTML=`<section class="card ilimNotebookHero"><button class="textButton" id="ilimHome">← İlim Rotası</button><div class="eyebrow">İLİM DEFTERİ v2</div><h1>Bütün okumaların tek defterde.</h1><p class="lead">Kur’ân, Kırk Hadis ve hazır kitaplarda aldığın notlar, vurgular ve yer imleri birlikte aranır.</p><div class="notebookLoading"><i></i><span>Kişisel kayıtların hazırlanıyor…</span></div></section>`;
   document.querySelector('#ilimHome').onclick=()=>ilimGo('home');
