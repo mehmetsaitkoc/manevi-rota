@@ -561,6 +561,10 @@ function renderIlimHome(){
  const nextDue=due[0];
  const readyBookCount=STARTER_LIBRARY.filter(x=>x.availability==='ready').length;
  const starterShelf=renderStarterPath(completedCount,pathSnapshot);
+ const genericStates=Object.values(S.library.books||{}).map(normalizeBookReaderState);
+ const libraryNotes=genericStates.reduce((n,x)=>n+Object.keys(x.notes||{}).length,0);
+ const libraryHighlights=genericStates.reduce((n,x)=>n+Object.keys(x.highlights||{}).length,0);
+ const levelRail=pathSnapshot.levels.map(level=>`<button class="libraryRailStep ${esc(level.status)}" data-level-rail="${level.order}"><span>${level.status==='complete'?'✓':level.order}</span><div><small>SEVİYE ${level.order}</small><b>${esc(level.title)}</b></div></button>`).join('');
  app.innerHTML=`
  <section class="card libraryHero">
    <div class="libraryHeroTop">
@@ -571,6 +575,11 @@ function renderIlimHome(){
      </div>
      <div class="ilimProgressRing" style="--p:${p}"><b>${p}%</b><span>Kırk Hadis</span></div>
    </div>
+ </section>
+
+ <section class="libraryV2Rail" aria-label="Okuma yolu seviyeleri">
+   <div class="libraryRailHeader"><div><small>5 AŞAMALI YOL</small><b>Temelden şuura ilerleyen okuma rotası</b></div><div class="libraryRailStats"><span><b>${readyBookCount}/10</b> okunabilir</span><span><b>${libraryNotes}</b> not</span><span><b>${libraryHighlights}</b> vurgu</span></div></div>
+   <div class="libraryRailTrack">${levelRail}</div>
  </section>
 
  <section class="card libraryLevelCard">
@@ -631,6 +640,7 @@ function renderIlimHome(){
  document.querySelector('#continueLibrary').onclick=resume.action;
  const ackLevel=document.querySelector('#ackLibraryLevel');if(ackLevel)ackLevel.onclick=()=>{S.library.path=acknowledgeLibraryLevel(S.library.path,pathSnapshot.currentLevel);save();renderIlimHome();setTimeout(()=>document.querySelector(`[data-starter-stage="level-${pathSnapshot.currentLevel}"]`)?.scrollIntoView({behavior:'smooth',block:'start'}),60)};
  document.querySelector('#jumpCurrentLevel').onclick=()=>document.querySelector(`[data-starter-stage="level-${pathSnapshot.currentLevel}"]`)?.scrollIntoView({behavior:'smooth',block:'start'});
+ document.querySelectorAll('[data-level-rail]').forEach(btn=>btn.onclick=()=>document.querySelector(`[data-starter-stage="level-${btn.dataset.levelRail}"]`)?.scrollIntoView({behavior:'smooth',block:'start'}));
  document.querySelector('#openTodayHadis').onclick=()=>ilimGo('reader',h.id);
  document.querySelectorAll('[data-starter-book]').forEach(btn=>btn.onclick=()=>openStarterBook(btn.dataset.starterBook));
  document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');
