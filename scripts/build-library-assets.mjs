@@ -323,7 +323,7 @@ const kurandanAyetler=await buildTextBook({
   sourceLabel:'Internet Archive · 1944 Yüksel Yayınevi tarihî taraması',
   signature:/MEHMET\s+AK[Iİ]F|KUR.?AN.?DAN|KURANDAN/i,
   startAtMatcher:/(?:ÖN\s*SÖZ|On\s+Söz)/i,
-  normalizationVersion:3,
+  normalizationVersion:4,
   ocrFixups:[
     {from:/\bKur W onum\b/g,to:'Kur’an onun'},
     {from:/\bKur'ao\b/g,to:'Kur’an'},
@@ -332,7 +332,7 @@ const kurandanAyetler=await buildTextBook({
     {from:/Kur’an onun \(hem/g,to:'Kur’an onun hem'},
     {from:/ki,-\s*\ntabı/g,to:'kitabı'},
     {from:/\bHazret\*/g,to:'Hazreti'},
-    {from:/\bKuranı\b/g,to:'Kur’anı'},
+    {from:/Kuranı/g,to:'Kur’anı'},
     {from:/\bMehmet Akilde\b/g,to:'Mehmet Akif de'},
     {from:/^•(?=Hazreti Peygamberin)/gm,to:''}
   ],
