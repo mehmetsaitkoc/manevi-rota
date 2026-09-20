@@ -1,0 +1,38 @@
+name: Source Visual Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/source-visual-audit.yml'
+      - 'scripts/build-library-assets.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  kurandan-ayetler-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PDF render tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Download verified 1944 scan
+        run: |
+          mkdir -p source-visual-audit
+          curl -L --fail --retry 3 --retry-delay 2 \
+            'https://archive.org/download/kurandanayetlert00mehm/kurandanayetlert00mehm.pdf' \
+            -o /tmp/kurandan-ayetler-1944.pdf
+          pdfinfo /tmp/kurandan-ayetler-1944.pdf | tee source-visual-audit/pdfinfo.txt
+      - name: Render front matter and first author-text pages
+        run: |
+          pdftoppm -png -r 140 -f 1 -l 14 \
+            /tmp/kurandan-ayetler-1944.pdf \
+            source-visual-audit/kurandan-1944
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-visual-audit
+          path: source-visual-audit
+          if-no-files-found: error
