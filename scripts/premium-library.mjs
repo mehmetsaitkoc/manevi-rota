@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {STARTER_LIBRARY} from '../src/library-catalog.mjs';
 
 const readyGeneric=STARTER_LIBRARY.filter(x=>x.availability==='ready'&&x.readerType==='generic');
-assert.equal(readyGeneric.length,2);
+assert.equal(readyGeneric.length,3);
 
 for(const book of readyGeneric){
   assert.ok(book.asset,book.id+' asset path missing');
