@@ -119,9 +119,9 @@ function renderToday(){
  const hidden=new Set(d.dismissedTimeSuggestions||[]),suggestion=(r.timeSuggestions||[]).find(x=>!hidden.has(x.taskId));
  const grouped=Object.keys(TIME_SLOTS).map(slot=>({slot,tasks:r.tasks.filter(x=>x.slot===slot)})).filter(g=>g.tasks.length);
  const ps=prayerSummary(),qp=qadaTargetProgress(S.qada,today());
- const taskHtml=x=>{const t=TASK_CATALOG[x.id],isDone=done.has(x.id),fb=d.taskFeedback?.[x.id],ilimLink=['learning','reading'].includes(x.id);return `<section class="task ${isDone?'done':''}"><div class="taskTop"><div class="ico">${t.icon}</div><div><h3>${t.title} · ${x.duration} dk</h3><div class="reason">${esc(t.description)}</div><div class="method">Yöntem: ${esc(x.method)}</div><div class="reason"><b>Neden bugün?</b> ${x.reasons.length?x.reasons.map(esc).join(' · '):'genel denge için'}</div>${ilimLink?`<button class="taskDeepLink" data-open-ilim="1">📚 Kırk Hadis rotasına geç →</button>`:''}</div><button class="toggle" data-task="${x.id}" aria-label="Görevi tamamla">✓</button></div>${isDone?`<div class="taskFeedback"><button class="${fb==='hard'?'sel':''}" data-tf="${x.id}:hard">Zorlandım</button><button class="${fb==='normal'?'sel':''}" data-tf="${x.id}:normal">Normal</button><button class="${fb==='easy'?'sel':''}" data-tf="${x.id}:easy">Rahat</button></div>`:''}</section>`};
+ const taskHtml=x=>{const t=TASK_CATALOG[x.id],isDone=done.has(x.id),fb=d.taskFeedback?.[x.id],ilimLink=['learning','reading'].includes(x.id);return `<section class="task premiumTask ${isDone?'done':''}"><div class="taskTop"><div class="ico">${t.icon}</div><div class="taskMain"><div class="taskTitleLine"><h3>${t.title}</h3><span>${x.duration} dk</span></div><div class="reason">${esc(t.description)}</div><div class="method">${esc(x.method)}</div>${ilimLink?`<button class="taskDeepLink" data-open-ilim="1">Kitaplığı aç →</button>`:''}<details class="taskWhy"><summary>Neden bugün?</summary><p>${x.reasons.length?x.reasons.map(esc).join(' · '):'Genel denge için'}</p></details></div><button class="toggle" data-task="${x.id}" aria-label="Görevi tamamla">✓</button></div>${isDone?`<div class="taskFeedback"><button class="${fb==='hard'?'sel':''}" data-tf="${x.id}:hard">Zor</button><button class="${fb==='normal'?'sel':''}" data-tf="${x.id}:normal">Tam kıvamında</button><button class="${fb==='easy'?'sel':''}" data-tf="${x.id}:easy">Rahat</button></div>`:''}</section>`};
  app.innerHTML=`<section class="card hero premiumTodayHero"><div class="premiumHeroTop"><div><div class="eyebrow">MANEVÎ ROTA · BUGÜN</div><h1>Bugünün Rotası</h1><p>Küçük adımlar, sürdürülebilir bir düzen.</p></div><div class="heroProgress"><b>${progress}%</b><span>tamamlandı</span></div></div><div class="premiumRouteSummary"><span>${r.mode}</span><span>${r.totalMinutes} dk</span><span>${r.tasks.length} görev</span><span>Motor: ${r.confidenceLabel}</span></div><div class="metrics"><div class="metric"><b>${r.totalMinutes} dk</b><span>Plan</span></div><div class="metric"><b>${r.tasks.length}</b><span>Görev</span></div><div class="metric"><b>${progress}%</b><span>Tamamlandı</span></div><div class="metric"><b>${r.evidence.days}</b><span>Kanıt günü</span></div></div><div class="explain">🧠 ${r.why.map(esc).join(' ')}</div></section>
- <section class="card engineAnalysis"><details><summary><span>🧠 Motor v2.1 neyi analiz etti?</span><b>${esc(a.decision||r.mode)}</b></summary><div class="engineGrid"><div><small>Kanıt</small><b>${a.evidenceDays||0} gün</b></div><div><small>Etkin kanıt</small><b>${a.effectiveEvidenceDays??0} gün</b></div><div><small>Kanıt tazeliği</small><b>${esc(a.evidenceStatus||'—')} · %${a.evidenceFreshness??0}</b></div><div><small>Motor güveni</small><b>${a.confidence??r.confidence}%</b></div><div><small>Başlangıç profili etkisi</small><b>%${a.priorWeight??100}</b></div><div><small>Aşırı yük riski</small><b>%${a.overloadRisk??0}</b></div><div><small>Dönemsel kapasite</small><b>${esc(a.capacityPhase||'Veri topluyor')}</b></div><div><small>Davranış değişimi</small><b>${esc(a.behaviorShift||'Belirsiz')}</b></div><div><small>Yakın dönem tamamlama</small><b>${behaviorReady?`%${a.recentCompletion}`:'Veri bekliyor'}</b></div><div><small>Öğrenilmiş günlük doz</small><b>${a.learnedSustainableMinutes?`${a.learnedSustainableMinutes} dk`:'Henüz yok'}</b></div><div><small>Doğrulanmış rutin</small><b>${a.verifiedRoutines?.length||0}</b></div><div><small>Yeniden doğrulama</small><b>${a.revalidationRoutines?.length||0}</b></div><div><small>Yumuşak geri dönüş</small><b>${a.returnAreas?.length?`${a.returnAreas.length} rutin`:'Yok'}</b></div><div><small>Müdahale hafızası</small><b>${a.interventionInsights?.length?`${a.interventionInsights.length} örüntü`:'Veri topluyor'}</b></div></div>${a.contradictions?.length?`<div class="analysisSignals">${a.contradictions.map(x=>`<p>↳ ${esc(x)}</p>`).join('')}</div>`:''}${a.interventionInsights?.length?`<div class="analysisSignals"><p><b>Motorun öğrendiği müdahaleler</b></p>${a.interventionInsights.slice(0,3).map(x=>{const ctx=Object.entries(x.contexts||{}).sort((a,b)=>(b[1].samples||0)-(a[1].samples||0))[0];const ctxText=ctx?` · ${policyContextLabel(ctx[0])}: ${ctx[1].policy==='repeat'?'işe yarıyor':ctx[1].policy==='change'?'yaklaşımı değiştir':ctx[1].policy==='revalidate'?'yeniden doğrula':'izleniyor'}`:'';return `<p>↳ ${esc(TASK_CATALOG[x.taskId]?.title||x.taskId)} · ${esc(x.kind)} · ${x.policy==='repeat'?'tekrar edilebilir':x.policy==='change'?'yaklaşımı değiştir':x.policy==='revalidate'?'yeniden doğrula':'izleniyor'}${esc(ctxText)} (${x.samples} örnek)</p>`}).join('')}</div>`:''}<p class="small">Başlangıç cevapların kalıcı etiket değildir. Motor v2.1 eski kanıtı zamanla zayıflatır; bir rutini ancak zamana yayılmış güncel verilerle doğrular ve müdahale sonuçlarını benzer koşullarda ayrı öğrenir.</p></details></section>
+ <section class="card engineAnalysis compactEngine"><details><summary><span>🧠 Rota neden böyle?</span><b>${esc(a.decision||r.mode)}</b></summary><div class="engineGrid"><div><small>Kanıt</small><b>${a.evidenceDays||0} gün</b></div><div><small>Etkin kanıt</small><b>${a.effectiveEvidenceDays??0} gün</b></div><div><small>Kanıt tazeliği</small><b>${esc(a.evidenceStatus||'—')} · %${a.evidenceFreshness??0}</b></div><div><small>Motor güveni</small><b>${a.confidence??r.confidence}%</b></div><div><small>Başlangıç profili etkisi</small><b>%${a.priorWeight??100}</b></div><div><small>Aşırı yük riski</small><b>%${a.overloadRisk??0}</b></div><div><small>Dönemsel kapasite</small><b>${esc(a.capacityPhase||'Veri topluyor')}</b></div><div><small>Davranış değişimi</small><b>${esc(a.behaviorShift||'Belirsiz')}</b></div><div><small>Yakın dönem tamamlama</small><b>${behaviorReady?`%${a.recentCompletion}`:'Veri bekliyor'}</b></div><div><small>Öğrenilmiş günlük doz</small><b>${a.learnedSustainableMinutes?`${a.learnedSustainableMinutes} dk`:'Henüz yok'}</b></div><div><small>Doğrulanmış rutin</small><b>${a.verifiedRoutines?.length||0}</b></div><div><small>Yeniden doğrulama</small><b>${a.revalidationRoutines?.length||0}</b></div><div><small>Yumuşak geri dönüş</small><b>${a.returnAreas?.length?`${a.returnAreas.length} rutin`:'Yok'}</b></div><div><small>Müdahale hafızası</small><b>${a.interventionInsights?.length?`${a.interventionInsights.length} örüntü`:'Veri topluyor'}</b></div></div>${a.contradictions?.length?`<div class="analysisSignals">${a.contradictions.map(x=>`<p>↳ ${esc(x)}</p>`).join('')}</div>`:''}${a.interventionInsights?.length?`<div class="analysisSignals"><p><b>Motorun öğrendiği müdahaleler</b></p>${a.interventionInsights.slice(0,3).map(x=>{const ctx=Object.entries(x.contexts||{}).sort((a,b)=>(b[1].samples||0)-(a[1].samples||0))[0];const ctxText=ctx?` · ${policyContextLabel(ctx[0])}: ${ctx[1].policy==='repeat'?'işe yarıyor':ctx[1].policy==='change'?'yaklaşımı değiştir':ctx[1].policy==='revalidate'?'yeniden doğrula':'izleniyor'}`:'';return `<p>↳ ${esc(TASK_CATALOG[x.taskId]?.title||x.taskId)} · ${esc(x.kind)} · ${x.policy==='repeat'?'tekrar edilebilir':x.policy==='change'?'yaklaşımı değiştir':x.policy==='revalidate'?'yeniden doğrula':'izleniyor'}${esc(ctxText)} (${x.samples} örnek)</p>`}).join('')}</div>`:''}<p class="small">Başlangıç cevapların kalıcı etiket değildir. Motor v2.1 eski kanıtı zamanla zayıflatır; bir rutini ancak zamana yayılmış güncel verilerle doğrular ve müdahale sonuçlarını benzer koşullarda ayrı öğrenir.</p></details></section>
  ${S.profile.prayerTracking?`<section class="prayerStrip" data-view="prayer"><div><span class="prayerStripIcon">🕌</span><div><small>NAMAZ MERKEZİ</small><b>${ps?`${ps.next.label} · ${ps.next.time}`:'Vakitlerini bağla'}</b><span>${ps?`${formatDuration(ps.minutesUntil)} kaldı · ${esc(ps.label)}`:'Konum veya şehir seçerek bugünün vakitlerini getir.'}</span></div></div><div class="qadaMini">${S.qada.enabled?`Kaza hedefi <b>${qp.done}/${qp.target}</b>`:'Aç →'}</div></section>`:''}
  <div class="actions" style="margin:0 0 12px"><button class="btn ghost" id="edit">Bugünkü durumu değiştir</button><button class="btn ${d.lightDay?'primary':'ghost'}" id="light">${d.lightDay?'Hafif gün açık':'Bugünü hafiflet'}</button></div>
  ${suggestion?`<section class="card timingSuggestion"><div class="eyebrow">Zamanlama önerisi</div><h3>${TASK_CATALOG[suggestion.taskId].icon} ${TASK_CATALOG[suggestion.taskId].title} için saat değişikliği</h3><p><b>${slotLabel(suggestion.from)}</b> diliminde son ${suggestion.currentSamples} planda tamamlama %${pct(suggestion.currentCompletion)}. <b>${slotLabel(suggestion.to)}</b> dilimi sende %${pct(suggestion.targetCompletion)} tamamlama gösteriyor.</p><div class="explain">Bu bir manevî değerlendirme değil; yalnızca rutinin hangi saatte daha sürdürülebilir göründüğünü karşılaştırır. Değişiklik ancak sen onaylarsan uygulanır.</div><div class="actions"><button class="btn primary" id="acceptTiming" data-id="${suggestion.taskId}" data-slot="${suggestion.to}">${slotLabel(suggestion.to)}na taşı</button><button class="btn ghost" id="snoozeTiming" data-id="${suggestion.taskId}">Şimdilik kalsın</button></div></section>`:''}
@@ -207,17 +207,80 @@ function renderIlimHome(){
  loadNawawiArabic().catch(()=>{});
  const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,p=hadisProgressPct(S.ilim),due=dueHadisReviews(S.ilim,today(),9),entries=notebookEntries(S.ilim),overview=knowledgeOverview(S.ilim,today());
  const counts=overview.reduce((a,x)=>(a[x.key]=(a[x.key]||0)+1,a),{});
- const road=KIRK_HADIS_UNITS.map(x=>{const k=knowledgeSignal(S.ilim,x.id,today());return `<button class="hadisRoadItem ${S.ilim.completed.includes(x.id)?'done':''} ${x.id===S.ilim.currentId?'current':''}" data-open-hadis="${x.id}"><span>${S.ilim.completed.includes(x.id)?'✓':x.id}</span><div><b>${esc(x.title)}</b><small>${esc(x.source)}</small><em class="knowledgeChip ${k.key}">${esc(k.label)}</em></div><i>›</i></button>`}).join('');
- app.innerHTML=`<section class="card ilimHero"><div class="eyebrow">İLİM ROTASI · BAŞLANGIÇ</div><div class="ilimTitleRow"><div><h1>${esc(KIRK_HADIS_META.title)}</h1><p class="lead">${esc(KIRK_HADIS_META.author)} · Okuma + geri çağırma + kişisel not</p></div><div class="ilimProgressRing" style="--p:${p}"><b>${p}%</b><span>42 hadis</span></div></div><div class="badges"><span class="badge">${esc(plan.mode)}</span><span class="badge">${plan.minutes} dk</span><span class="badge">${esc(plan.confidence)}</span></div><div class="explain">${esc(plan.why)}</div></section>
- <section class="card todayHadis"><div class="eyebrow">${plan.reviewFirst?'ÖNCE HATIRLA, SONRA OKU':'BUGÜNÜN OKUMASI'}</div><div class="hadisNo">${String(h.id).padStart(2,'0')}</div><h2>${esc(h.title)}</h2><p class="hadisMeaning">${esc(h.meaning)}</p><div class="sourcePill">Kaynak: ${esc(h.source)}</div>${plan.reviewFirst?`<button class="btn primary wide" id="openDueReviews">Önce ${due.length} tekrarı yap →</button><button class="btn ghost wide" id="openTodayHadis">Sonra okumaya geç</button>`:`<button class="btn primary wide" id="openTodayHadis">Okumaya başla →</button>`}</section>
- <section class="ilimQuick"><button class="quickTile" id="ilimReviews"><span>🧠</span><div><b>Geri çağırma</b><small>${due.length?`${due.length} tekrar bugün hazır`:'Bugün bekleyen tekrar yok'}</small></div></button><button class="quickTile" id="ilimNotebook"><span>📝</span><div><b>İlim Defteri</b><small>${entries.length?`${S.ilim.notes.length} not · ${S.ilim.highlights.length} çizili yer`:'İlk notunu oluştur'}</small></div></button></section>
- <section class="card memorySummary"><div class="sectionHead"><div><div class="eyebrow">İLİM HAFIZASI</div><h2>Okumak yetmez; geri çağır.</h2></div><span class="sourcePill">${(counts.stable||0)} oturuyor</span></div><p class="small">Bu durumlar bir başarı sıralaması değildir. Her hadis için okuma ve tekrar kanıtının ne durumda olduğunu gösterir.</p><div class="memoryGrid"><div><b>${counts.new||0}</b><span>Yeni</span></div><div><b>${counts.building||0}</b><span>Pekişiyor</span></div><div><b>${counts.recall||0}</b><span>Geri çağır</span></div><div><b>${counts.repair||0}</b><span>Yeniden bak</span></div><div><b>${counts.stable||0}</b><span>Oturuyor</span></div></div></section>
- <section class="card"><div class="sectionHead"><div><div class="eyebrow">TAM KOLEKSİYON · 42 HADİS</div><h2>Hafiften derine, tamamı burada.</h2></div><span class="sourcePill">${S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length}/${KIRK_HADIS_META.totalUnits} okundu</span></div><p class="small">Nevevî’nin “Kırk Hadis” adıyla bilinen derlemesi 42 hadis içerir. Motor günde bir yeni hadis verir; istediğin hadisi aşağıdan ayrıca açabilirsin.</p><div class="hadisRoad">${road}</div></section>
+ const completedCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
+ const current=getHadis(S.ilim.currentId)||h;
+ const nextDue=due[0];
+ app.innerHTML=`
+ <section class="card libraryHero">
+   <div class="libraryHeroTop">
+     <div>
+       <div class="eyebrow">İLİM KÜTÜPHANESİ</div>
+       <h1>Bugün ne okuyacağını düşünme.</h1>
+       <p class="lead">Kaldığın yer, bekleyen tekrar ve notların tek ekranda. Motor yalnızca öğrenme yükünü düzenler.</p>
+     </div>
+     <div class="ilimProgressRing" style="--p:${p}"><b>${p}%</b><span>Kırk Hadis</span></div>
+   </div>
+ </section>
+
+ <section class="continueReadingCard">
+   <div class="continueCover"><span>ح</span><small>DEVAM ET</small></div>
+   <div class="continueBody">
+     <div class="eyebrow">KALDIĞIN YER</div>
+     <h2>${esc(current.title)}</h2>
+     <p>${esc(current.meaning)}</p>
+     <div class="continueMeta"><span>Hadis ${current.id}/${KIRK_HADIS_META.totalUnits}</span><span>${completedCount} tamamlandı</span></div>
+     <button class="btn primary wide" id="continueHadis">Okumaya devam →</button>
+   </div>
+ </section>
+
+ <section class="libraryTodayGrid">
+   <article class="libraryMiniCard todayFocus">
+     <div><span class="libraryIcon">✦</span><div><small>BUGÜNÜN OKUMASI</small><b>${esc(h.title)}</b><p>${plan.reviewFirst?'Önce kısa tekrar, sonra yeni okuma.':`${plan.minutes} dakikalık hafif okuma.`}</p></div></div>
+     <button id="openTodayHadis">Aç →</button>
+   </article>
+   <article class="libraryMiniCard">
+     <div><span class="libraryIcon">↻</span><div><small>TEKRARLAR</small><b>${due.length?due.length+' tekrar hazır':'Bugün temiz'}</b><p>${nextDue?esc(recallPromptFor(nextDue.hadisId)):'Bekleyen geri çağırma yok.'}</p></div></div>
+     <button id="ilimReviews">${due.length?'Başla →':'Görüntüle'}</button>
+   </article>
+   <article class="libraryMiniCard">
+     <div><span class="libraryIcon">✎</span><div><small>İLİM DEFTERİ</small><b>${S.ilim.notes.length} not · ${S.ilim.highlights.length} vurgu</b><p>Çizdiklerin, notların ve kaydettiklerin.</p></div></div>
+     <button id="ilimNotebook">Aç →</button>
+   </article>
+ </section>
+
+ <section class="card libraryShelf">
+   <div class="sectionHead">
+     <div><div class="eyebrow">KİTAPLIK</div><h2>Temel eserler</h2></div>
+     <span class="sourcePill">Sade başlangıç</span>
+   </div>
+   <div class="bookShelfGrid">
+     <button class="bookShelfCard primaryBook" id="bookKirkHadis">
+       <div class="bookCoverMini hadisBook">ح</div>
+       <div><b>Kırk Hadis</b><small>İmam Nevevî</small><span>${completedCount}/42 okundu</span></div><i>›</i>
+     </button>
+     <div class="bookShelfCard futureBook">
+       <div class="bookCoverMini quranBook">ق</div>
+       <div><b>Kur’ân-ı Kerîm</b><small>Uygulama içi okuyucu</small><span>Kitaplığa hazırlanıyor</span></div><i>•</i>
+     </div>
+     <div class="bookShelfCard futureBook">
+       <div class="bookCoverMini islamBook">ك</div>
+       <div><b>İslâm Dini</b><small>Ahmed Hamdi Akseki</small><span>Metin düzenleme aşamasında</span></div><i>•</i>
+     </div>
+   </div>
+ </section>
+
+ <section class="card memorySummary compactMemory">
+   <div class="sectionHead"><div><div class="eyebrow">İLİM HAFIZASI</div><h2>Okudukların ne durumda?</h2></div><span class="sourcePill">${counts.stable||0} oturuyor</span></div>
+   <div class="memoryGrid"><div><b>${counts.new||0}</b><span>Yeni</span></div><div><b>${counts.building||0}</b><span>Pekişiyor</span></div><div><b>${counts.recall||0}</b><span>Geri çağır</span></div><div><b>${counts.repair||0}</b><span>Yeniden bak</span></div><div><b>${counts.stable||0}</b><span>Oturuyor</span></div></div>
+ </section>
+
  <section class="card sourceCard"><details><summary>Metin ve kaynak politikası</summary><p>${esc(KIRK_HADIS_META.rightsNote)}</p><p>${esc(KIRK_HADIS_META.editorialNote)}</p></details></section>`;
+ const open=()=>ilimGo('reader',S.ilim.currentId);
+ document.querySelector('#continueHadis').onclick=open;
  document.querySelector('#openTodayHadis').onclick=()=>ilimGo('reader',h.id);
- const od=document.querySelector('#openDueReviews');if(od)od.onclick=()=>ilimGo('reviews');
- document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');document.querySelector('#ilimNotebook').onclick=()=>ilimGo('notebook');
- document.querySelectorAll('[data-open-hadis]').forEach(b=>b.onclick=()=>ilimGo('reader',b.dataset.openHadis));
+ document.querySelector('#bookKirkHadis').onclick=open;
+ document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');
+ document.querySelector('#ilimNotebook').onclick=()=>ilimGo('notebook');
 }
 function renderIlimReader(id){
  const h=getHadis(id);if(!h){S.ilim.ui.screen='home';save();return renderIlimHome()}
