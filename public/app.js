@@ -611,6 +611,8 @@ async function renderGenericBookReader(){
  }
  const data=genericBookCache.get(bookId),total=data.pages.length,state=genericBookState(bookId);
  const pageNo=Math.max(1,Math.min(total,Number(state.page)||1)),page=data.pages[pageNo-1],scale=Number(state.fontScale||1);
+ const completed=isPathBookCompleted({book,pathState:S.library.path,hadithCompletedCount:S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length});
+ const completionEligible=completed||pageNo>=Math.ceil(total*.85);
  const selectedColor=state.highlightColor||'#e6c46f',blocks=genericBookBlocks(page?.text||''),bookmarked=state.bookmarks.includes(pageNo);
  const palette=['#e6c46f','#8fc7a2','#d998a2'].map(color=>`<button class="bookColorSwatch ${selectedColor===color?'sel':''}" data-book-color="${color}" style="--sw:${color}" aria-label="Vurgu rengi"></button>`).join('');
  const sectionOptions=(data.sections||[]).map(section=>{
@@ -641,11 +643,16 @@ async function renderGenericBookReader(){
    </header>
    <div class="genericBookMarkupBar"><div><span>Vurgu rengi</span><div class="bookColorPalette">${palette}<input id="genericBookCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div><small>Vurgular ve notlar kaynak metne karıştırılmaz.</small></div>
    <article class="genericBookPaper"><div class="genericBookPageMarker">OKUMA ${pageNo} · KAYNAK SAYFA ${page?.page||pageNo}</div>${content||'<div class="emptyState">Bu sayfada aktarılabilir metin bulunamadı.</div>'}</article>
+   <section class="genericBookCompletion ${completed?'done':''}">
+     <div><small>OKUMA DURUMU</small><b>${completed?'Bu kitabı tamamladın':completionEligible?'Kitabın son bölümündesin':'Okumaya devam et'}</b><p>${completed?'Bu işaret yalnız okuma yolundaki ilerlemeni gösterir; manevî değer veya başarı puanı değildir.':completionEligible?'Gerçekten bitirdiysen tamamlandı olarak işaretleyebilirsin.':'Tamamlama düğmesi kitabın son %15’lik bölümüne geldiğinde açılır.'}</p></div>
+     <button class="btn ${completed?'ghost':'primary'}" id="genericBookComplete" ${completionEligible?'':'disabled'}>${completed?'Tamamlandı işaretini kaldır':'Kitabı tamamladım'}</button>
+   </section>
    <details class="readerSourceNote genericBookSource"><summary>Kaynak ve metin politikası</summary><p><b>${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</b></p><p>${esc(data.source?.textPolicy||book.rightsNote||'Eser metni değiştirilmeden gösterilir.')}</p>${data.source?.reviewNote?`<p>${esc(data.source.reviewNote)}</p>`:''}</details>
  </section>`;
  const persist=()=>{S.library.books[bookId]=normalizeBookReaderState(S.library.books[bookId]);S.library.lastBook=bookId;save()};
  const goPage=value=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],page:Math.max(1,Math.min(total,Number(value)||pageNo)),noteFor:null});persist();renderGenericBookReader()};
  document.querySelector('#genericBookBack').onclick=()=>ilimGo('home');
+ document.querySelector('#genericBookComplete').onclick=()=>{if(!completionEligible)return;S.library.path=setGenericBookCompleted(S.library.path,bookId,!completed);save();renderGenericBookReader()};
  document.querySelector('#genericPrevPage').onclick=()=>goPage(pageNo-1);document.querySelector('#genericNextPage').onclick=()=>goPage(pageNo+1);
  document.querySelector('#genericBookPageInput').onchange=e=>goPage(e.target.value);
  const jump=document.querySelector('#genericBookSectionSelect');if(jump)jump.onchange=e=>{if(e.target.value)goPage(e.target.value)};
