@@ -109,13 +109,15 @@ export const STARTER_LIBRARY=[
         rightsNote:'Metin tarihî nüshadan aktarılacak; modern sadeleştirme kullanılmayacaktır.'
       },
   {
-        order:7,stage:'level-4',id:'muslumanlik-nedir',title:'Müslümanlık Nedir?',author:'Ömer Rıza Doğrul',field:'İman · Temel esaslar',level:'Seviye 4',
-        readerType:'generic',availability:'source-verified',coverGlyph:'م',tone:'clay',
-        shortLabel:'155 soru-cevap',
-        sourceLabel:'1933 ilk baskı bibliyografik olarak doğrulandı',
+        order:7,stage:'level-4',id:'islam-fitri-tabii-umumi',title:'İslâm Fıtrî, Tabiî ve Umumî Bir Dindir',author:'Ahmed Hamdi Akseki',field:'İman · İslâm düşüncesi',level:'Seviye 4',
+        readerType:'generic',availability:'ready',coverGlyph:'ف',tone:'clay',
+        shortLabel:'Din · fıtrat · akıl · vahiy',
+        sourceLabel:'Tarihî tarama · Internet Archive',
+        asset:'public/data/books/islam-fitri-tabii-umumi.json',
+        requiresEditionReview:true,
         rightsStatus:'public-domain-turkey-author-term',
-        originalYear:1933,authorDeathYear:1952,
-        rightsNote:'Tam metin yalnız ilk/erken baskı taraması doğrulanınca açılacaktır.'
+        originalYear:1943,authorDeathYear:1951,
+        rightsNote:'Müellifin koruma süresi sona ermiştir. Tarihî taramanın OCR aktarımı kullanılır; dizgi/OCR ve muhtemel editoryal katkılar ticari yayın öncesi insan editör tarafından karşılaştırılmalıdır.'
       },
   {
         order:8,stage:'level-4',id:'ahlak-dersleri',title:'Ahlâk Dersleri',author:'Ahmed Hamdi Akseki',field:'Ahlâk',level:'Seviye 4',
