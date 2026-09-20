@@ -15,10 +15,11 @@ assert.ok(STARTER_LIBRARY.every(x=>x.level===`Seviye ${x.order<=2?1:x.order<=4?2
 assert.ok(STARTER_LIBRARY.every(x=>x.rightsStatus!=='unknown'));
 assert.equal(readyStarterBooks().length,9,'premium library should expose nine genuinely readable works');
 assert.equal(pendingStarterBooks().length,1);
-assert.equal(pendingStarterBooks()[0].id,'siyer-i-nebi-mehmed-ziya');
-assert.equal(starterBook('siyer-i-nebi-mehmed-ziya').availability,'source-verified');
-assert.equal(starterBook('siyer-i-nebi-mehmed-ziya').authorDeathYear,1930);
-assert.equal(Boolean(starterBook('siyer-i-nebi-mehmed-ziya').asset),false,'pending siyer must not expose an unverified production asset');
+assert.equal(pendingStarterBooks()[0].id,'peygamberimiz-muhammed');
+assert.equal(starterBook('peygamberimiz-muhammed').availability,'source-verified');
+assert.equal(starterBook('peygamberimiz-muhammed').authorDeathYear,1951);
+assert.equal(starterBook('peygamberimiz-muhammed').sourceGate?.preferredScript,'latin');
+assert.equal(Boolean(starterBook('peygamberimiz-muhammed').asset),false,'pending siyer must not expose an unverified production asset');
 assert.equal(starterBook('yavrularimiza-din-dersleri').asset,'public/data/books/yavrularimiza-din-dersleri.json');
 assert.equal(starterBook('yavrularimiza-din-dersleri').requiresEditionReview,true);
 assert.equal(starterBook('namaz-sureleri-tefsiri').asset,'public/data/books/namaz-sureleri-tefsiri.json');
