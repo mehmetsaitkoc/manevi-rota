@@ -100,134 +100,95 @@ export const STARTER_LIBRARY=[
         rightsNote:'Klasik eser; Türkçe tercüme Manevî Rota içinde ayrı editoryal katman olarak tutulur.'
       },
   {
-        order:6,stage:'level-3',id:'peygamberimiz-muhammed',title:'Peygamberimiz Hz. Muhammed Aleyhisselâm ve Müslümanlık',author:'Ahmed Hamdi Akseki',field:'Siyer · Sünnet · Ahlâk',level:'Seviye 3',
+        order:6,stage:'level-3',id:'peygamberimiz-muhammed',title:'İslâm Tarihi: Asr-ı Saâdet — Peygamberimizin Sîreti',author:'Şiblî Nu‘mânî · Süleyman Nedvî',translator:'Ömer Rıza Doğrul',field:'Siyer · Sünnet · Peygamber örnekliği',level:'Seviye 3',
         readerType:'generic',availability:'source-verified',coverGlyph:'ص',tone:'burgundy',
-        shortLabel:'Hz. Peygamber’in hayatı · tebliğ · örneklik · kıssadan hisse',
-        sourceLabel:'1934 İdeal Matbaası ilk baskı doğrulandı · yeniden kullanımı uygun tam tarama bekleniyor',
+        shortLabel:'Hz. Peygamber’in hayatı · risalet · şahsiyet · tahlil',
+        sourceLabel:'1928 tarihî baskı doğrulandı · ticari yeniden kullanımı uygun tarama bekleniyor',
         rightsStatus:'public-domain-turkey-author-term',
-        originalYear:1934,authorDeathYear:1951,
+        originalYear:1928,authorDeathYear:1953,
         sourceGate:{
-          status:'waiting-reusable-historical-scan',
-          acceptedEditionYears:[1934],
-          conditionallyAcceptedEditionYears:[1955],
-          editionComparisonRequired:true,
-          preferredScript:'latin',
-          selectionReason:'Tam siyer hacmi, öğretici tarih yaklaşımı ve Latin harfli Cumhuriyet dönemi baskısı nedeniyle birinci üretim adayıdır.',
-          preferredFallbackId:'asri-saadet-siyret',
-          fallbackSelectionPolicy:'Akseki metni içerik kalite kapısını geçemezse sırf Latin harfli diye READY yapılmaz; yeniden kullanımı uygun tarihî tarama ve güvenilir literal çevriyazı doğrulandığında ilmî içerik gücü nedeniyle önce Asr-ı Saâdet adayı değerlendirilir.',
-          conditionalEditionPolicy:'1955 Diyanet ikinci baskı yalnız 1934 müellif metniyle gövde karşılaştırması yapılıp Diyanet/editoryal ekler ayrılabildiğinde kullanılabilir.',
+          status:'selected-waiting-reusable-historical-scan',
+          selectedWorkId:'asri-saadet-siyret',
+          acceptedEditionYears:[1928],
+          preferredScript:'ottoman-turkish',
+          selectionReason:'Seviye 3 için nihai siyer seçimi budur: TDV değerlendirmesinde İslâm kaynaklarının ciddi tahlil ve tenkidine dayanan, çağdaş çalışmalarla mukayese yapan ve dönemin önemli ilim adamlarınca takdir edilmiş güçlü bir çalışma olarak öne çıkar.',
+          productionPlan:'Yalnız ticari yeniden kullanıma izin veren 1928 tarihî tarama veya izinli kurumsal kopya kullanılacak; Osmanlıca metin güvenilir literal Latin çevriyazıyla aktarılacak ve taramayla karşılaştırılacak.',
           contentQualityGate:{
-            status:'review-required',
-            approvalRequiredBeforeReady:true,
-            auditScope:[
-              'muhatap yaşına uygun üslup',
-              'temel olaylarda rivayet ve tarih dayanağı',
-              'uydurma diyalog veya toplu dönüşüm iddiası',
-              'savunmacı anlatının tarihî veriyi değiştirmemesi'
+            status:'selected',
+            approvalRequiredBeforeReady:false,
+            evidence:[
+              'TDV İslâm Ansiklopedisi Asr-ı Saâdet literatür maddesi',
+              'TDV Ömer Rıza Doğrul maddesi'
             ],
-            knownConcerns:[
-              {
-                type:'audience-tone',
-                source:'Şaban Öz · Cumhuriyet Dönemi (1930–1970) Siyer Yazıcılığı Üzerine Bazı Mülahazalar · 2022',
-                note:'Akseki’nin genç/çocuk muhataplı kitabında sert ve pedagojik açıdan problemli ifadeler bulunduğu eleştirilmektedir.'
-              },
-              {
-                type:'historical-claim',
-                source:'Şaban Öz · 2022',
-                note:'Bedir sonrasında Medine Yahudilerinin topluca son peygamberi tanıyıp Müslüman olduklarına dair anlatı, metin üretimi/uydurma örnekleri arasında Akseki’ye atfedilmiştir.'
-              }
-            ],
-            comparisonSources:['Kur’ân','sahih hadis rivayetleri','TDV İslâm Ansiklopedisi siyer maddeleri','çağdaş akademik siyer çalışmaları'],
-            decisionRule:'Kaynak taraması bulunsa bile çekirdek anlatıda önemli ve dayanağı gösterilemeyen üretme/tahrif veya yeni başlayan okuyucu için ciddi üslup sorunu kalırsa eser READY yapılmaz.'
+            decision:'Akseki 1934 yerine çekirdek Seviye 3 siyeri olarak Asr-ı Saâdet seçildi; artık açık mesele eser seçimi değil, yeniden kullanılabilir kaynak taramasıdır.'
           },
           catalogRecords:[
             {
-              institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',
-              callNumber:'297.92 AKS.P',
-              inventory:'09768',
-              edition:'Ankara · İdeal Matbaası · 1934',
-              access:'physical-copy-no-public-reusable-file-confirmed'
-            },
-            {
-              institution:'Türk Tarih Kurumu Kütüphanesi',
-              recordId:'423781',
-              callNumber:'A.IV/9738',
-              url:'https://kutuphane.ttk.gov.tr/details?id=423781&materialType=KT',
-              edition:'Ankara · Diyanet İşleri · 1955 · 159 s.',
-              access:'physical-copy-no-public-reusable-file-confirmed',
-              conditional:true
-            },
-            {
-              institution:'Diyanet İşleri Başkanlığı yayın bibliyografyası',
-              publicationNo:'40',
-              edition:'2. baskı · Ankara · 1955 · 159–160 s.',
-              access:'bibliographic-record-no-public-reusable-file-confirmed',
-              conditional:true
+              institution:'Wikilala',
+              edition:'İstanbul · 1928 · 281 sayfa görüntü · Osmanlıca PDF',
+              url:'https://www.wikilala.com/kitaplar/islam-tarihi-asr-i-saadet-peygamberimizin-siyreti-281596',
+              access:'discovery-only-commercial-reuse-prohibited-without-written-permission',
+              productionAllowed:false
             },
             {
               institution:'Sakarya Üniversitesi Mehmet Uzun (Baboğlu) Koleksiyonu',
-              recordId:'Baboğlu 065840',
-              edition:'Ankara · Diyanet İşleri Yayınları · 1955 · 159 s.',
-              access:'catalog-only-no-public-reusable-file-confirmed',
-              conditional:true
+              inventory:'0104734',
+              edition:'İstanbul · Amidi Matbaası · 1346/1928 · 1. cilt · 560 s.',
+              access:'physical-copy-no-public-reusable-file-confirmed'
+            },
+            {
+              institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',
+              inventory:'56411/56412',
+              edition:'1346/1928 · 1. cilt · Peygamberimizin sireti',
+              access:'physical-copy-no-public-reusable-file-confirmed'
             }
           ],
-          fallbackCandidates:[
+          alternateCandidates:[
             {
-              id:'asri-saadet-siyret',
-              title:'İslâm Tarihi: Asr-ı Saâdet — Peygamberimizin Siyreti',
-              author:'Şiblî Nu‘mânî · Süleyman Nedvî',
-              translator:'Ömer Rıza Doğrul',
-              editionYears:[1928],
-              priority:1,
-              accessGate:'historical-fulltext-known-rights-unverified',
-              knownCatalogRecords:[
-                {institution:'Wikilala',edition:'İstanbul · 1928 · 281 s. · Osmanlıca PDF',access:'fulltext-viewable-commercial-reuse-not-verified'},
-                {institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',inventory:'56462',edition:'1346/1928 · 1. cilt · Peygamberimizin sireti',access:'physical-copy'}
-              ],
-              note:'İlmî içerik açısından güçlü aday; müellifler ve mütercim koruma süresi dışındadır. 1928 Türkçe baskı Osmanlı harfli olduğundan production için yeniden kullanımı uygun tarihî tarama ve güvenilir literal Latin çevriyazı gerekir.',
-              contentEvidence:'TDV, eseri İslâm kaynaklarının ciddi tahlil ve tenkidine dayanan ve dönemin önemli ilim adamlarınca takdir edilen çalışma olarak tanımlar.'
+              id:'akseki-peygamberimiz-1934',
+              title:'Peygamberimiz Hz. Muhammed Aleyhisselâm ve Müslümanlık',
+              author:'Ahmed Hamdi Akseki',
+              editionYears:[1934,1955],
+              status:'not-selected',
+              reason:'Latin harfli ve erişilebilirlik açısından pratik olsa da güncel kalite denetiminde tarihî iddia ve pedagojik üslup endişeleri bulunduğu için çekirdek seçim yapılmadı.'
             },
             {
               id:'siyer-i-nebi-mehmed-ziya',
               title:'Siyer-i Nebî',
               author:'İhtifalci Mehmed Ziyâ',
               editionYears:[1924,1926],
-              note:'Kamu malı güçlü tam siyer; Osmanlı harfli nüsha nedeniyle üretim için güvenilir literal çevriyazı ve tarama karşılaştırması gerekir.'
+              status:'fallback',
+              reason:'Kamu malı güçlü ders kitabı; özgün tarihî tarama ve güvenilir literal çevriyazı gerektirir.'
             },
             {
               id:'yorukan-peygamberimiz-1926',
               title:'Peygamberimiz',
               author:'Yusuf Ziya Yörükân',
               editionYears:[1926,1927],
-              note:'Hacimli başlangıç siyeri; yalnız özgün tarihî baskı kabul edilir, modern sadeleştirme kabul edilmez.'
+              status:'fallback',
+              reason:'Başlangıç düzeyine uygun hacimli eser; yalnız özgün tarihî baskı kabul edilir.'
             }
           ],
           knownRejectedSources:[
             {
-              label:'Diyanet 2015 Hâtemü’l-Enbiyâ',
-              url:'https://dijital.diyanet.gov.tr/File/Download?id=4042&path=4042_1.pdf',
-              reason:'Farklı müellif eseri; 2015 baskı, modern tashih ve © Diyanet editoryal katmanı içerir.'
+              label:'Wikilala 1928 Asr-ı Saâdet PDF/OCR üretim kaynağı',
+              url:'https://www.wikilala.com/kitaplar/islam-tarihi-asr-i-saadet-peygamberimizin-siyreti-281596',
+              reason:'Wikilala kullanım şartları yazılı izin olmadan platform içeriklerinin ticari kullanımını yasaklar; bu kayıt yalnız bibliyografik ve görsel doğrulama için kullanılabilir.'
             },
             {
-              label:'KSÜ SAMER Yörükân sadeleştirmesi',
-              url:'https://siyerinebi.ksu.edu.tr/depo/belgeler/64-%20Yusuf%20Ziy%C3%A2%20-%20Peygamberimiz%20(Sadele%C5%9Ftiren%20Merve%20Kantaro%C4%9Flu)_2102231654141093.pdf',
-              reason:'Modern sadeleştirme; cümle dizimi ve kelimeler editoryal olarak değiştirilmiştir.'
-            },
-            {
-              label:'Wikilala Mehmed Ziyâ tam metin erişimi',
-              url:'https://www.wikilala.com/kitaplar/siyer-i-nebi-liselerin-birinci-devre-ikinci-siniflari-ile-kiz-ve-erkek-muallimleri-icin-en-son-tertib-olunan-programa-tevfikten-kaleme-alinmistir-265649',
-              reason:'Production için ticari yeniden kullanım izni doğrulanmamıştır.'
+              label:'Modern sadeleştirme / Latin harfli yeni baskılar',
+              reason:'Modern editoryal sadeleştirme, tashih ve yeniden yazım katmanları özgün 1928 metni yerine production asset olarak kullanılamaz.'
             }
           ],
           reject:[
+            'Wikilala full text copied into production without written commercial permission',
             'modern transliteration or simplification presented as the historical text',
             'academic thesis transcription as production text',
             'commercial or access-gated platform text without redistribution permission',
-            'modern edited reprint without separable author text'
+            'modern edited reprint without separable historical text'
           ]
         },
-        rightsNote:'Müellif koruma süresi dışındadır. Reader yalnız kaynak kimliği ve yeniden kullanım hakkı doğrulanmış 1934 tarihî baskıdan veya aynı müellif metnini editoryal katkıdan ayırabildiğimiz kurumsal bir dijital nüshadan üretilecektir.'
+        rightsNote:'Şiblî Nu‘mânî (ö. 1914), Süleyman Nedvî (ö. 1953) ve mütercim Ömer Rıza Doğrul (ö. 1952) bakımından müellif/mütercim koruma süreleri sona ermiştir. Ancak production asset yalnız dijital kaynağın yeniden kullanım şartları ayrıca uygun olduğunda oluşturulacaktır.'
       },
   {
         order:7,stage:'level-4',id:'islam-fitri-tabii-umumi',title:'İslâm Fıtrî, Tabiî ve Umumî Bir Dindir',author:'Ahmed Hamdi Akseki',field:'İman · İslâm düşüncesi',level:'Seviye 4',
