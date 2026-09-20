@@ -64,6 +64,7 @@ export function libraryPathSnapshot({
       order:stage.order,
       title:stage.title,
       subtitle:stage.subtitle,
+      goals:Array.isArray(stage.goals)?stage.goals.slice(0,3):[],
       bookIds:books.map(book=>book.id),
       requiredBookIds:required.map(book=>book.id),
       companionBookIds:companion.map(book=>book.id),
