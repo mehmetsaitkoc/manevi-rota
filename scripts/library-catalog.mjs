@@ -8,6 +8,8 @@ assert.equal(STARTER_LIBRARY_STAGES.length,5,'starter path must contain five del
 assert.deepEqual(STARTER_LIBRARY_STAGES.map(x=>x.id),['level-1','level-2','level-3','level-4','level-5']);
 assert.deepEqual(STARTER_LIBRARY.map(x=>x.stage),['level-1','level-1','level-2','level-2','level-3','level-3','level-4','level-4','level-5','level-5']);
 assert.deepEqual(STARTER_LIBRARY_STAGES.map(x=>starterBooksByStage(x.id).length),[2,2,2,2,2]);
+assert.ok(STARTER_LIBRARY_STAGES.every(x=>Array.isArray(x.goals)&&x.goals.length===3),'every level must carry exactly three awareness goals');
+assert.ok(STARTER_LIBRARY_STAGES.flatMap(x=>x.goals).every(goal=>typeof goal==='string'&&goal.length>=40),'awareness goals must be substantive guidance, not labels');
 assert.ok(STARTER_LIBRARY.every(x=>x.title&&x.author&&x.field&&x.level&&x.rightsStatus));
 assert.ok(STARTER_LIBRARY.every(x=>x.level===`Seviye ${x.order<=2?1:x.order<=4?2:x.order<=6?3:x.order<=8?4:5}`));
 assert.ok(STARTER_LIBRARY.every(x=>x.rightsStatus!=='unknown'));
