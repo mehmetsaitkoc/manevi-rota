@@ -492,6 +492,11 @@ function renderStarterPath(completedCount,pathSnapshot){
        <span class="starterStageStatus ${esc(level?.status||'later')}">${statusLabel}</span>
      </div>
      <div class="starterStageMeta"><span>${level?.completedCount||0}/${level?.requiredCount||0} tamamlandı</span><span>${ready}/${books.length} metin hazır</span>${level?.sourcePending?'<span class="sourcePending">Tam metin hazırlanıyor</span>':''}</div>
+     <details class="starterStageGoals" ${level?.status==='current'?'open':''}>
+       <summary>Bu seviyenin şuur hedefleri</summary>
+       <ol>${(stage.goals||[]).map(goal=>`<li>${esc(goal)}</li>`).join('')}</ol>
+       <p>Bu maddeler sınav veya maneviyat puanı değildir; okurken neyi fark etmeye çalışacağını hatırlatır.</p>
+     </details>
      <div class="starterLibraryGrid">${books.map(book=>renderStarterBookCard(book,completedCount,pathSnapshot.completedBooks)).join('')}</div>
    </section>`;
  }).join('');
@@ -523,7 +528,7 @@ function renderIlimHome(){
  const activeLevel=pathSnapshot.levels.find(level=>level.order===pathSnapshot.currentLevel)||pathSnapshot.levels[0];
  const activeLevelNotice=activeLevel.sourcePending?`Bu seviyede ${activeLevel.unavailableCount} tam metin hazırlanıyor.`:'Seviye geçişi okuma/tamamlama verisine dayanır.';
  const previousLevel=pathSnapshot.levels.find(level=>level.order===pathSnapshot.currentLevel-1)||null;
- const transitionCard=pathSnapshot.transitionReady&&previousLevel?`<section class="card levelTransitionCard"><div class="levelTransitionMark">✓</div><div><div class="eyebrow">SEVİYE ${previousLevel.order} TAMAMLANDI</div><h2>${esc(previousLevel.title)}</h2><p>Okuma yolunda yeni bir bölüme geçtin. Bu bir maneviyat puanı değil; tamamladığın eserlerin ardından sıradaki öğrenme odağını açar.</p><div class="levelTransitionNext"><small>SIRADAKİ ODAK</small><b>Seviye ${activeLevel.order} · ${esc(activeLevel.title)}</b><span>${esc(activeLevel.subtitle)}</span></div><button class="btn primary" id="ackLibraryLevel">Seviye ${activeLevel.order} yoluna geç →</button></div></section>`:'';
+ const transitionCard=pathSnapshot.transitionReady&&previousLevel?`<section class="card levelTransitionCard"><div class="levelTransitionMark">✓</div><div><div class="eyebrow">SEVİYE ${previousLevel.order} TAMAMLANDI</div><h2>${esc(previousLevel.title)}</h2><p>Okuma yolunda yeni bir bölüme geçtin. Bu bir maneviyat puanı değil; tamamladığın eserlerin ardından sıradaki öğrenme odağını açar.</p><div class="levelTransitionNext"><small>SIRADAKİ ODAK</small><b>Seviye ${activeLevel.order} · ${esc(activeLevel.title)}</b><span>${esc(activeLevel.subtitle)}</span><ul>${(activeLevel.goals||[]).slice(0,2).map(goal=>`<li>${esc(goal)}</li>`).join('')}</ul></div><button class="btn primary" id="ackLibraryLevel">Seviye ${activeLevel.order} yoluna geç →</button></div></section>`:'';
  const current=getHadis(S.ilim.currentId)||h;
  const resume=libraryResume(current,completedCount);
  const nextDue=due[0];
@@ -548,7 +553,8 @@ function renderIlimHome(){
    </div>
    <div class="libraryLevelProgress"><i style="width:${Math.round((pathSnapshot.completedLevels/pathSnapshot.totalLevels)*100)}%"></i></div>
    <div class="libraryLevelMeta"><span>${activeLevel.completedCount}/${activeLevel.requiredCount} eser tamamlandı</span><span>${esc(activeLevelNotice)}</span></div>
-   <p class="small">Bu seviye bir maneviyat veya iman puanı değildir; yalnızca 10 kitaplık okuma yolundaki konumunu gösterir. Sonraki seviyelerdeki hazır eserleri de istediğin zaman açabilirsin.</p>
+   <div class="libraryAwarenessGoals"><small>BU SEVİYEDE ODAKLAN</small><ol>${(activeLevel.goals||[]).map(goal=>`<li>${esc(goal)}</li>`).join('')}</ol></div>
+   <p class="small">Bu hedefler ve seviye bir maneviyat veya iman puanı değildir; yalnızca 10 kitaplık okuma yolunda neyi anlamaya çalışacağını gösterir. Sonraki seviyelerdeki hazır eserleri de istediğin zaman açabilirsin.</p>
    <button class="btn ghost" id="jumpCurrentLevel">Aktif seviyeye git ↓</button>
  </section>
 
