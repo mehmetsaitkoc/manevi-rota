@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/visual-review.yml'
+      - 'public/app.js'
+      - 'public/styles.css'
+      - 'public/index.html'
+      - 'src/kirk-hadis.mjs'
   workflow_dispatch:
 
 permissions:
