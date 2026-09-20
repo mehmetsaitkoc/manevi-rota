@@ -1,5 +1,6 @@
 name: Visual Review
 # final-library-reader-check
+# premium-library-final-check
 
 on:
   push:
@@ -104,9 +105,13 @@ jobs:
             await page.click('[data-book-note="1"]');
             await page.fill('#genericBookNoteInput','Visual review — kişisel kitap notu');
             await page.click('#genericBookNoteSave');
+            await page.evaluate(()=>window.scrollTo(0,0));
+            await page.waitForTimeout(120);
             await page.screenshot({path:'visual-review/03-premium-book.png',fullPage:true});
             await page.click('#genericBookFocus');
             await page.waitForSelector('.genericBookFocusMode',{timeout:5000});
+            await page.evaluate(()=>window.scrollTo(0,0));
+            await page.waitForTimeout(120);
             await page.screenshot({path:'visual-review/03b-premium-book-focus.png',fullPage:true});
             await page.click('#genericBookFocus');
             await page.click('#genericBookBack');
@@ -128,6 +133,8 @@ jobs:
 
             await page.click('[data-starter-book="islam-dini"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            await page.evaluate(()=>window.scrollTo(0,0));
+            await page.waitForTimeout(120);
             await page.screenshot({path:'visual-review/05-islam-dini-premium.png',fullPage:true});
             await page.click('#genericBookBack');
             await page.waitForSelector('#openTodayHadis',{timeout:10000});
