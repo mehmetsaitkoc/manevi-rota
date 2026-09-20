@@ -106,6 +106,24 @@ export const STARTER_LIBRARY=[
         sourceLabel:'1924 ilk baskı ve 1926/27 ikinci baskı kurumsal kataloglarda doğrulandı · üretim taraması bekleniyor',
         rightsStatus:'public-domain-turkey-author-term',
         originalYear:1924,authorDeathYear:1930,
+        sourceGate:{
+          status:'waiting-reusable-historical-scan',
+          acceptedEditionYears:[1924,1926],
+          catalogRecords:[
+            {
+              institution:'Türk Tarih Kurumu Kütüphanesi',
+              recordId:'761204',
+              callNumber:'AKM/K/20768',
+              edition:'2. baskı · İstanbul · Kitâbhâne-i Hilmi · 1926–1927 · 185 s.'
+            }
+          ],
+          reject:[
+            'modern transliteration or simplification',
+            'academic thesis transcription as production text',
+            'commercial or access-gated platform text without redistribution permission',
+            'modern edited reprint'
+          ]
+        },
         rightsNote:'Müellif koruma süresi dışındadır. Production reader yalnız 1924/1926 tarihî baskının yeniden kullanımı uygun taramasından üretilecek; modern çevriyazı, sadeleştirme veya akademik tez metni eser asset’i olarak kullanılmayacaktır.'
       },
   {
