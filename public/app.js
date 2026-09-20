@@ -6,11 +6,11 @@ import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisS
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
 const app=document.querySelector('#app'),nav=document.querySelector('#nav');
-const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState()});
+const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:{surah:1,ayah:1,fontScale:1},islam:{page:5,fontScale:1},lastBook:'hadith'}});
 function load(){try{const own=localStorage.getItem(KEY);if(own)return JSON.parse(own);for(const k of LEGACY_KEYS){const v=localStorage.getItem(k);if(v)return {...fresh(),...JSON.parse(v)}}}catch{}return fresh()}
 let S=load();
 S.profile=S.profile||{priorities:[]};S.profile.slotOverrides=S.profile.slotOverrides||{};S.profile.slotSuggestionSnooze=S.profile.slotSuggestionSnooze||{};
-S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});
+S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:{...libraryBase.quran,...(S.library?.quran||{})},islam:{...libraryBase.islam,...(S.library?.islam||{})}};
 const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
 const today=()=>{const d=new Date();const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)};
 const records=()=>Object.entries(S.daily).map(([date,x])=>({date,...x}));
@@ -41,6 +41,29 @@ async function loadNawawiArabic(){
  return nawawiArabicLoading;
 }
 const arabicHadith=id=>nawawiArabic[Number(id)]||'';
+
+const QURAN_META=[[1,"Fâtiha","الفاتحة",7],[2,"Bakara","البقرة",286],[3,"Âl-i İmrân","آل عمران",200],[4,"Nisâ","النساء",176],[5,"Mâide","المائدة",120],[6,"En’âm","الأنعام",165],[7,"A’râf","الأعراف",206],[8,"Enfâl","الأنفال",75],[9,"Tevbe","التوبة",129],[10,"Yûnus","يونس",109],[11,"Hûd","هود",123],[12,"Yûsuf","يوسف",111],[13,"Ra’d","الرعد",43],[14,"İbrâhim","إبراهيم",52],[15,"Hicr","الحجر",99],[16,"Nahl","النحل",128],[17,"İsrâ","الإسراء",111],[18,"Kehf","الكهف",110],[19,"Meryem","مريم",98],[20,"Tâhâ","طه",135],[21,"Enbiyâ","الأنبياء",112],[22,"Hac","الحج",78],[23,"Mü’minûn","المؤمنون",118],[24,"Nûr","النور",64],[25,"Furkân","الفرقان",77],[26,"Şuarâ","الشعراء",227],[27,"Neml","النمل",93],[28,"Kasas","القصص",88],[29,"Ankebût","العنكبوت",69],[30,"Rûm","الروم",60],[31,"Lokmân","لقمان",34],[32,"Secde","السجدة",30],[33,"Ahzâb","الأحزاب",73],[34,"Sebe’","سبأ",54],[35,"Fâtır","فاطر",45],[36,"Yâsîn","يس",83],[37,"Sâffât","الصافات",182],[38,"Sâd","ص",88],[39,"Zümer","الزمر",75],[40,"Mü’min (Gâfir)","غافر",85],[41,"Fussilet","فصلت",54],[42,"Şûrâ","الشورى",53],[43,"Zuhruf","الزخرف",89],[44,"Duhân","الدخان",59],[45,"Câsiye","الجاثية",37],[46,"Ahkâf","الأحقاف",35],[47,"Muhammed","محمد",38],[48,"Fetih","الفتح",29],[49,"Hucurât","الحجرات",18],[50,"Kâf","ق",45],[51,"Zâriyât","الذاريات",60],[52,"Tûr","الطور",49],[53,"Necm","النجم",62],[54,"Kamer","القمر",55],[55,"Rahmân","الرحمن",78],[56,"Vâkıa","الواقعة",96],[57,"Hadîd","الحديد",29],[58,"Mücâdele","المجادلة",22],[59,"Haşr","الحشر",24],[60,"Mümtehine","الممتحنة",13],[61,"Saf","الصف",14],[62,"Cuma","الجمعة",11],[63,"Münâfikûn","المنافقون",11],[64,"Tegâbün","التغابن",18],[65,"Talâk","الطلاق",12],[66,"Tahrîm","التحريم",12],[67,"Mülk","الملك",30],[68,"Kalem","القلم",52],[69,"Hâkka","الحاقة",52],[70,"Meâric","المعارج",44],[71,"Nûh","نوح",28],[72,"Cin","الجن",28],[73,"Müzzemmil","المزمل",20],[74,"Müddessir","المدثر",56],[75,"Kıyâmet","القيامة",40],[76,"İnsan","الإنسان",31],[77,"Mürselât","المرسلات",50],[78,"Nebe’","النبأ",40],[79,"Nâziât","النازعات",46],[80,"Abese","عبس",42],[81,"Tekvîr","التكوير",29],[82,"İnfitâr","الإنفطار",19],[83,"Mutaffifîn","المطففين",36],[84,"İnşikâk","الانشقاق",25],[85,"Burûc","البروج",22],[86,"Târık","الطارق",17],[87,"A’lâ","الأعلى",19],[88,"Gâşiye","الغاشية",26],[89,"Fecr","الفجر",30],[90,"Beled","البلد",20],[91,"Şems","الشمس",15],[92,"Leyl","الليل",21],[93,"Duhâ","الضحى",11],[94,"İnşirâh","الشرح",8],[95,"Tîn","التين",8],[96,"Alak","العلق",19],[97,"Kadr","القدر",5],[98,"Beyyine","البينة",8],[99,"Zilzâl","الزلزلة",8],[100,"Âdiyât","العاديات",11],[101,"Kâria","القارعة",11],[102,"Tekâsür","التكاثر",8],[103,"Asr","العصر",3],[104,"Hümeze","الهمزة",9],[105,"Fîl","الفيل",5],[106,"Kureyş","قريش",4],[107,"Mâûn","الماعون",7],[108,"Kevser","الكوثر",3],[109,"Kâfirûn","الكافرون",6],[110,"Nasr","النصر",3],[111,"Tebbet (Mesed)","المسد",5],[112,"İhlâs","الإخلاص",4],[113,"Felak","الفلق",5],[114,"Nâs","الناس",6]];
+const quranChapterCache=new Map();
+let islamDiniLibrary=null,islamDiniLoading=null;
+let quranProgressObserver=null;
+const quranMeta=id=>{const x=QURAN_META.find(v=>v[0]===Number(id))||QURAN_META[0];return {id:x[0],turkish:x[1],arabic:x[2],verseCount:x[3]}};
+async function loadQuranChapter(id){
+ const n=Math.max(1,Math.min(114,Number(id)||1));if(quranChapterCache.has(n))return quranChapterCache.get(n);
+ const r=await fetch(`public/data/quran/${n}.json`,{cache:'force-cache'});if(!r.ok)throw new Error('Kur’ân metni yüklenemedi.');
+ const j=await r.json();if(!Array.isArray(j?.verses))throw new Error('Kur’ân veri biçimi geçersiz.');quranChapterCache.set(n,j);return j;
+}
+async function loadIslamDini(){
+ if(islamDiniLibrary)return islamDiniLibrary;if(islamDiniLoading)return islamDiniLoading;
+ islamDiniLoading=fetch('public/data/islam-dini.json',{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('İslâm Dini metni yüklenemedi.');return r.json()}).then(j=>{if(!Array.isArray(j?.pages))throw new Error('İslâm Dini veri biçimi geçersiz.');islamDiniLibrary=j;return j}).finally(()=>{islamDiniLoading=null});return islamDiniLoading;
+}
+function renderLibraryLoading(title,subtitle='Metin hazırlanıyor…'){
+ app.innerHTML=`<section class="readerTop"><button class="readerBack" id="libraryBack">←</button><div><small>İLİM KÜTÜPHANESİ</small><b>${esc(title)}</b></div></section><section class="libraryReaderLoading"><i></i><h2>${esc(title)}</h2><p>${esc(subtitle)}</p></section>`;
+ document.querySelector('#libraryBack').onclick=()=>ilimGo('home');
+}
+function renderLibraryError(title,message,retry){
+ app.innerHTML=`<section class="readerTop"><button class="readerBack" id="libraryBack">←</button><div><small>İLİM KÜTÜPHANESİ</small><b>${esc(title)}</b></div></section><section class="card libraryLoadError"><div class="eyebrow">METİN AÇILAMADI</div><h2>${esc(title)}</h2><p>${esc(message)}</p><button class="btn primary" id="libraryRetry">Tekrar dene</button></section>`;
+ document.querySelector('#libraryBack').onclick=()=>ilimGo('home');document.querySelector('#libraryRetry').onclick=retry;
+}
 
 const onboarding=[
  {k:'rhythm',q:'Manevî düzenin şu an nasıl?',o:[['new','Sıfırdan başlıyorum','Küçük ve net bir başlangıç istiyorum'],['irregular','Düzensizim','İstikrarı kurmak istiyorum'],['steady','Bir düzenim var','Daha dengeli ilerlemek istiyorum'],['strong','Düzenliyim','Kontrollü biçimde derinleşmek istiyorum']]},
@@ -291,6 +314,8 @@ function renderIlim(){
  if(ui.screen==='reader')return renderIlimReader(ui.selectedId||S.ilim.currentId);
  if(ui.screen==='notebook')return renderIlimNotebook();
  if(ui.screen==='reviews')return renderIlimReviews();
+ if(ui.screen==='quran')return renderQuranReader();
+ if(ui.screen==='islam')return renderIslamDiniReader();
  return renderIlimHome();
 }
 function ilimGo(screen,selectedId=null){S.ilim.ui={...(S.ilim.ui||{}),screen,...(selectedId?{selectedId:Number(selectedId)}:{})};save();renderIlim()}
@@ -353,14 +378,14 @@ function renderIlimHome(){
        <div class="bookCoverMini hadisBook">ح</div>
        <div><b>Kırk Hadis</b><small>İmam Nevevî</small><span>${completedCount}/42 okundu</span></div><i>›</i>
      </button>
-     <div class="bookShelfCard futureBook">
+     <button class="bookShelfCard primaryBook" id="bookQuran">
        <div class="bookCoverMini quranBook">ق</div>
-       <div><b>Kur’ân-ı Kerîm</b><small>Uygulama içi okuyucu</small><span>Kitaplığa hazırlanıyor</span></div><i>•</i>
-     </div>
-     <div class="bookShelfCard futureBook">
+       <div><b>Kur’ân-ı Kerîm</b><small>Uthmanî Hafs · Arapça metin</small><span>${esc(quranMeta(S.library.quran.surah).turkish)} · ${S.library.quran.ayah}. âyet</span></div><i>›</i>
+     </button>
+     <button class="bookShelfCard primaryBook" id="bookIslam">
        <div class="bookCoverMini islamBook">ك</div>
-       <div><b>İslâm Dini</b><small>Ahmed Hamdi Akseki</small><span>Metin düzenleme aşamasında</span></div><i>•</i>
-     </div>
+       <div><b>İslâm Dini</b><small>Ahmed Hamdi Akseki</small><span>Sayfa ${S.library.islam.page} · kaldığın yerden</span></div><i>›</i>
+     </button>
    </div>
  </section>
 
@@ -373,10 +398,66 @@ function renderIlimHome(){
  const open=()=>ilimGo('reader',S.ilim.currentId);
  document.querySelector('#continueHadis').onclick=open;
  document.querySelector('#openTodayHadis').onclick=()=>ilimGo('reader',h.id);
- document.querySelector('#bookKirkHadis').onclick=open;
+ document.querySelector('#bookKirkHadis').onclick=()=>{S.library.lastBook='hadith';save();open()};
+ document.querySelector('#bookQuran').onclick=()=>{S.library.lastBook='quran';save();ilimGo('quran')};
+ document.querySelector('#bookIslam').onclick=()=>{S.library.lastBook='islam';save();ilimGo('islam')};
  document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');
  document.querySelector('#ilimNotebook').onclick=()=>ilimGo('notebook');
 }
+
+async function renderQuranReader(){
+ const state=S.library.quran,meta=quranMeta(state.surah),screen=S.ilim.ui?.screen;
+ if(!quranChapterCache.has(meta.id)){
+   renderLibraryLoading('Kur’ân-ı Kerîm',`${meta.turkish} sûresi hazırlanıyor…`);
+   try{await loadQuranChapter(meta.id)}catch(err){if(S.ilim.ui?.screen==='quran')renderLibraryError('Kur’ân-ı Kerîm',err.message||String(err),renderQuranReader);return}
+   if(S.ilim.ui?.screen==='quran'&&screen==='quran')return renderQuranReader();return;
+ }
+ const data=quranChapterCache.get(meta.id),scale=Number(state.fontScale||1);
+ if(quranProgressObserver){quranProgressObserver.disconnect();quranProgressObserver=null}
+ app.innerHTML=`<section class="readerTop quranReaderTop"><button class="readerBack" id="quranBack">←</button><div><small>KUR’ÂN-I KERÎM · ${meta.id}/114</small><b>${esc(meta.turkish)} · ${esc(meta.arabic)}</b></div><div class="readerTools"><button id="quranFontDown">A−</button><button id="quranFontUp">A+</button></div></section>
+ <section class="quranReaderShell">
+   <div class="quranNavBar"><button id="prevSurah" ${meta.id<=1?'disabled':''}>←</button><select id="surahSelect" aria-label="Sûre seç">${QURAN_META.map(x=>`<option value="${x[0]}" ${x[0]===meta.id?'selected':''}>${x[0]}. ${esc(x[1])}</option>`).join('')}</select><button id="nextSurah" ${meta.id>=114?'disabled':''}>→</button></div>
+   <header class="quranSurahHead"><div class="eyebrow">SÛRE ${meta.id}</div><h1>${esc(meta.arabic)}</h1><p>${esc(meta.turkish)} · ${meta.verseCount} âyet</p></header>
+   <div class="quranVerseList">${data.verses.map(v=>`<article class="quranAyah ${Number(state.ayah)===Number(v.verse)?'savedAyah':''}" data-quran-ayah="${v.verse}"><span class="quranAyahNo">${v.verse}</span><p dir="rtl" lang="ar" style="font-size:${(1.72*scale).toFixed(2)}rem">${esc(v.text)}</p><small>Kaldığın yer · ${meta.id}:${v.verse}</small></article>`).join('')}</div>
+   <div class="readerSourceNote">Metin: Uthmanî Hafs. Meal veya Manevî Rota yorumu bu okuyucuda gösterilmez.</div>
+ </section>`;
+ const goSurah=n=>{S.library.quran.surah=Math.max(1,Math.min(114,Number(n)||1));S.library.quran.ayah=1;S.library.lastBook='quran';save();renderQuranReader()};
+ document.querySelector('#quranBack').onclick=()=>ilimGo('home');
+ document.querySelector('#surahSelect').onchange=e=>goSurah(e.target.value);
+ document.querySelector('#prevSurah').onclick=()=>goSurah(meta.id-1);document.querySelector('#nextSurah').onclick=()=>goSurah(meta.id+1);
+ document.querySelector('#quranFontDown').onclick=()=>{S.library.quran.fontScale=Math.max(.82,scale-.08);save();renderQuranReader()};
+ document.querySelector('#quranFontUp').onclick=()=>{S.library.quran.fontScale=Math.min(1.5,scale+.08);save();renderQuranReader()};
+ document.querySelectorAll('[data-quran-ayah]').forEach(el=>el.onclick=()=>{S.library.quran.ayah=Number(el.dataset.quranAyah);S.library.lastBook='quran';save();document.querySelectorAll('.quranAyah').forEach(x=>x.classList.toggle('savedAyah',x===el))});
+ const saved=document.querySelector(`[data-quran-ayah="${Math.max(1,Number(state.ayah)||1)}"]`);if(saved)setTimeout(()=>saved.scrollIntoView({block:'center'}),40);
+ if('IntersectionObserver'in window){
+   quranProgressObserver=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting&&e.intersectionRatio>=.62).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];if(!visible)return;const n=Number(visible.target.dataset.quranAyah);if(n&&n!==S.library.quran.ayah){S.library.quran.ayah=n;S.library.lastBook='quran';save()}},{threshold:[.62]});
+   document.querySelectorAll('[data-quran-ayah]').forEach(el=>quranProgressObserver.observe(el));
+ }
+}
+async function renderIslamDiniReader(){
+ const screen=S.ilim.ui?.screen;
+ if(!islamDiniLibrary){
+   renderLibraryLoading('İslâm Dini','Tam metin okuyucu hazırlanıyor…');
+   try{await loadIslamDini()}catch(err){if(S.ilim.ui?.screen==='islam')renderLibraryError('İslâm Dini',err.message||String(err),renderIslamDiniReader);return}
+   if(S.ilim.ui?.screen==='islam'&&screen==='islam')return renderIslamDiniReader();return;
+ }
+ const state=S.library.islam,total=islamDiniLibrary.pages.length,pageNo=Math.max(1,Math.min(total,Number(state.page)||5)),page=islamDiniLibrary.pages[pageNo-1],scale=Number(state.fontScale||1),sections=islamDiniLibrary.sections||[];
+ const paragraphs=String(page?.text||'').split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+ app.innerHTML=`<section class="readerTop islamReaderTop"><button class="readerBack" id="islamBack">←</button><div><small>İSLÂM DİNİ · ${pageNo}/${total}</small><b>Ahmed Hamdi Akseki</b></div><div class="readerTools"><button id="islamFontDown">A−</button><button id="islamFontUp">A+</button></div></section>
+ <section class="islamReaderShell">
+   <div class="islamReaderNav"><button id="prevIslamPage" ${pageNo<=1?'disabled':''}>← Önceki</button><label>Sayfa <input id="islamPageInput" inputmode="numeric" type="number" min="1" max="${total}" value="${pageNo}"> / ${total}</label><button id="nextIslamPage" ${pageNo>=total?'disabled':''}>Sonraki →</button></div>
+   <div class="islamChapterJump"><select id="islamChapterSelect" aria-label="Bölüme git"><option value="">Bölüme git…</option>${sections.map(x=>`<option value="${x.page}">${esc(x.title)}</option>`).join('')}</select></div>
+   <article class="islamPagePaper"><div class="readerMarker">İSLÂM DİNİ · SAYFA ${pageNo}</div>${paragraphs.length?paragraphs.map((p,i)=>{const heading=p.length<120&&p===p.toLocaleUpperCase('tr-TR')&&/[A-ZÇĞİÖŞÜÎÂ]/.test(p);return heading?`<h2>${esc(p).replace(/\n/g,'<br>')}</h2>`:`<p style="font-size:${(1.02*scale).toFixed(2)}rem">${esc(p).replace(/\n/g,'<br>')}</p>`}).join(''):'<div class="emptyState">Bu tarama sayfasında metin bulunamadı.</div>'}</article>
+   <div class="readerSourceNote">Kaynak metin eski baskının OCR aktarımıdır. Manevî Rota metne açıklama veya yorum eklemez; tarama/dizgi hataları bulunabilir.</div>
+ </section>`;
+ const goPage=n=>{S.library.islam.page=Math.max(1,Math.min(total,Number(n)||pageNo));S.library.lastBook='islam';save();renderIslamDiniReader()};
+ document.querySelector('#islamBack').onclick=()=>ilimGo('home');
+ document.querySelector('#prevIslamPage').onclick=()=>goPage(pageNo-1);document.querySelector('#nextIslamPage').onclick=()=>goPage(pageNo+1);
+ document.querySelector('#islamPageInput').onchange=e=>goPage(e.target.value);document.querySelector('#islamChapterSelect').onchange=e=>{if(e.target.value)goPage(e.target.value)};
+ document.querySelector('#islamFontDown').onclick=()=>{S.library.islam.fontScale=Math.max(.82,scale-.08);save();renderIslamDiniReader()};
+ document.querySelector('#islamFontUp').onclick=()=>{S.library.islam.fontScale=Math.min(1.5,scale+.08);save();renderIslamDiniReader()};
+}
+
 function renderIlimReader(id){
  const h=getHadis(id);if(!h){S.ilim.ui.screen='home';save();return renderIlimHome()}
  const plan=todayHadisPlan(S.ilim,today()),isCurrent=Number(id)===Number(S.ilim.currentId),done=S.ilim.completed.includes(h.id),bookmarked=S.ilim.bookmarks.includes(h.id),noteFor=S.ilim.ui?.noteFor;
