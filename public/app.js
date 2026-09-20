@@ -3,16 +3,58 @@ import {buildRoute,weeklyDigest,dayAdd,timeSlotLearning} from '../src/route-engi
 import {PRAYERS,emptyQada,normalizePrayerPayload,prayerStatus,formatDuration,qadaRemaining,qadaTargetProgress,setQadaBalance,recordQada,undoQada} from '../src/prayer-center.mjs';
 import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisState,getHadis,progressPct as hadisProgressPct,todayHadisPlan,recordHadisSession,scheduleHadisReviews,dueReviews as dueHadisReviews,recordRecallAttempt,recallPromptFor,knowledgeSignal,knowledgeOverview,addHadisHighlight,addHadisNote,toggleHadisBookmark,notebookEntries} from '../src/kirk-hadis.mjs';
 import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,toggleQuranVerseHighlight,setQuranVerseNote} from '../src/quran-reader.mjs';
+import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilotRoutePayload,pilotDayPayload} from '../src/pilot-telemetry.mjs';
 
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
 const app=document.querySelector('#app'),nav=document.querySelector('#nav');
-const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:emptyQuranReaderState(),islam:{page:5,fontScale:1},lastBook:'hadith'}});
+const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:emptyQuranReaderState(),islam:{page:5,fontScale:1},lastBook:'hadith'},pilot:emptyPilotState()});
 function load(){try{const own=localStorage.getItem(KEY);if(own)return JSON.parse(own);for(const k of LEGACY_KEYS){const v=localStorage.getItem(k);if(v)return {...fresh(),...JSON.parse(v)}}}catch{}return fresh()}
 let S=load();
 S.profile=S.profile||{priorities:[]};S.profile.slotOverrides=S.profile.slotOverrides||{};S.profile.slotSuggestionSnooze=S.profile.slotSuggestionSnooze||{};
-S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:normalizeQuranReaderState({...libraryBase.quran,...(S.library?.quran||{})}),islam:{...libraryBase.islam,...(S.library?.islam||{})}};
+S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:normalizeQuranReaderState({...libraryBase.quran,...(S.library?.quran||{})}),islam:{...libraryBase.islam,...(S.library?.islam||{})}};S.pilot=normalizePilotState(S.pilot||{});
 const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+const APP_VERSION='3.0.0';
+let pilotFlushBusy=false;
+const randomId=()=>createPilotId(globalThis.crypto?.randomUUID?globalThis.crypto.randomUUID.bind(globalThis.crypto):null);
+function ensurePilotId(){if(!S.pilot.pilotId)S.pilot.pilotId=randomId();return S.pilot.pilotId}
+function pilotEnqueue(type,payload){
+ if(!S.pilot.enabled)return;
+ const event=createPilotEvent({eventId:randomId(),pilotId:ensurePilotId(),type,appVersion:APP_VERSION,payload});
+ if(!event)return;
+ S.pilot.queue=[...(S.pilot.queue||[]),event].slice(-200);
+ S.pilot.lastError=null;save();
+ setTimeout(()=>flushPilotQueue(),30);
+}
+function pilotRecordRoute(route,checkin,lightDay=false){if(route)pilotEnqueue('route_created',pilotRoutePayload(route,checkin,lightDay))}
+function pilotRecordDay(action,day){if(day?.route)pilotEnqueue('day_progress',pilotDayPayload(day,action))}
+async function flushPilotQueue(){
+ if(pilotFlushBusy||!S.pilot.enabled||!(S.pilot.queue||[]).length)return;
+ pilotFlushBusy=true;
+ const batch=S.pilot.queue.slice(0,20);
+ try{
+   const res=await fetch('/api/pilot/events',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({events:batch})});
+   const body=await res.json().catch(()=>({}));
+   if(res.ok&&body.collectorConfigured&&Number(body.accepted)>0){
+     const accepted=Math.min(batch.length,Number(body.accepted)||0);
+     S.pilot.queue=S.pilot.queue.slice(accepted);
+     S.pilot.transport='connected';S.pilot.lastFlushAt=new Date().toISOString();S.pilot.lastError=null;
+   }else if(res.ok&&body.collectorConfigured===false){
+     S.pilot.transport='local';S.pilot.lastError=null;
+   }else{
+     S.pilot.transport='error';S.pilot.lastError='Pilot verisi şu anda gönderilemedi; cihazdaki kuyruk korunuyor.';
+   }
+ }catch{
+   S.pilot.transport='error';S.pilot.lastError='Pilot bağlantısına ulaşılamadı; cihazdaki kuyruk korunuyor.';
+ }finally{pilotFlushBusy=false;save()}
+}
+function exportPilotQueue(){
+ const payload={schemaVersion:1,exportedAt:new Date().toISOString(),pilotId:S.pilot.pilotId||null,events:S.pilot.queue||[]};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='manevi-rota-pilot-v1.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
 const today=()=>{const d=new Date();const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10)};
 const records=()=>Object.entries(S.daily).map(([date,x])=>({date,...x}));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -109,7 +151,7 @@ function renderCheckin(){
 
 function startRouteAnalysis(){
  const d=ensure();if(!validCheck(d.checkin))return;
- d.route=makeRoute(true);save();
+ d.route=makeRoute(true);save();pilotRecordRoute(d.route,d.checkin,d.lightDay);
  renderRouteAnalysis(d.route,0);
 }
 function renderRouteAnalysis(route,step=0){
@@ -151,12 +193,12 @@ function renderToday(){
  ${suggestion?`<section class="card timingSuggestion"><div class="eyebrow">Zamanlama önerisi</div><h3>${TASK_CATALOG[suggestion.taskId].icon} ${TASK_CATALOG[suggestion.taskId].title} için saat değişikliği</h3><p><b>${slotLabel(suggestion.from)}</b> diliminde son ${suggestion.currentSamples} planda tamamlama %${pct(suggestion.currentCompletion)}. <b>${slotLabel(suggestion.to)}</b> dilimi sende %${pct(suggestion.targetCompletion)} tamamlama gösteriyor.</p><div class="explain">Bu bir manevî değerlendirme değil; yalnızca rutinin hangi saatte daha sürdürülebilir göründüğünü karşılaştırır. Değişiklik ancak sen onaylarsan uygulanır.</div><div class="actions"><button class="btn primary" id="acceptTiming" data-id="${suggestion.taskId}" data-slot="${suggestion.to}">${slotLabel(suggestion.to)}na taşı</button><button class="btn ghost" id="snoozeTiming" data-id="${suggestion.taskId}">Şimdilik kalsın</button></div></section>`:''}
  ${grouped.map(g=>`<section class="slotGroup"><div class="slotHead"><span>${slotIcon(g.slot)}</span><div><b>${slotLabel(g.slot)}</b><small>${g.tasks.reduce((a,x)=>a+x.duration,0)} dk</small></div></div>${g.tasks.map(taskHtml).join('')}</section>`).join('')}
  <section class="card"><h3>Bugünkü rota nasıldı?</h3><p>Seçmezsen motor bir şey varsaymaz.</p><div class="dayFeedback">${[['heavy','Ağır geldi'],['ideal','Tam kıvamında'],['easy','Kolaydı']].map(([k,l])=>`<button class="rating ${d.feedback===k?'sel':''}" data-dayf="${k}">${l}</button>`).join('')}</div></section>`;
- document.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{const set=new Set(d.done||[]),id=b.dataset.task;set.has(id)?(set.delete(id),delete d.taskFeedback[id]):set.add(id);d.done=[...set];save();renderToday()});
+ document.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{const set=new Set(d.done||[]),id=b.dataset.task;set.has(id)?(set.delete(id),delete d.taskFeedback[id]):set.add(id);d.done=[...set];save();pilotRecordDay('task-toggle',d);renderToday()});
  document.querySelectorAll('[data-open-ilim]').forEach(b=>b.onclick=()=>{S.view='ilim';S.ilim.ui={...S.ilim.ui,screen:'home'};save();render()});
- document.querySelectorAll('[data-tf]').forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.tf.split(':');d.taskFeedback=d.taskFeedback||{};d.taskFeedback[id]=d.taskFeedback[id]===v?null:v;if(!d.taskFeedback[id])delete d.taskFeedback[id];save();renderToday()});
- document.querySelectorAll('[data-dayf]').forEach(b=>b.onclick=()=>{d.feedback=d.feedback===b.dataset.dayf?null:b.dataset.dayf;save();renderToday()});
+ document.querySelectorAll('[data-tf]').forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.tf.split(':');d.taskFeedback=d.taskFeedback||{};d.taskFeedback[id]=d.taskFeedback[id]===v?null:v;if(!d.taskFeedback[id])delete d.taskFeedback[id];save();pilotRecordDay('task-feedback',d);renderToday()});
+ document.querySelectorAll('[data-dayf]').forEach(b=>b.onclick=()=>{d.feedback=d.feedback===b.dataset.dayf?null:b.dataset.dayf;save();pilotRecordDay('day-feedback',d);renderToday()});
  document.querySelector('#edit').onclick=()=>{S.view='checkin';save();render()};
- document.querySelector('#light').onclick=()=>{d.lightDay=!d.lightDay;d.route=null;d.done=[];d.taskFeedback={};makeRoute(true);save();renderToday()};
+ document.querySelector('#light').onclick=()=>{d.lightDay=!d.lightDay;d.route=null;d.done=[];d.taskFeedback={};makeRoute(true);save();pilotRecordRoute(d.route,d.checkin,d.lightDay);pilotRecordDay('light-day',d);renderToday()};
  const accept=document.querySelector('#acceptTiming');if(accept)accept.onclick=()=>{const id=accept.dataset.id,slot=accept.dataset.slot;S.profile.slotOverrides[id]=slot;delete S.profile.slotSuggestionSnooze[id];d.route=null;makeRoute(true);save();renderToday()};
  const snooze=document.querySelector('#snoozeTiming');if(snooze)snooze.onclick=()=>{const id=snooze.dataset.id;S.profile.slotSuggestionSnooze[id]=dayAdd(today(),7);d.dismissedTimeSuggestions=[...new Set([...(d.dismissedTimeSuggestions||[]),id])];save();renderToday()};
 }
@@ -301,12 +343,40 @@ function renderWeek(){
  document.querySelectorAll('[data-progress-range]').forEach(b=>b.onclick=()=>{S.profile.progressRange=b.dataset.progressRange;save();renderWeek()});
 }
 function renderProfile(){
- const p=S.profile,overrides=Object.entries(p.slotOverrides||{});
- app.innerHTML=`<section class="card"><div class="eyebrow">Profil</div><h1>Motor seni böyle tanıyor.</h1><p><b>Normal gün:</b> ${p.baseMinutes||'-'} dk</p><p><b>Öncelikler:</b> ${(p.priorities||[]).map(id=>TASK_CATALOG[id]?.title).filter(Boolean).join(', ')||'—'}</p><p><b>Yaklaşım:</b> ${p.pace||'—'}</p><p><b>En sık engel:</b> ${p.blocker||'—'}</p><div class="toggleLine"><div><b>Namaz Merkezi</b><small>Vakitleri Bugün ekranına bağlar.</small></div><button class="switch ${p.prayerTracking?'on':''}" id="profilePrayer"><i></i></button></div>${overrides.length?`<div class="divider"></div><h3>Öğrenilmiş zaman tercihleri</h3><div class="preferenceList">${overrides.map(([id,slot])=>`<div><span>${TASK_CATALOG[id]?.icon} ${TASK_CATALOG[id]?.title}</span><b>${slotLabel(slot)}</b></div>`).join('')}</div>`:''}<div class="explain">Profil kalıcıdır; günlük rota ayrıca bugünkü durum, geçmiş kullanım ve zamanlama sinyallerini kullanır. Zaman değişiklikleri yalnızca sen kabul edersen kalıcı olur.</div><div class="actions"><button class="btn ghost" id="resetTiming">Zaman tercihlerini sıfırla</button><button class="btn ghost" id="resetToday">Bugünü sıfırla</button><button class="btn warn" id="resetAll">Her şeyi sıfırla</button></div></section>`;
+ const p=S.profile,overrides=Object.entries(p.slotOverrides||{}),pilot=normalizePilotState(S.pilot||{});
+ S.pilot=pilot;
+ const pilotStatus=!pilot.enabled?'Kapalı':pilot.transport==='connected'?'Collector bağlı':pilot.transport==='error'?'Bağlantı bekliyor':'Cihaz kuyruğu';
+ app.innerHTML=`<section class="card"><div class="eyebrow">Profil</div><h1>Motor seni böyle tanıyor.</h1><p><b>Normal gün:</b> ${p.baseMinutes||'-'} dk</p><p><b>Öncelikler:</b> ${(p.priorities||[]).map(id=>TASK_CATALOG[id]?.title).filter(Boolean).join(', ')||'—'}</p><p><b>Yaklaşım:</b> ${p.pace||'—'}</p><p><b>En sık engel:</b> ${p.blocker||'—'}</p><div class="toggleLine"><div><b>Namaz Merkezi</b><small>Vakitleri Bugün ekranına bağlar.</small></div><button class="switch ${p.prayerTracking?'on':''}" id="profilePrayer"><i></i></button></div>${overrides.length?`<div class="divider"></div><h3>Öğrenilmiş zaman tercihleri</h3><div class="preferenceList">${overrides.map(([id,slot])=>`<div><span>${TASK_CATALOG[id]?.icon} ${TASK_CATALOG[id]?.title}</span><b>${slotLabel(slot)}</b></div>`).join('')}</div>`:''}<div class="explain">Profil kalıcıdır; günlük rota ayrıca bugünkü durum, geçmiş kullanım ve zamanlama sinyallerini kullanır. Zaman değişiklikleri yalnızca sen kabul edersen kalıcı olur.</div><div class="actions"><button class="btn ghost" id="resetTiming">Zaman tercihlerini sıfırla</button><button class="btn ghost" id="resetToday">Bugünü sıfırla</button><button class="btn warn" id="resetAll">Her şeyi sıfırla</button></div></section>
+ <section class="card pilotCard">
+   <div class="pilotHead"><div><div class="eyebrow">PİLOT v1</div><h2>Motoru gerçek kullanımla kalibre et</h2></div><button class="switch ${pilot.enabled?'on':''}" id="pilotToggle" aria-label="Pilot veri paylaşımı"><i></i></button></div>
+   <p class="lead">İsteğe bağlıdır. Yalnız planın sürdürülebilirliğini ölçen teknik sinyaller paylaşılır.</p>
+   <div class="pilotPrivacyGrid">
+     <div><span>✓</span><p><b>Paylaşılabilir</b><small>Rota modu, süre, görev sayısı/tamamlama oranı, enerji-yük, geri bildirim ve motor güveni.</small></p></div>
+     <div><span>×</span><p><b>Gönderilmez</b><small>Notların, okuduğun metin/âyet/hadis, namaz-kaza ayrıntıları, şehir/konum veya kişisel yazıların.</small></p></div>
+   </div>
+   <div class="pilotStatusRow"><div><small>DURUM</small><b>${pilotStatus}</b></div><div><small>CİHAZDA BEKLEYEN</small><b>${pilot.queue.length} olay</b></div></div>
+   ${pilot.lastError?`<div class="pilotError">${esc(pilot.lastError)}</div>`:''}
+   <div class="actions"><button class="btn ghost" id="pilotExport" ${pilot.queue.length?'':'disabled'}>Pilot verisini indir</button><button class="btn ghost" id="pilotFlush" ${pilot.enabled&&pilot.queue.length?'':'disabled'}>Şimdi gönder</button><button class="btn ghost" id="pilotClear" ${pilot.queue.length?'':'disabled'}>Kuyruğu sil</button></div>
+   <p class="small">Pilot kapalıyken yeni olay oluşturulmaz. Kapatırsan gönderilmemiş cihaz kuyruğu da silinir.</p>
+ </section>`;
  document.querySelector('#profilePrayer').onclick=()=>{p.prayerTracking=!p.prayerTracking;const d=ensure();d.route=null;save();renderProfile()};
  document.querySelector('#resetTiming').onclick=()=>{S.profile.slotOverrides={};S.profile.slotSuggestionSnooze={};const d=ensure();d.route=null;save();renderProfile()};
  document.querySelector('#resetToday').onclick=()=>{delete S.daily[today()];S.view='checkin';save();render()};
  document.querySelector('#resetAll').onclick=()=>{if(confirm('Profil ve tüm yerel veriler silinsin mi?')){localStorage.removeItem(KEY);location.reload()}};
+ document.querySelector('#pilotToggle').onclick=()=>{
+   if(!S.pilot.enabled){
+     const ok=confirm('Pilot v1’e katılmak ister misin? Yalnız rota süresi, tamamlanma oranı, enerji/yük, geri bildirim ve motor karar sinyalleri paylaşılır. Notların, okuma içeriklerin, namaz/kaza ayrıntıların ve konumun gönderilmez.');
+     if(!ok)return;
+     S.pilot.enabled=true;ensurePilotId();S.pilot.lastError=null;save();
+     const d=ensure();if(d.route)pilotRecordRoute(d.route,d.checkin,d.lightDay);
+     flushPilotQueue();renderProfile();
+   }else{
+     S.pilot={...S.pilot,enabled:false,queue:[],lastError:null,transport:'local'};save();renderProfile();
+   }
+ };
+ document.querySelector('#pilotExport').onclick=()=>exportPilotQueue();
+ document.querySelector('#pilotFlush').onclick=async()=>{await flushPilotQueue();renderProfile()};
+ document.querySelector('#pilotClear').onclick=()=>{if(confirm('Gönderilmemiş pilot kuyruğu silinsin mi?')){S.pilot.queue=[];S.pilot.lastError=null;save();renderProfile()}};
 }
 
 
@@ -543,3 +613,4 @@ function renderIlimNotebook(){
 
 document.addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b&&S.onboardDone){S.view=b.dataset.view;save();render()}});
 render();
+if(S.pilot.enabled&&S.pilot.queue.length)setTimeout(()=>flushPilotQueue(),700);
