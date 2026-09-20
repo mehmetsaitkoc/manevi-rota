@@ -151,6 +151,20 @@ function genericBookAnnotationSummary(state){
  const s=normalizeBookReaderState(state||{});
  return {notes:Object.keys(s.notes||{}).length,highlights:Object.keys(s.highlights||{}).length,bookmarks:(s.bookmarks||[]).length};
 }
+function ilimNotebookQuickSummary(){
+ const q=normalizeQuranReaderState(S.library.quran||{}),books=new Set();
+ let notes=(S.ilim.notes||[]).length+Object.keys(q.notes||{}).length;
+ let highlights=(S.ilim.highlights||[]).length+Object.keys(q.highlights||{}).length;
+ let bookmarks=(S.ilim.bookmarks||[]).length+(q.bookmarks||[]).length;
+ if((S.ilim.notes||[]).length||(S.ilim.highlights||[]).length||(S.ilim.bookmarks||[]).length)books.add('kirk-hadis');
+ if(Object.keys(q.notes||{}).length||Object.keys(q.highlights||{}).length||(q.bookmarks||[]).length)books.add('quran');
+ for(const [id,raw] of Object.entries(S.library.books||{})){
+   const state=normalizeBookReaderState(raw),a=genericBookAnnotationSummary(state);
+   notes+=a.notes;highlights+=a.highlights;bookmarks+=a.bookmarks;
+   if(a.notes||a.highlights||a.bookmarks)books.add(id);
+ }
+ return {notes,highlights,bookmarks,books:books.size};
+}
 function syncGenericReadingSession(bookId,session){
  if(!session)return;
  const date=today(),d=ensure(date);
@@ -550,7 +564,7 @@ function libraryResume(currentHadis,completedCount){
 
 function renderIlimHome(){
  loadNawawiArabic().catch(()=>{});
- const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,p=hadisProgressPct(S.ilim),due=dueHadisReviews(S.ilim,today(),9),entries=notebookEntries(S.ilim),overview=knowledgeOverview(S.ilim,today());
+ const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,p=hadisProgressPct(S.ilim),due=dueHadisReviews(S.ilim,today(),9),overview=knowledgeOverview(S.ilim,today()),defterSummary=ilimNotebookQuickSummary();
  const counts=overview.reduce((a,x)=>(a[x.key]=(a[x.key]||0)+1,a),{});
  const completedCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
  const pathSnapshot=libraryPathSnapshot({pathState:S.library.path,hadithCompletedCount:completedCount});
@@ -563,9 +577,8 @@ function renderIlimHome(){
  const nextDue=due[0];
  const readyBookCount=STARTER_LIBRARY.filter(x=>x.availability==='ready').length;
  const starterShelf=renderStarterPath(completedCount,pathSnapshot);
- const genericStates=Object.values(S.library.books||{}).map(normalizeBookReaderState);
- const libraryNotes=genericStates.reduce((n,x)=>n+Object.keys(x.notes||{}).length,0);
- const libraryHighlights=genericStates.reduce((n,x)=>n+Object.keys(x.highlights||{}).length,0);
+ const libraryNotes=defterSummary.notes;
+ const libraryHighlights=defterSummary.highlights;
  const levelRail=pathSnapshot.levels.map(level=>`<button class="libraryRailStep ${esc(level.status)}" data-level-rail="${level.order}"><span>${level.status==='complete'?'✓':level.order}</span><div><small>SEVİYE ${level.order}</small><b>${esc(level.title)}</b></div></button>`).join('');
  app.innerHTML=`
  <section class="card libraryHero">
@@ -580,7 +593,7 @@ function renderIlimHome(){
  </section>
 
  <section class="libraryV2Rail" aria-label="Okuma yolu seviyeleri">
-   <div class="libraryRailHeader"><div><small>5 AŞAMALI YOL</small><b>Temelden şuura ilerleyen okuma rotası</b></div><div class="libraryRailStats"><span><b>${readyBookCount}/10</b> okunabilir</span><span><b>${libraryNotes}</b> not</span><span><b>${libraryHighlights}</b> vurgu</span></div></div>
+   <div class="libraryRailHeader"><div><small>5 AŞAMALI YOL</small><b>Temelden şuura ilerleyen okuma rotası</b></div><div class="libraryRailStats"><span><b>${readyBookCount}/10</b> okunabilir</span><span><b>${libraryNotes}</b> not</span><span><b>${libraryHighlights}</b> vurgu</span><span><b>${defterSummary.bookmarks}</b> yer imi</span></div></div>
    <div class="libraryRailTrack">${levelRail}</div>
  </section>
 
@@ -619,7 +632,7 @@ function renderIlimHome(){
      <button id="ilimReviews">${due.length?'Başla →':'Görüntüle'}</button>
    </article>
    <article class="libraryMiniCard">
-     <div><span class="libraryIcon">✎</span><div><small>İLİM DEFTERİ</small><b>${S.ilim.notes.length} not · ${S.ilim.highlights.length} vurgu</b><p>Çizdiklerin, notların ve kaydettiklerin.</p></div></div>
+     <div><span class="libraryIcon">✎</span><div><small>İLİM DEFTERİ v2</small><b>${defterSummary.notes} not · ${defterSummary.highlights} vurgu · ${defterSummary.bookmarks} yer imi</b><p>${defterSummary.books} eserdeki kişisel kayıtların tek yerde.</p></div></div>
      <button id="ilimNotebook">Aç →</button>
    </article>
  </section>
