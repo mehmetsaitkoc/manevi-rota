@@ -11,6 +11,10 @@ on:
       - 'public/index.html'
       - 'src/kirk-hadis.mjs'
       - 'src/quran-reader.mjs'
+      - 'src/pilot-telemetry.mjs'
+      - 'scripts/pilot-telemetry.mjs'
+      - 'scripts/pilot-server.mjs'
+      - 'server.mjs'
       - 'scripts/quran-reader.mjs'
       - 'public/data/**'
   workflow_dispatch:
@@ -117,6 +121,21 @@ jobs:
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#app .progressHero',{timeout:10000});
             await page.screenshot({path:'visual-review/06-progress.png',fullPage:true});
+
+            await page.evaluate((k)=>{
+              const s=JSON.parse(localStorage.getItem(k));s.view='profile';localStorage.setItem(k,JSON.stringify(s));
+            },key);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('#app .pilotCard',{timeout:10000});
+            await page.screenshot({path:'visual-review/07-profile-pilot-off.png',fullPage:true});
+            page.once('dialog',dialog=>dialog.accept());
+            await page.click('#pilotToggle');
+            await page.waitForTimeout(350);
+            const pilotState=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).pilot,key);
+            if(!pilotState?.enabled||!Array.isArray(pilotState.queue)||pilotState.queue.length<1)throw new Error('Pilot opt-in did not create a local calibration event');
+            const pilotStatus=await page.evaluate(()=>fetch('/api/pilot/status').then(r=>r.json()));
+            if(pilotStatus.schemaVersion!==1)throw new Error('Pilot status schema mismatch');
+            await page.screenshot({path:'visual-review/07b-profile-pilot-on.png',fullPage:true});
 
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
