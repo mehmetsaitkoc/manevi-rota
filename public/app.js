@@ -125,7 +125,7 @@ function genericBookState(id){
 function genericBookBlocks(text){
  const normalized=String(text||'').replace(/\r/g,'')
    .replace(/¬\s*\n\s*/g,'')
-   .replace(/([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])-\s*\n\s*([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])/g,'$1$2');
+   .replace(/([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])[\-‐‑‒–—]\s*\n\s*([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])/g,'$1$2');
  const raw=normalized.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
  const out=[];
  for(const block of raw){
