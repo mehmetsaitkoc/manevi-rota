@@ -3,7 +3,7 @@ import {buildRoute,weeklyDigest,dayAdd,timeSlotLearning} from '../src/route-engi
 import {PRAYERS,emptyQada,normalizePrayerPayload,prayerStatus,formatDuration,qadaRemaining,qadaTargetProgress,setQadaBalance,recordQada,undoQada} from '../src/prayer-center.mjs';
 import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisState,getHadis,progressPct as hadisProgressPct,todayHadisPlan,recordHadisSession,scheduleHadisReviews,dueReviews as dueHadisReviews,recordRecallAttempt,recallPromptFor,knowledgeSignal,knowledgeOverview,addHadisHighlight,addHadisNote,toggleHadisBookmark,notebookEntries} from '../src/kirk-hadis.mjs';
 import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,toggleQuranVerseHighlight,setQuranVerseNote} from '../src/quran-reader.mjs';
-import {STARTER_LIBRARY,starterBook} from '../src/library-catalog.mjs';
+import {STARTER_LIBRARY,STARTER_LIBRARY_STAGES,starterBook,starterBooksByStage} from '../src/library-catalog.mjs';
 import {normalizeBookReaderState,bookHighlight,bookNote,toggleBookHighlight,setBookNote,toggleBookPageBookmark} from '../src/book-reader.mjs';
 import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilotRoutePayload,pilotDayPayload} from '../src/pilot-telemetry.mjs';
 
@@ -453,6 +453,42 @@ function sentenceSplit(text){return String(text||'').match(/[^.!?]+[.!?]?/g)?.ma
 function sectionHighlight(hadisId,sectionIndex,text){return S.ilim.highlights.find(x=>x.hadisId===Number(hadisId)&&x.sectionIndex===Number(sectionIndex)&&x.text===text)||null}
 function hexToRgba(hex,alpha=.45){let h=String(hex||'#e6c46f').replace('#','');if(h.length===3)h=h.split('').map(x=>x+x).join('');const n=parseInt(h,16);if(!Number.isFinite(n))return `rgba(230,196,111,${alpha})`;return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${alpha})`}
 function highlightVars(h){const color=h?.color||'#e6c46f';return `style="--hl:${hexToRgba(color,.46)};--hl-line:${hexToRgba(color,.95)}"`}
+
+function renderStarterBookCard(book,completedCount){
+ const ready=book.availability==='ready';
+ const saved=book.readerType==='generic'?normalizeBookReaderState(S.library.books?.[book.id]||{}):null;
+ const progress=book.id==='kirk-hadis'
+   ?`${completedCount}/42 okundu`
+   :book.id==='quran'
+     ?`${esc(quranMeta(S.library.quran.surah).turkish)} · ${S.library.quran.ayah}. âyet`
+     :ready&&book.readerType==='generic'
+       ?`Okuma ${saved?.page||1} · kaldığın yerden`
+       :'Kaynak doğrulanıyor';
+ const byline=book.author==='—'?'Arapça metin':book.author;
+ return `<button class="starterBookCard tone-${esc(book.tone||'forest')} ${ready?'ready':'pending'}" data-starter-book="${esc(book.id)}" ${ready?'':'disabled'} aria-label="${esc(book.title)}">
+   <div class="starterBookOrder">${book.order}</div>
+   <div class="starterBookCover"><span>${esc(book.coverGlyph||'ك')}</span><small>${esc(book.field)}</small></div>
+   <div class="starterBookInfo">
+     <div class="starterBookBadges"><span>${esc(book.level)}</span><span class="${ready?'available':'checking'}">${ready?'Okunabilir':'Kaynak doğrulanıyor'}</span></div>
+     <b>${esc(book.title)}</b><small>${esc(byline)}</small><p>${esc(book.shortLabel)}</p><em>${progress}</em>
+   </div>
+   <i>${ready?'›':'·'}</i>
+ </button>`;
+}
+function renderStarterPath(completedCount){
+ return STARTER_LIBRARY_STAGES.map(stage=>{
+   const books=starterBooksByStage(stage.id),ready=books.filter(book=>book.availability==='ready').length;
+   return `<section class="starterStage" data-starter-stage="${esc(stage.id)}">
+     <div class="starterStageHead">
+       <div class="starterStageNumber">${stage.order}</div>
+       <div><small>AŞAMA ${stage.order}</small><b>${esc(stage.title)}</b><p>${esc(stage.subtitle)}</p></div>
+       <span>${ready}/${books.length} hazır</span>
+     </div>
+     <div class="starterLibraryGrid">${books.map(book=>renderStarterBookCard(book,completedCount)).join('')}</div>
+   </section>`;
+ }).join('');
+}
+
 function renderIlimHome(){
  loadNawawiArabic().catch(()=>{});
  const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,p=hadisProgressPct(S.ilim),due=dueHadisReviews(S.ilim,today(),9),entries=notebookEntries(S.ilim),overview=knowledgeOverview(S.ilim,today());
@@ -461,27 +497,7 @@ function renderIlimHome(){
  const current=getHadis(S.ilim.currentId)||h;
  const nextDue=due[0];
  const readyBookCount=STARTER_LIBRARY.filter(x=>x.availability==='ready').length;
- const starterShelf=STARTER_LIBRARY.map(book=>{
-   const ready=book.availability==='ready';
-   const saved=book.readerType==='generic'?normalizeBookReaderState(S.library.books?.[book.id]||{}):null;
-   const progress=book.id==='kirk-hadis'
-     ?`${completedCount}/42 okundu`
-     :book.id==='quran'
-       ?`${esc(quranMeta(S.library.quran.surah).turkish)} · ${S.library.quran.ayah}. âyet`
-       :ready&&book.readerType==='generic'
-         ?`Okuma ${saved?.page||1} · kaldığın yerden`
-         :'Kaynak doğrulanıyor';
-   const byline=book.author==='—'?'Arapça metin':book.author;
-   return `<button class="starterBookCard tone-${esc(book.tone||'forest')} ${ready?'ready':'pending'}" data-starter-book="${esc(book.id)}" ${ready?'':'disabled'} aria-label="${esc(book.title)}">
-     <div class="starterBookOrder">${book.order}</div>
-     <div class="starterBookCover"><span>${esc(book.coverGlyph||'ك')}</span><small>${esc(book.field)}</small></div>
-     <div class="starterBookInfo">
-       <div class="starterBookBadges"><span>${esc(book.level)}</span><span class="${ready?'available':'checking'}">${ready?'Okunabilir':'Kaynak doğrulanıyor'}</span></div>
-       <b>${esc(book.title)}</b><small>${esc(byline)}</small><p>${esc(book.shortLabel)}</p><em>${progress}</em>
-     </div>
-     <i>${ready?'›':'·'}</i>
-   </button>`;
- }).join('');
+ const starterShelf=renderStarterPath(completedCount);
  app.innerHTML=`
  <section class="card libraryHero">
    <div class="libraryHeroTop">
@@ -525,7 +541,7 @@ function renderIlimHome(){
      <div><div class="eyebrow">BAŞLANGIÇ KÜTÜPHANESİ</div><h2>10 eserlik sağlam başlangıç</h2><p>Az ama nitelikli. Metni ve kaynağı hazır olmayan eser okunabilir görünmez.</p></div>
      <span class="sourcePill">${readyBookCount} okunabilir · ${STARTER_LIBRARY.length-readyBookCount} doğrulamada</span>
    </div>
-   <div class="starterLibraryGrid">${starterShelf}</div>
+   <div class="starterPath">${starterShelf}</div>
  </section>
 
  <section class="card memorySummary compactMemory">
