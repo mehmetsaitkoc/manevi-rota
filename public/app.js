@@ -121,7 +121,10 @@ function genericBookState(id){
  return S.library.books[id];
 }
 function genericBookBlocks(text){
- const raw=String(text||'').replace(/\r/g,'').split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+ const normalized=String(text||'').replace(/\r/g,'')
+   .replace(/¬\s*\n\s*/g,'')
+   .replace(/([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])-\s*\n\s*([A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû])/g,'$1$2');
+ const raw=normalized.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
  const out=[];
  for(const block of raw){
    const clean=block.split(/\n+/).map(x=>x.trim()).filter(Boolean).join(' ').replace(/[ \t]{2,}/g,' ').trim();
