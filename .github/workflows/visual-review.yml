@@ -1,0 +1,101 @@
+name: Visual Review
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/visual-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm install
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Start app
+        run: |
+          PORT=4173 node server.mjs > /tmp/manevi-rota-server.log 2>&1 &
+          echo $! > /tmp/manevi-rota-server.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/manevi-rota-server.log
+          exit 1
+      - name: Capture real UI
+        run: |
+          mkdir -p visual-review
+          cat > /tmp/capture.cjs <<'NODE'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({headless:true});
+            const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+            const url='http://127.0.0.1:4173/';
+            const key='manevi-rota-v2.7';
+            await page.goto(url,{waitUntil:'networkidle'});
+            await page.screenshot({path:'visual-review/00-intro.png',fullPage:true});
+
+            const now=new Date();
+            const iso=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);
+            const state={
+              onboardStep:7,onboardDone:true,
+              profile:{
+                rhythm:'steady',baseMinutes:20,quranLevel:'regular',reading:'regular',
+                priorities:['quran','reading','learning'],prayerTracking:false,
+                blocker:'variable',pace:'balanced',slotOverrides:{},slotSuggestionSnooze:{}
+              },
+              daily:{},
+              view:'today',
+              prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},
+              qada:{},
+              ilim:{}
+            };
+            state.daily[iso]={checkin:{minutes:20,energy:3,load:3,mood:'normal',context:'normal'},done:[],taskFeedback:{},feedback:null,route:null,lightDay:false};
+            await page.evaluate(([k,s])=>{
+              localStorage.setItem(k,JSON.stringify(s));
+              sessionStorage.setItem('manevi-rota-intro-seen','1');
+            },[key,state]);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('#app .premiumTodayHero',{timeout:10000});
+            await page.screenshot({path:'visual-review/01-today.png',fullPage:true});
+
+            await page.evaluate((k)=>{
+              const s=JSON.parse(localStorage.getItem(k));s.view='ilim';localStorage.setItem(k,JSON.stringify(s));
+            },key);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('#app .ilimHero',{timeout:10000});
+            await page.screenshot({path:'visual-review/02-ilim.png',fullPage:true});
+
+            await page.click('#openTodayHadis');
+            await page.waitForSelector('.hadisReader',{timeout:10000});
+            await page.waitForTimeout(1200);
+            await page.screenshot({path:'visual-review/03-reader.png',fullPage:true});
+
+            await page.evaluate((k)=>{
+              const s=JSON.parse(localStorage.getItem(k));s.view='week';localStorage.setItem(k,JSON.stringify(s));
+            },key);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('#app .progressHero',{timeout:10000});
+            await page.screenshot({path:'visual-review/04-progress.png',fullPage:true});
+
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+          node /tmp/capture.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-review
+          path: visual-review
+          if-no-files-found: error
