@@ -5,7 +5,7 @@ import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisS
 import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,toggleQuranVerseHighlight,setQuranVerseNote} from '../src/quran-reader.mjs';
 import {STARTER_LIBRARY,STARTER_LIBRARY_STAGES,starterBook,starterBooksByStage} from '../src/library-catalog.mjs';
 import {normalizeBookReaderState,bookHighlight,bookNote,toggleBookHighlight,setBookNote,toggleBookPageBookmark} from '../src/book-reader.mjs';
-import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,isPathBookCompleted,libraryPathSnapshot} from '../src/library-path.mjs';
+import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,isPathBookCompleted,libraryPathSnapshot,acknowledgeLibraryLevel} from '../src/library-path.mjs';
 import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilotRoutePayload,pilotDayPayload} from '../src/pilot-telemetry.mjs';
 
 const KEY='manevi-rota-v2.7';
@@ -522,6 +522,8 @@ function renderIlimHome(){
  const pathSnapshot=libraryPathSnapshot({pathState:S.library.path,hadithCompletedCount:completedCount});
  const activeLevel=pathSnapshot.levels.find(level=>level.order===pathSnapshot.currentLevel)||pathSnapshot.levels[0];
  const activeLevelNotice=activeLevel.sourcePending?`Bu seviyede ${activeLevel.unavailableCount} tam metin hazırlanıyor.`:'Seviye geçişi okuma/tamamlama verisine dayanır.';
+ const previousLevel=pathSnapshot.levels.find(level=>level.order===pathSnapshot.currentLevel-1)||null;
+ const transitionCard=pathSnapshot.transitionReady&&previousLevel?`<section class="card levelTransitionCard"><div class="levelTransitionMark">✓</div><div><div class="eyebrow">SEVİYE ${previousLevel.order} TAMAMLANDI</div><h2>${esc(previousLevel.title)}</h2><p>Okuma yolunda yeni bir bölüme geçtin. Bu bir maneviyat puanı değil; tamamladığın eserlerin ardından sıradaki öğrenme odağını açar.</p><div class="levelTransitionNext"><small>SIRADAKİ ODAK</small><b>Seviye ${activeLevel.order} · ${esc(activeLevel.title)}</b><span>${esc(activeLevel.subtitle)}</span></div><button class="btn primary" id="ackLibraryLevel">Seviye ${activeLevel.order} yoluna geç →</button></div></section>`:'';
  const current=getHadis(S.ilim.currentId)||h;
  const resume=libraryResume(current,completedCount);
  const nextDue=due[0];
@@ -549,6 +551,8 @@ function renderIlimHome(){
    <p class="small">Bu seviye bir maneviyat veya iman puanı değildir; yalnızca 10 kitaplık okuma yolundaki konumunu gösterir. Sonraki seviyelerdeki hazır eserleri de istediğin zaman açabilirsin.</p>
    <button class="btn ghost" id="jumpCurrentLevel">Aktif seviyeye git ↓</button>
  </section>
+
+ ${transitionCard}
 
  <section class="continueReadingCard">
    <div class="continueCover"><span>${esc(resume.glyph||'ك')}</span><small>DEVAM ET</small></div>
@@ -592,6 +596,7 @@ function renderIlimHome(){
  <section class="card sourceCard"><details><summary>Metin ve kaynak politikası</summary><p>${esc(KIRK_HADIS_META.rightsNote)}</p><p>${esc(KIRK_HADIS_META.editorialNote)}</p></details></section>`;
  const open=()=>ilimGo('reader',S.ilim.currentId);
  document.querySelector('#continueLibrary').onclick=resume.action;
+ const ackLevel=document.querySelector('#ackLibraryLevel');if(ackLevel)ackLevel.onclick=()=>{S.library.path=acknowledgeLibraryLevel(S.library.path,pathSnapshot.currentLevel);save();renderIlimHome();setTimeout(()=>document.querySelector(`[data-starter-stage="level-${pathSnapshot.currentLevel}"]`)?.scrollIntoView({behavior:'smooth',block:'start'}),60)};
  document.querySelector('#jumpCurrentLevel').onclick=()=>document.querySelector(`[data-starter-stage="level-${pathSnapshot.currentLevel}"]`)?.scrollIntoView({behavior:'smooth',block:'start'});
  document.querySelector('#openTodayHadis').onclick=()=>ilimGo('reader',h.id);
  document.querySelectorAll('[data-starter-book]').forEach(btn=>btn.onclick=()=>openStarterBook(btn.dataset.starterBook));
