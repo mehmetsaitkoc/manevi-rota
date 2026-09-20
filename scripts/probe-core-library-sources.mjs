@@ -117,18 +117,6 @@ const candidates=[
     ]
   },
   {
-    id:'akseki-missing-core',
-    secondaryProbe:true,
-    titles:['Peygamberimizin Vecizeleri','Kuvvetli İman Kuvvetli İrade'],
-    creators:['Ahmed Hamdi Akseki','Ahmet Hamdi Akseki','A. Hamdi Akseki'],
-    extraQueries:[
-      'creator:(Akseki) AND mediatype:texts',
-      '(Akseki AND Vecizeleri) AND mediatype:texts',
-      '(Akseki AND "Kuvvetli İman") AND mediatype:texts'
-    ],
-    probeText:true
-  },
-  {
     id:'asri-saadet-siyret',
     titles:['İslâm Tarihi Asr-ı Saadet Peygamberimizin Siyreti','İslam Tarihi Asr-ı Saadet Peygamberimizin Siyreti','Peygamberimizin Siyreti','Asr-ı Saadet'],
     creators:['Mevlana Şibli','Şibli Numanî','Şibli Numani','Ömer Rıza Doğrul','Omer Riza Dogrul'],
@@ -143,6 +131,24 @@ const candidates=[
     ],
     expectedYears:[1928],
     secondaryProbe:true,
+    preferredFallback:true,
+    knownCatalogRecords:[
+      {
+        institution:'Wikilala',
+        edition:'İstanbul · 1928 · 281 s. · Osmanlıca PDF',
+        access:'fulltext-viewable-commercial-reuse-not-verified'
+      },
+      {
+        institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',
+        inventory:'56462',
+        edition:'1346/1928 · 1. cilt · Peygamberimizin sireti',
+        access:'physical-copy'
+      }
+    ],
+    productionGate:{
+      require:'reusable historical scan plus literal Latin transliteration checked against the scan',
+      reject:['commercial/gated text without redistribution permission','modern simplification','unverified OCR-only transcription']
+    },
     catalogEvidence:[
       {label:'TDV İslâm Ansiklopedisi',url:'https://islamansiklopedisi.org.tr/asr-i-saadet--literatur',note:'Şiblî/Nedvî, Ömer Rıza Doğrul tercümesi, İstanbul 1928'},
       {label:'Wikilala katalog kaydı',url:'https://www.wikilala.com/kitaplar/islam-tarihi-asr-i-saadet-peygamberimizin-siyreti-281596',note:'1928 nüsha, 281 sayfa; yeniden kullanım lisansı ayrıca doğrulanmalı'}
