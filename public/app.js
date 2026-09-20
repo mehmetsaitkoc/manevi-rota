@@ -173,14 +173,109 @@ function renderPrayer(){
 }
 
 function renderWeek(){
- const k=today(),digest=weeklyDigest({records:records(),today:k}),timing=timeSlotLearning({records:records(),today:k,profile:S.profile});
- const days=[];for(let i=6;i>=0;i--){const date=dayAdd(k,-i),d=S.daily[date],ids=d?.route?.tasks?.map(x=>x.id)||[],done=new Set(d?.done||[]);days.push({date,total:ids.length,done:ids.filter(x=>done.has(x)).length,feedback:d?.feedback,mode:d?.route?.mode,light:d?.lightDay})}
- const name=id=>TASK_CATALOG[id]?.title||'—';const slotRows=Object.entries(timing.slots).filter(([,x])=>x.samples>=2).sort((a,b)=>b[1].samples-a[1].samples);
- app.innerHTML=`<section class="card progressHero"><div class="eyebrow">İLERLEME</div><h1>Son 7 günlük yolculuğun</h1><p class="lead">Daha istikrarlı, daha bilinçli, daha sürdürülebilir bir ritim. Bu ekran maneviyatını puanlamaz; yalnızca planın sürdürülebilirliğine bakar.</p><div class="metrics"><div class="metric"><b>${pct(digest.completion7)}%</b><span>Tamamlama</span></div><div class="metric"><b>${digest.evidenceDays}</b><span>Veri günü</span></div><div class="metric"><b>${digest.heavy3}</b><span>Son 3 günde ağır</span></div><div class="metric"><b>${digest.confidence<30?'Düşük':digest.confidence<60?'Orta':'Güçlü'}</b><span>Motor güveni</span></div></div><div class="explain">${esc(digest.next)}</div>${digest.strongest||digest.friction?`<div class="divider"></div><p><b>En rahat oturan rutin:</b> ${name(digest.strongest)}<br><b>Daha küçük doz gerektiren alan:</b> ${name(digest.friction)}</p>`:''}</section>
- ${slotRows.length?`<section class="card"><div class="eyebrow">Zamanlama öğrenimi</div><h2>Hangi vakit sana daha çok uyuyor?</h2><p>En az 2 gerçek plan bulunan zaman dilimleri gösterilir. Bunlar ibadet kalitesi değil, yalnızca plan tamamlama verisidir.</p><div class="slotStats">${slotRows.map(([slot,x])=>`<div class="slotStat"><span>${slotIcon(slot)}</span><div><b>${slotLabel(slot)}</b><small>${x.completed}/${x.samples} tamamlandı</small></div><strong>%${pct(x.completion)}</strong></div>`).join('')}</div></section>`:''}
- <section class="timeline">${days.map(x=>{const p=x.total?Math.round(x.done/x.total*100):0;return `<div class="day ${x.date===k?'today':''}"><b>${x.date===k?'Bugün':x.date}</b><div class="small">${x.total?`${x.done}/${x.total} görev · ${x.mode||''}${x.light?' · hafif gün':''}`:'Henüz rota yok'}${x.feedback?` · ${x.feedback}`:''}</div><div class="bar"><i style="width:${p}%"></i></div></div>`}).join('')}</section>`;
-}
+ const k=today();
+ const range=S.profile.progressRange||'7';
+ const windowDays=range==='7'?7:range==='30'?30:null;
+ const allDates=Object.keys(S.daily||{}).sort();
+ const startDate=windowDays?dayAdd(k,-(windowDays-1)):(allDates[0]||k);
+ const inRange=date=>date>=startDate&&date<=k;
+ const dateCount=windowDays||Math.max(1,Math.round((new Date(k+'T00:00:00')-new Date(startDate+'T00:00:00'))/86400000)+1);
 
+ const dayRows=[];
+ for(let i=dateCount-1;i>=0;i--){
+   const date=dayAdd(k,-i),d=S.daily[date],tasks=d?.route?.tasks||[],doneSet=new Set(d?.done||[]);
+   dayRows.push({date,total:tasks.length,done:tasks.filter(x=>doneSet.has(x.id)).length,feedback:d?.feedback||null,mode:d?.route?.mode||'',light:!!d?.lightDay});
+ }
+
+ const evidenceRows=dayRows.filter(x=>x.total>0);
+ const totalTasks=evidenceRows.reduce((a,x)=>a+x.total,0);
+ const totalDone=evidenceRows.reduce((a,x)=>a+x.done,0);
+ const consistency=totalTasks?Math.round(totalDone/totalTasks*100):null;
+
+ const understandingSessions=(S.ilim.sessions||[]).filter(x=>x.date&&inRange(x.date)&&Number.isFinite(Number(x.understanding)));
+ const understanding=understandingSessions.length?Math.round(understandingSessions.reduce((a,x)=>a+(Number(x.understanding)-1)/4*100,0)/understandingSessions.length):null;
+
+ const recalls=(S.ilim.recalls||[]).filter(x=>x.date&&inRange(x.date));
+ const recall=recalls.length?Math.round(recalls.reduce((a,x)=>a+(x.result==='remembered'?100:x.result==='hard'?55:0),0)/recalls.length):null;
+
+ const dayFeedback=dayRows.filter(x=>x.feedback).map(x=>x.feedback==='easy'?100:x.feedback==='ideal'?78:x.feedback==='heavy'?38:null).filter(x=>x!==null);
+ const taskFeedback=[];
+ for(const [date,d] of Object.entries(S.daily||{})){
+   if(!inRange(date))continue;
+   for(const v of Object.values(d.taskFeedback||{})) taskFeedback.push(v==='easy'?100:v==='normal'?78:v==='hard'?38:null);
+ }
+ const loadSamples=[...dayFeedback,...taskFeedback.filter(x=>x!==null)];
+ const loadTolerance=loadSamples.length?Math.round(loadSamples.reduce((a,b)=>a+b,0)/loadSamples.length):null;
+
+ const evidenceDays=new Set([
+   ...evidenceRows.map(x=>x.date),
+   ...(S.ilim.sessions||[]).filter(x=>x.date&&inRange(x.date)).map(x=>x.date),
+   ...recalls.map(x=>x.date)
+ ]).size;
+ const confidence=evidenceDays<3?'Düşük':evidenceDays<7?'Orta':'Güçlü';
+
+ const priorStart=dayAdd(startDate,-dateCount);
+ const priorEnd=dayAdd(startDate,-1);
+ const priorRows=Object.entries(S.daily||{}).filter(([date])=>date>=priorStart&&date<=priorEnd).map(([date,d])=>{const tasks=d?.route?.tasks||[],doneSet=new Set(d?.done||[]);return {total:tasks.length,done:tasks.filter(x=>doneSet.has(x.id)).length}});
+ const priorTotal=priorRows.reduce((a,x)=>a+x.total,0),priorDone=priorRows.reduce((a,x)=>a+x.done,0);
+ const priorConsistency=priorTotal?Math.round(priorDone/priorTotal*100):null;
+ const consistencyDelta=consistency!==null&&priorConsistency!==null?consistency-priorConsistency:null;
+
+ const chartRows=dayRows.slice(-(range==='7'?7:30));
+ const chartMax=Math.max(1,...chartRows.map(x=>x.total||0));
+ const barHtml=chartRows.map((x,i)=>{const pctVal=x.total?Math.round(x.done/x.total*100):0;const h=x.total?Math.max(12,pctVal):5;const label=(i===0||i===chartRows.length-1||chartRows.length<=7)?x.date.slice(5).replace('-','/'):'';return `<div class="journeyBarCol" title="${esc(x.date)} · ${x.done}/${x.total}"><div class="journeyBarTrack"><i style="height:${h}%"></i></div><small>${label}</small></div>`}).join('');
+
+ const metricCard=(icon,title,value,sub,cls='')=>`<article class="journeyMetric ${cls}"><div class="journeyMetricIcon">${icon}</div><div><small>${title}</small><b>${value===null?'—':value+'%'}</b><span>${value===null?'Veri bekliyor':sub}</span></div></article>`;
+
+ const insights=[];
+ if(evidenceDays<3) insights.push('Motor hâlâ kalibrasyonda. Birkaç günlük gerçek kullanım gelmeden güçlü sonuç üretmiyor.');
+ if(consistencyDelta!==null&&consistencyDelta>=8) insights.push(`İstikrar önceki döneme göre ${consistencyDelta} puan yükseldi.`);
+ else if(consistencyDelta!==null&&consistencyDelta<=-8) insights.push(`İstikrar önceki döneme göre ${Math.abs(consistencyDelta)} puan düştü; yükü büyütmek yerine ritmi korumak daha değerli.`);
+ if(recall!==null&&recall<50) insights.push('Hatırlama sinyali düşük. Yeni içerikten önce geri çağırma tekrarlarının payı artırılmalı.');
+ if(recall!==null&&recall>=75) insights.push('Hatırlama sinyali güçlü; yeni içeriğe küçük adımlarla ilerlemek için alan var.');
+ if(loadTolerance!==null&&loadTolerance<50) insights.push('Yük toleransı zorlanma gösteriyor; görevleri kısaltmak daha sürdürülebilir görünüyor.');
+ if(loadTolerance!==null&&loadTolerance>=75) insights.push('Mevcut yük çoğunlukla taşınabiliyor; ani artış yapmadan mevcut tempo korunabilir.');
+ if(understanding===null) insights.push('Anlama yüzdesi üretilmedi; okuyucuda doğrudan anlama kaydı geldikçe bu kart gerçek veriye dönecek.');
+ if(!insights.length) insights.push('Bu dönemde belirgin bir sapma yok; mevcut ritim dengeli görünüyor.');
+
+ const timing=timeSlotLearning({records:records(),today:k,profile:S.profile});
+ const slotRows=Object.entries(timing.slots).filter(([,x])=>x.samples>=2).sort((a,b)=>b[1].samples-a[1].samples);
+
+ app.innerHTML=`
+ <section class="card progressHero premiumProgressHero">
+   <div class="progressTopline">
+     <div><div class="eyebrow">İLERLEME</div><h1>${range==='7'?'Son 7 günlük':range==='30'?'Son 30 günlük':'Genel'} yolculuğun</h1><p class="lead">Yargı değil; ritim, öğrenme ve yük ayarı.</p></div>
+     <span class="progressConfidence">${confidence} güven</span>
+   </div>
+   <div class="progressTabs">
+     <button class="${range==='7'?'active':''}" data-progress-range="7">7 Gün</button>
+     <button class="${range==='30'?'active':''}" data-progress-range="30">30 Gün</button>
+     <button class="${range==='all'?'active':''}" data-progress-range="all">Genel</button>
+   </div>
+   <div class="journeyChartCard">
+     <div class="journeyChartHead"><div><small>RİTİM GRAFİĞİ</small><b>${evidenceDays} veri günü</b></div><span>${consistency===null?'Henüz ölçülmedi':'%'+consistency+' tamamlama'}</span></div>
+     <div class="journeyChart">${chartRows.length?chartRows.map((x,i)=>{const pv=x.total?Math.round(x.done/x.total*100):0;const h=x.total?Math.max(12,pv):5;const label=(i===0||i===chartRows.length-1||chartRows.length<=7)?x.date.slice(5).replace('-','/'):'';return `<div class="journeyBarCol" title="${esc(x.date)} · ${x.done}/${x.total}"><div class="journeyBarTrack"><i style="height:${h}%"></i></div><small>${label}</small></div>`}).join(''):'<div class="progressEmpty">Henüz grafik oluşturacak kullanım verisi yok.</div>'}</div>
+   </div>
+ </section>
+
+ <section class="journeyMetricGrid">
+   ${metricCard('↗','İSTİKRAR',consistency,consistencyDelta===null?'Mevcut ritim':consistencyDelta>0?`+${consistencyDelta} puan`:consistencyDelta<0?`${consistencyDelta} puan`:'Değişmedi','consistency')}
+   ${metricCard('◉','ANLAMA',understanding,understandingSessions.length+' doğrudan kayıt','understanding')}
+   ${metricCard('↻','HATIRLAMA',recall,recalls.length+' geri çağırma','recall')}
+   ${metricCard('◒','YÜK TOLERANSI',loadTolerance,loadSamples.length+' geri bildirim','load')}
+ </section>
+
+ <section class="card periodInsight">
+   <div class="sectionHead"><div><div class="eyebrow">BU DÖNEMDE NE DEĞİŞTİ?</div><h2>Motorun kısa okuması</h2></div><span class="sourcePill">${confidence} güven</span></div>
+   <div class="insightCards">${insights.slice(0,4).map((x,i)=>`<div class="periodInsightRow"><span>${i+1}</span><p>${esc(x)}</p></div>`).join('')}</div>
+ </section>
+
+ ${slotRows.length?`<section class="card progressDetails"><details><summary>Zamanlama öğrenimini göster</summary><div class="slotStats">${slotRows.map(([slot,x])=>`<div class="slotStat"><span>${slotIcon(slot)}</span><div><b>${slotLabel(slot)}</b><small>${x.completed}/${x.samples} tamamlandı</small></div><strong>%${pct(x.completion)}</strong></div>`).join('')}</div></details></section>`:''}
+
+ <section class="card progressDetails"><details><summary>Bu yüzdeler nasıl hesaplanıyor?</summary><p class="small"><b>İstikrar</b> gerçek rota görevlerinin tamamlanmasından; <b>Anlama</b> okuyucuda isteğe bağlı bırakılan 1–5 doğrudan anlama kaydından; <b>Hatırlama</b> geri çağırma sonuçlarından; <b>Yük toleransı</b> günlük ve görev sonrası Zor/Normal/Rahat geri bildirimlerinden gelir. Veri yoksa sistem yüzde üretmez.</p><p class="small">Bunlar maneviyat veya dinî değer puanı değildir.</p></details></section>`;
+
+ document.querySelectorAll('[data-progress-range]').forEach(b=>b.onclick=()=>{S.profile.progressRange=b.dataset.progressRange;save();renderWeek()});
+}
 function renderProfile(){
  const p=S.profile,overrides=Object.entries(p.slotOverrides||{});
  app.innerHTML=`<section class="card"><div class="eyebrow">Profil</div><h1>Motor seni böyle tanıyor.</h1><p><b>Normal gün:</b> ${p.baseMinutes||'-'} dk</p><p><b>Öncelikler:</b> ${(p.priorities||[]).map(id=>TASK_CATALOG[id]?.title).filter(Boolean).join(', ')||'—'}</p><p><b>Yaklaşım:</b> ${p.pace||'—'}</p><p><b>En sık engel:</b> ${p.blocker||'—'}</p><div class="toggleLine"><div><b>Namaz Merkezi</b><small>Vakitleri Bugün ekranına bağlar.</small></div><button class="switch ${p.prayerTracking?'on':''}" id="profilePrayer"><i></i></button></div>${overrides.length?`<div class="divider"></div><h3>Öğrenilmiş zaman tercihleri</h3><div class="preferenceList">${overrides.map(([id,slot])=>`<div><span>${TASK_CATALOG[id]?.icon} ${TASK_CATALOG[id]?.title}</span><b>${slotLabel(slot)}</b></div>`).join('')}</div>`:''}<div class="explain">Profil kalıcıdır; günlük rota ayrıca bugünkü durum, geçmiş kullanım ve zamanlama sinyallerini kullanır. Zaman değişiklikleri yalnızca sen kabul edersen kalıcı olur.</div><div class="actions"><button class="btn ghost" id="resetTiming">Zaman tercihlerini sıfırla</button><button class="btn ghost" id="resetToday">Bugünü sıfırla</button><button class="btn warn" id="resetAll">Her şeyi sıfırla</button></div></section>`;
@@ -296,7 +391,7 @@ function renderIlimReader(id){
  app.innerHTML=`<section class="readerTop ${S.ilim.settings.focus?'focusTop':''}"><button class="readerBack" id="ilimBack">←</button><div><small>${h.id}/${KIRK_HADIS_META.totalUnits} · ${esc(KIRK_HADIS_META.title)}</small><b>${esc(h.title)}</b></div><div class="readerTools"><button id="fontDown">A−</button><button id="fontUp">A+</button><button id="focusReader">${S.ilim.settings.focus?'Çık':'Odak'}</button></div></section>
  <section class="hadisReader ${S.ilim.settings.focus?'focusReader':''}"><div class="readerMarker">HADİS ${String(h.id).padStart(2,'0')}</div><h1>${esc(h.title)}</h1><div class="sourcePill">${esc(h.source)}</div>${highlightPalette}${arabicBlock}<div class="translationCard"><small>TÜRKÇE TAM TERCÜME</small><p style="font-size:${(1.05*scale).toFixed(2)}rem">${esc(h.translation||'Türkçe tercüme hazırlanıyor.').replace(/\n/g,'<br>')}</p><i>Bu tercüme, Arapça metinden Manevî Rota için özgün olarak hazırlanmıştır; modern bir yayınevi tercümesi kopyalanmamıştır.</i></div><div class="meaningCard"><small>KISA AÇIKLAMA</small><p>${esc(h.meaning)}</p></div><div class="whyCard"><small>NEDEN ŞİMDİ?</small><p>${esc(h.why)}</p></div><div class="readingText">${sections}</div><section class="reflectionCard"><small>BUGÜN NEYİ FARK ET?</small><h3>${esc(h.reflection)}</h3><p><b>Hayata küçük adım:</b> ${esc(h.practice)}</p><button class="textButton" id="overallNote">Bu hadis için not al</button>${noteFor===`${h.id}:all`?`<div class="noteComposer"><textarea id="ilimNoteText" rows="3" placeholder="Bu hadisten bende kalan…"></textarea><div class="noteTags">${[['not','Not'],['research','Araştır'],['practice','Uygula']].map(([k,l])=>`<button type="button" class="${(S.ilim.ui.noteTag||'not')===k?'sel':''}" data-note-tag="${k}">${l}</button>`).join('')}</div><div class="actions"><button class="btn ghost" id="cancelIlimNote">Vazgeç</button><button class="btn primary" id="saveIlimNote" data-hadis="${h.id}" data-section="all">Notu kaydet</button></div></div>`:''}</section>
  <div class="readerActionRow"><button class="btn ghost" id="bookmarkHadis">${bookmarked?'★ Kaydedildi':'☆ Kaydet'}</button><button class="btn ghost" id="scheduleHadis">🔁 3/7 tekrara ekle</button></div>
- <section class="card finishRead"><div class="eyebrow">OKUMAYI KAPAT</div><h3>${done?'Tekrar okumasını kaydet':'Bugünkü okumayı tamamla'}</h3><p>Motor bir şey varsaymaz. Okuma sana nasıl geldi?</p><div class="dayFeedback">${[['heavy','Ağır geldi'],['ideal','Tam kıvamında'],['easy','Rahat geldi']].map(([k,l])=>`<button class="rating ${S.ilim.ui?.feedback===k?'sel':''}" data-ilim-feedback="${k}">${l}</button>`).join('')}</div><button class="btn primary wide" id="finishHadis" ${S.ilim.ui?.feedback?'':'disabled'}>${done?'Tekrarı kaydet':'Tamamla ve rotaya dön'}</button></section></section>`;
+ <section class="card finishRead"><div class="eyebrow">OKUMAYI KAPAT</div><h3>${done?'Tekrar okumasını kaydet':'Bugünkü okumayı tamamla'}</h3><p>Motor bir şey varsaymaz. Önce okuma yükünü, istersen de anlama düzeyini işaretle.</p><div class="dayFeedback">${[['heavy','Ağır geldi'],['ideal','Tam kıvamında'],['easy','Rahat geldi']].map(([k,l])=>`<button class="rating ${S.ilim.ui?.feedback===k?'sel':''}" data-ilim-feedback="${k}">${l}</button>`).join('')}</div><div class="understandingBlock"><div><b>Anlama sinyali</b><small>İsteğe bağlı · ilerleme ekranında yalnız gerçek kayıt kullanılır.</small></div><div class="understandingScale">${[1,2,3,4,5].map(n=>`<button class="${Number(S.ilim.ui?.understanding)===n?'sel':''}" data-understanding="${n}">${n}</button>`).join('')}</div></div><button class="btn primary wide" id="finishHadis" ${S.ilim.ui?.feedback?'':'disabled'}>${done?'Tekrarı kaydet':'Tamamla ve rotaya dön'}</button></section></section>`;
  if(!arabic&&!nawawiArabicError){loadNawawiArabic().then(()=>{if(S.ilim.ui?.screen==='reader'&&Number(S.ilim.ui?.selectedId)===Number(h.id))renderIlimReader(h.id)}).catch(()=>{if(S.ilim.ui?.screen==='reader'&&Number(S.ilim.ui?.selectedId)===Number(h.id))renderIlimReader(h.id)})}
  const retryArabic=document.querySelector('#retryArabic');if(retryArabic)retryArabic.onclick=()=>{nawawiArabicError='';loadNawawiArabic().then(()=>renderIlimReader(h.id)).catch(()=>renderIlimReader(h.id))};
  document.querySelectorAll('[data-highlight-color]').forEach(b=>b.onclick=()=>{S.ilim.settings.highlightColor=b.dataset.highlightColor;save();renderIlimReader(h.id)});
@@ -307,7 +402,8 @@ function renderIlimReader(id){
  document.querySelectorAll('[data-note-tag]').forEach(b=>b.onclick=()=>{S.ilim.ui.noteTag=b.dataset.noteTag;save();renderIlimReader(h.id)});const cancel=document.querySelector('#cancelIlimNote');if(cancel)cancel.onclick=()=>{S.ilim.ui.noteFor=null;save();renderIlimReader(h.id)};const saveNote=document.querySelector('#saveIlimNote');if(saveNote)saveNote.onclick=()=>{const txt=document.querySelector('#ilimNoteText').value.trim();if(!txt)return;addHadisNote(S.ilim,{hadisId:saveNote.dataset.hadis,sectionIndex:saveNote.dataset.section==='all'?null:Number(saveNote.dataset.section),text:txt,date:today(),tag:S.ilim.ui.noteTag||'not'});S.ilim.ui.noteFor=null;S.ilim.ui.noteTag='not';save();renderIlimReader(h.id)};
  document.querySelector('#bookmarkHadis').onclick=()=>{toggleHadisBookmark(S.ilim,h.id);save();renderIlimReader(h.id)};document.querySelector('#scheduleHadis').onclick=()=>{scheduleHadisReviews(S.ilim,h.id,today());save();renderIlimReader(h.id)};
  document.querySelectorAll('[data-ilim-feedback]').forEach(b=>b.onclick=()=>{S.ilim.ui.feedback=b.dataset.ilimFeedback;save();renderIlimReader(h.id)});
- document.querySelector('#finishHadis').onclick=()=>{const fb=S.ilim.ui.feedback;if(!fb)return;recordHadisSession(S.ilim,{hadisId:h.id,date:today(),minutes:isCurrent?plan.minutes:8,feedback:fb,completed:true});const d=ensure(),routeTasks=d.route?.tasks||[];const linked=routeTasks.find(x=>x.id==='learning')||routeTasks.find(x=>x.id==='reading');if(linked){d.done=[...new Set([...(d.done||[]),linked.id])];d.taskFeedback=d.taskFeedback||{};d.taskFeedback[linked.id]=fb==='heavy'?'hard':fb==='easy'?'easy':'normal'}S.ilim.ui={...S.ilim.ui,screen:'home',feedback:null,noteFor:null};save();renderIlimHome()};
+ document.querySelectorAll('[data-understanding]').forEach(b=>b.onclick=()=>{S.ilim.ui.understanding=Number(b.dataset.understanding);save();renderIlimReader(h.id)});
+ document.querySelector('#finishHadis').onclick=()=>{const fb=S.ilim.ui.feedback;if(!fb)return;recordHadisSession(S.ilim,{hadisId:h.id,date:today(),minutes:isCurrent?plan.minutes:8,feedback:fb,completed:true,understanding:S.ilim.ui?.understanding??null});const d=ensure(),routeTasks=d.route?.tasks||[];const linked=routeTasks.find(x=>x.id==='learning')||routeTasks.find(x=>x.id==='reading');if(linked){d.done=[...new Set([...(d.done||[]),linked.id])];d.taskFeedback=d.taskFeedback||{};d.taskFeedback[linked.id]=fb==='heavy'?'hard':fb==='easy'?'easy':'normal'}S.ilim.ui={...S.ilim.ui,screen:'home',feedback:null,understanding:null,noteFor:null};save();renderIlimHome()};
 }
 function renderIlimReviews(){
  const due=dueHadisReviews(S.ilim,today(),20),upcoming=S.ilim.reviews.filter(r=>!r.done&&r.dueDate>today()).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).slice(0,8),openId=S.ilim.ui?.reviewOpenId;
