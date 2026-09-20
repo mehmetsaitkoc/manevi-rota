@@ -50,8 +50,27 @@ await fs.writeFile(path.join(QOUT,'source.json'),JSON.stringify({
   api:'fawazahmed0/quran-api'
 }), 'utf8');
 
-console.log('Downloading Ahmet Hamdi Akseki — Islam Dini OCR…');
-const islamText=await fetchOk(ISLAM_URL,'text');
+console.log('Preparing Ahmet Hamdi Akseki — Islam Dini OCR…');
+const existingIslamPath=path.join(OUT,'islam-dini.json');
+let islamText='';
+try{
+  const existing=JSON.parse(await fs.readFile(existingIslamPath,'utf8'));
+  const localPages=Array.isArray(existing?.pages)?existing.pages:[];
+  const joined=localPages.map(x=>String(x?.text||'').trim()).filter(Boolean).join('\n\n');
+  if(localPages.length>=100&&joined.length>300000&&!/^\s*<!doctype html/i.test(joined)&&!/\<html[\s>]/i.test(joined.slice(0,2000))&&/İSL[ÂA]M|ISL[ÂA]M/i.test(joined.slice(0,12000))){
+    islamText=joined;
+    console.log(`Using verified local Islam Dini OCR cache (${localPages.length} reader blocks).`);
+  }
+}catch{}
+if(!islamText){
+  console.log('Local OCR cache unavailable; downloading source…');
+  let lastErr;
+  for(let attempt=1;attempt<=3&&!islamText;attempt++){
+    try{islamText=await fetchOk(ISLAM_URL,'text')}
+    catch(err){lastErr=err;if(attempt<3)await new Promise(r=>setTimeout(r,attempt*1500))}
+  }
+  if(!islamText)throw lastErr||new Error('Islam Dini source unavailable');
+}
 if(/^\s*<!doctype html/i.test(islamText)||/<html[\s>]/i.test(islamText.slice(0,2000)))throw new Error('Islam Dini source returned HTML instead of OCR text');
 if(!/İSL[ÂA]M|ISL[ÂA]M/i.test(islamText.slice(0,12000)))throw new Error('Islam Dini source text signature not found');
 let rawPages=islamText.split('\f');
