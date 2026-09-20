@@ -59,15 +59,16 @@ if(rawPages.length<250){
 }
 const pages=rawPages.map((p,i)=>({page:i+1,text:normalizePage(p)}));
 while(pages.length&&pages[pages.length-1].text==='')pages.pop();
+const firstPageMatching=(re,fallback)=>pages.find(x=>re.test(x.text.slice(0,1400)))?.page||fallback;
 const sections=[
-  {title:'Önsöz',page:5},
-  {title:'Birinci Bölüm — Dinler ve Mezhebler Hakkında Umumî Malûmat',page:8},
-  {title:'İkinci Bölüm',page:53},
-  {title:'Üçüncü Bölüm — İslâmın Beş Direği (Şartları)',page:104},
-  {title:'Dördüncü Bölüm — İslâm Ahlâkı',page:228},
-  {title:'İçindekiler',page:296}
-].filter(x=>x.page<=pages.length);
-if(pages.filter(x=>x.text).length<250)throw new Error(`Islam Dini pages too small: ${pages.length}`);
+  {title:'Önsöz',page:firstPageMatching(/ÖNSÖZ/i,3)},
+  {title:'Birinci Bölüm — Dinler ve Mezhebler Hakkında Umumî Malûmat',page:firstPageMatching(/BİRİNCİ\s+BÖLÜM/i,5)},
+  {title:'İkinci Bölüm',page:firstPageMatching(/İKİNCİ\s+BÖLÜM/i,30)},
+  {title:'Üçüncü Bölüm — İslâmın Beş Direği (Şartları)',page:firstPageMatching(/ÜÇÜNCÜ\s+BÖLÜM/i,60)},
+  {title:'Dördüncü Bölüm — İslâm Ahlâkı',page:firstPageMatching(/DÖRDÜNCÜ\s+BÖLÜM/i,125)},
+  {title:'İçindekiler',page:firstPageMatching(/İÇİNDEKİLER/i,Math.max(1,pages.length-15))}
+].filter((x,i,a)=>x.page>=1&&x.page<=pages.length&&a.findIndex(y=>y.page===x.page)===i);
+if(pages.filter(x=>x.text).length<150)throw new Error(`Islam Dini reader blocks too small: ${pages.length}`);
 await fs.writeFile(path.join(OUT,'islam-dini.json'),JSON.stringify({
   title:'İslâm Dini',
   subtitle:'İtikat, İbâdet ve Ahlâk',
