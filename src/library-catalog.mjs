@@ -139,13 +139,15 @@ export const STARTER_LIBRARY=[
         rightsNote:'İlk baskıda dizgi hataları bulunduğu için metin ayrıca tashih karşılaştırmasından geçmeden canlıya açılmaz.'
       },
   {
-        order:10,stage:'level-5',id:'vel-asr-tefsiri',title:'Ve’l-Asr Sûresinin Tefsiri',author:'Ahmed Hamdi Akseki',field:'Tefsir',level:'Seviye 5',
-        readerType:'generic',availability:'source-verified',coverGlyph:'ع',tone:'olive',
-        shortLabel:'Kısa sûre üzerinden tefsir okuması',
-        sourceLabel:'1928 tarihli eser bibliyografik olarak doğrulandı',
+        order:10,stage:'level-5',id:'tanri-buyrugu',title:'Tanrı Buyruğu',author:'Ömer Rıza Doğrul',field:'Kur’ân · Tefsir',level:'Seviye 5',
+        readerType:'generic',availability:'ready',coverGlyph:'ت',tone:'olive',
+        shortLabel:'Kur’ân’ın tertibi, anlamı ve tefsir okumaları',
+        sourceLabel:'1955 üçüncü baskı tarihî tarama · Internet Archive',
+        asset:'public/data/books/tanri-buyrugu.json',
+        requiresEditionReview:true,
         rightsStatus:'public-domain-turkey-author-term',
-        originalYear:1928,authorDeathYear:1951,
-        rightsNote:'Doğrulanmış tarihî tam metin bulunmadan uygulama metin üretmez.'
+        originalYear:1934,authorDeathYear:1952,
+        rightsNote:'Müellifin koruma süresi sona ermiştir. Okuyucu 1955 üçüncü baskının OCR aktarımını kullanır; baskıya özgü editoryal katkılar ve OCR hataları ticari yayın öncesi insan editör tarafından karşılaştırılmalıdır.'
       }
 ];
 
