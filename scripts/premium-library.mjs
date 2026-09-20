@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {STARTER_LIBRARY} from '../src/library-catalog.mjs';
 
 const readyGeneric=STARTER_LIBRARY.filter(x=>x.availability==='ready'&&x.readerType==='generic');
-assert.equal(readyGeneric.length,4);
+assert.equal(readyGeneric.length,5);
 
 for(const book of readyGeneric){
   assert.ok(book.asset,book.id+' asset path missing');
@@ -22,6 +22,11 @@ assert.match(yavrular.pages[0].text,/ÖNSÖZ|BİRİNCİ DERS/i);
 assert.ok(yavrular.pages.length>=180);
 assert.equal(yavrular.source?.sourceEditionYear,1967);
 assert.match(yavrular.source?.reviewNote||'',/Commercial release|ticari|human/i);
+const islamFitri=JSON.parse(fs.readFileSync('public/data/books/islam-fitri-tabii-umumi.json','utf8'));
+assert.match(islamFitri.pages[0].text,/ÖN SÖZ/i);
+assert.ok(islamFitri.pages.length>=650);
+assert.match(islamFitri.pages.slice(0,12).map(x=>x.text).join('\n'),/fıtr|fitr|vahiy|peygamber/i);
+assert.equal(islamFitri.id,'islam-fitri-tabii-umumi');
 const namaz=JSON.parse(fs.readFileSync('public/data/books/namaz-sureleri-tefsiri.json','utf8'));
 assert.match(namaz.pages[0].text,/ÖN SÖZ/);
 assert.ok(namaz.sections.some(x=>/Fâtiha/i.test(x.title)));
