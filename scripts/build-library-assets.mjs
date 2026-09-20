@@ -5,7 +5,7 @@ const ROOT=process.cwd();
 const OUT=path.join(ROOT,'public','data');
 const QOUT=path.join(OUT,'quran');
 const QURAN_URL='https://cdn.jsdelivr.net/gh/fawazahmed0/quran-api@1/editions/ara-quranuthmanihaf.min.json';
-const ISLAM_URL='https://archive.org/stream/islamdinia.hamdiakseki1933.pdf_201912/%C4%B0slam%20Dini%20A.Hamdi%20Akseki1933.pdf_djvu.txt';
+const ISLAM_URL='https://archive.org/download/islamdinia.hamdiakseki1933.pdf_201912/%C4%B0slam%20Dini%20A.Hamdi%20Akseki1933.pdf_djvu.txt';
 
 async function fetchOk(url,type='text'){
   const r=await fetch(url,{headers:{'user-agent':'Manevi-Rota-Library-Builder/1.0'}});
@@ -52,6 +52,8 @@ await fs.writeFile(path.join(QOUT,'source.json'),JSON.stringify({
 
 console.log('Downloading Ahmet Hamdi Akseki — Islam Dini OCR…');
 const islamText=await fetchOk(ISLAM_URL,'text');
+if(/^\s*<!doctype html/i.test(islamText)||/<html[\s>]/i.test(islamText.slice(0,2000)))throw new Error('Islam Dini source returned HTML instead of OCR text');
+if(!/İSL[ÂA]M|ISL[ÂA]M/i.test(islamText.slice(0,12000)))throw new Error('Islam Dini source text signature not found');
 let rawPages=islamText.split('\f');
 if(rawPages.length<250){
   console.warn(`No reliable form-feed pagination (${rawPages.length}); using reader chunks.`);
