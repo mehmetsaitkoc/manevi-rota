@@ -6,7 +6,7 @@ const safeColor=value=>HEX.test(String(value||''))?String(value).toLowerCase():'
 export const QURAN_HIGHLIGHT_PALETTE=Object.freeze(['#e6c46f','#8fc7a2','#d998a2']);
 
 export function emptyQuranReaderState(){
-  return {surah:1,ayah:1,fontScale:1,focusMode:false,highlightColor:'#e6c46f',highlights:{},notes:{},noteFor:null};
+  return {surah:1,ayah:1,fontScale:1,focusMode:false,highlightColor:'#e6c46f',highlights:{},notes:{},bookmarks:[],noteFor:null};
 }
 
 export function quranVerseKey(surah,ayah){
@@ -23,6 +23,7 @@ export function normalizeQuranReaderState(input={}){
     const text=String(note||'').trim();
     if(text)notes[key]=text;
   }
+  const bookmarks=[...new Set((Array.isArray(raw.bookmarks)?raw.bookmarks:[]).map(String).filter(key=>/^\d{1,3}:\d{1,3}$/.test(key)))].slice(0,500);
   const noteFor=Number(raw.noteFor);
   return {
     ...base,
@@ -34,6 +35,7 @@ export function normalizeQuranReaderState(input={}){
     highlightColor:safeColor(raw.highlightColor),
     highlights,
     notes,
+    bookmarks,
     noteFor:Number.isFinite(noteFor)&&noteFor>0?Math.round(noteFor):null
   };
 }
@@ -57,4 +59,15 @@ export function setQuranVerseNote(state,surah,ayah,note){
   const next=normalizeQuranReaderState(state),key=quranVerseKey(surah,ayah),notes={...next.notes},text=String(note||'').trim();
   if(text)notes[key]=text;else delete notes[key];
   return {...next,notes};
+}
+
+
+export function quranVerseBookmarked(state,surah,ayah){
+  return normalizeQuranReaderState(state).bookmarks.includes(quranVerseKey(surah,ayah));
+}
+
+export function toggleQuranVerseBookmark(state,surah,ayah){
+  const next=normalizeQuranReaderState(state),key=quranVerseKey(surah,ayah),set=new Set(next.bookmarks);
+  set.has(key)?set.delete(key):set.add(key);
+  return {...next,bookmarks:[...set]};
 }
