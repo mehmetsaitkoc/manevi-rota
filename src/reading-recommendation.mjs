@@ -158,7 +158,7 @@ function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,pa
       score+=10;scoreReasons.push('aynı seviyede hafif çeşitlilik sağlayabilir');
     }
 
-    if(returning){score+=book.id===lastBook?8:0;scoreReasons.push('mikro bir geri dönüş daha sürdürülebilir');}
+    if(returning){score+=book.id===lastBook?8:0;scoreReasons.unshift('mikro bir geri dönüş daha sürdürülebilir');}
     const minutes=recommendationMinutes({book,stats,checkin,routeTypical,returning});
     out.push({
       kind:'book',bookId:book.id,title:titleFor(book),minutes,score,
