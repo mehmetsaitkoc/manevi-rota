@@ -492,7 +492,7 @@ function renderStarterPath(completedCount,pathSnapshot){
        <span class="starterStageStatus ${esc(level?.status||'later')}">${statusLabel}</span>
      </div>
      <div class="starterStageMeta"><span>${level?.completedCount||0}/${level?.requiredCount||0} tamamlandı</span><span>${ready}/${books.length} metin hazır</span>${level?.sourcePending?'<span class="sourcePending">Tam metin hazırlanıyor</span>':''}</div>
-     <div class="starterLibraryGrid">${books.map(book=>renderStarterBookCard(book,completedCount,pathSnapshot.completedBooks)).join('')}</div>
+     <div class="starterLibraryGrid">${books.map(book=>renderStarterBookCard(book,completedCount,S.library.path)).join('')}</div>
    </section>`;
  }).join('');
 }
