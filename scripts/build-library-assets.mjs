@@ -157,6 +157,7 @@ const sections=[
 ].filter((x,i,a)=>x.page>=1&&x.page<=pages.length&&a.findIndex(y=>y.page===x.page)===i);
 if(pages.filter(x=>x.text).length<250)throw new Error(`Islam Dini reader blocks too small: ${pages.length}`);
 await fs.writeFile(path.join(OUT,'islam-dini.json'),JSON.stringify({
+  id:'islam-dini',
   title:'İslâm Dini',
   subtitle:'İtikat, İbâdet ve Ahlâk',
   author:'Ahmet Hamdi Akseki',
