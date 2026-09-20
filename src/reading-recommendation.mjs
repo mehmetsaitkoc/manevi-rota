@@ -149,7 +149,7 @@ function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,pa
     score+=Math.round(stats.easyRate*5);
 
     if(completion!==null&&completion>=.85){
-      score+=18;scoreReasons.push('kitabın son bölümüne yaklaştın');
+      score+=18;scoreReasons.unshift('kitabın son bölümüne yaklaştın');
     }
 
     if(sameBook.bookId===book.id&&sameBook.count>=4&&!(completion!==null&&completion>=.85)){
