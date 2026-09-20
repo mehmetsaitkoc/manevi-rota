@@ -16,11 +16,13 @@ const daysBetween=(older,newer)=>{
 const levelOf=book=>Math.max(1,Math.min(5,Number(String(book?.stage||'level-1').match(/\d+/)?.[0]||1)));
 const feedbackPenalty=value=>value==='heavy'?-8:value==='easy'?4:0;
 const readerKind=book=>book?.readerType==='quran'?'quran':book?.readerType==='hadith'?'hadith':'book';
-const priorityBoost=(profile,book)=>{
+const priorityBoost=(profile,book,weight=1)=>{
   const set=new Set(Array.isArray(profile?.priorities)?profile.priorities:[]);
-  if(book?.readerType==='quran')return set.has('quran')?16:0;
-  if(book?.readerType==='hadith')return set.has('learning')?14:0;
-  return (set.has('reading')?13:0)+(set.has('learning')&&/İlm|Siyer|Hadis|Din|Ahlâk/i.test(String(book?.field||''))?5:0);
+  let raw=0;
+  if(book?.readerType==='quran')raw=set.has('quran')?16:0;
+  else if(book?.readerType==='hadith')raw=set.has('learning')?14:0;
+  else raw=(set.has('reading')?13:0)+(set.has('learning')&&/İlm|Siyer|Hadis|Din|Ahlâk/i.test(String(book?.field||''))?5:0);
+  return Math.round(raw*clamp(weight,.15,1));
 };
 const titleFor=book=>book?.title||'Okuma';
 const stageLabel=n=>`Seviye ${n}`;
@@ -102,7 +104,7 @@ function bookCompletion(state,total){
   return count>0?clamp(page/count,0,1):null;
 }
 
-function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,path,events,routeTypical}){
+function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,path,events,routeTypical,priorWeight}){
   const lastBook=String(library?.lastBook||'');
   const sameBook=streak(events);
   const allRecent=events.filter(x=>daysBetween(x.date||x.endedAt,date)<=7);
@@ -119,15 +121,16 @@ function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,pa
     else if(level===path.currentLevel+1)score+=4;
     else if(level>path.currentLevel+1)score-=10;
 
-    const pBoost=priorityBoost(profile,book);score+=pBoost;
-    if(pBoost)scoreReasons.push('başlangıç önceliklerinle uyumlu');
+    const pBoost=priorityBoost(profile,book,priorWeight);score+=pBoost;
+    if(pBoost&&priorWeight>=.4)scoreReasons.push('başlangıç önceliklerinle uyumlu');
 
     if(book.id===lastBook){score+=22;scoreReasons.push('kaldığın yere devam');}
 
     if(book.readerType==='quran'){
       const q=library?.quran||{};
       if(Number(q.surah||1)>1||Number(q.ayah||1)>1){score+=8;scoreReasons.push('Kur’ân’da kaldığın yer kayıtlı');}
-      if(sameBook.bookId==='quran'&&sameBook.count>=4){score-=18;scoreReasons.push('son okumalarında Kur’ân ağırlığı zaten yüksek');}
+      if(sameBook.bookId==='quran'&&sameBook.count>=5){score-=50;scoreReasons.push('son okumalarında Kur’ân ağırlığı zaten yüksek');}
+      else if(sameBook.count>=5&&sameBook.bookId!=='quran'&&level===path.currentLevel){score+=18;scoreReasons.push('aynı seviyede hafif çeşitlilik sağlayabilir');}
       const minutes=recommendationMinutes({book,stats:null,checkin,routeTypical,returning});
       out.push({
         kind:'quran',bookId:book.id,title:book.title,minutes,score,
@@ -152,10 +155,10 @@ function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,pa
       score+=18;scoreReasons.unshift('kitabın son bölümüne yaklaştın');
     }
 
-    if(sameBook.bookId===book.id&&sameBook.count>=4&&!(completion!==null&&completion>=.85)){
-      score-=24;scoreReasons.push('son okumalarında aynı eser çok baskın');
-    }else if(sameBook.count>=4&&sameBook.bookId!==book.id&&level===path.currentLevel){
-      score+=10;scoreReasons.push('aynı seviyede hafif çeşitlilik sağlayabilir');
+    if(sameBook.bookId===book.id&&sameBook.count>=5&&!(completion!==null&&completion>=.85)){
+      score-=60;scoreReasons.push('son okumalarında aynı eser çok baskın');
+    }else if(sameBook.count>=5&&sameBook.bookId!==book.id&&level===path.currentLevel){
+      score+=18;scoreReasons.push('aynı seviyede hafif çeşitlilik sağlayabilir');
     }
 
     if(returning){score+=book.id===lastBook?8:0;scoreReasons.unshift('mikro bir geri dönüş daha sürdürülebilir');}
@@ -179,7 +182,7 @@ function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,pa
   return out;
 }
 
-function hadithCandidates({date,profile,checkin,ilim,events,routeTypical,path}){
+function hadithCandidates({date,profile,checkin,ilim,events,routeTypical,path,priorWeight}){
   const state=normalizeKirkHadisState(ilim);
   const due=dueReviews(state,date,6);
   const plan=todayHadisPlan(state,date);
@@ -204,7 +207,7 @@ function hadithCandidates({date,profile,checkin,ilim,events,routeTypical,path}){
 
   const h=plan.hadis||getHadis(state.currentId);
   if(h){
-    let score=48+priorityBoost(profile,starterBook('kirk-hadis'));
+    let score=48+priorityBoost(profile,starterBook('kirk-hadis'),priorWeight);
     const reasons=[];
     if(path.currentLevel===3){score+=30;reasons.push('aktif seviyene uygun');}
     if(state.completed.length){score+=6;reasons.push('Kırk Hadis rotan devam ediyor');}
@@ -234,14 +237,15 @@ export function rankReadingRecommendations({
   const path=libraryPathSnapshot({pathState:library?.path||{},hadithCompletedCount:state.completed.length});
   const events=readingEvents({library,ilim:state,records});
   const routeTypical=learnedMinutes(records,date);
+  const priorWeight=clamp(1-(events.length/10),.15,1);
   const candidates=[
-    ...hadithCandidates({date,profile,checkin,ilim:state,events,routeTypical,path}),
-    ...bookCandidates({date,profile,checkin,library,ilim:state,records,bookTotals,path,events,routeTypical})
+    ...hadithCandidates({date,profile,checkin,ilim:state,events,routeTypical,path,priorWeight}),
+    ...bookCandidates({date,profile,checkin,library,ilim:state,records,bookTotals,path,events,routeTypical,priorWeight})
   ];
   return candidates
     .filter(x=>Number.isFinite(x.score))
     .sort((a,b)=>b.score-a.score||a.minutes-b.minutes||String(a.title).localeCompare(String(b.title),'tr'))
-    .map((x,index)=>({...x,rank:index+1,activeLevel:path.currentLevel,routeTypicalMinutes:routeTypical}));
+    .map((x,index)=>({...x,rank:index+1,activeLevel:path.currentLevel,routeTypicalMinutes:routeTypical,priorWeight}));
 }
 
 export function buildReadingRecommendation(input={}){
