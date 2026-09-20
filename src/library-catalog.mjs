@@ -123,6 +123,15 @@ export const STARTER_LIBRARY=[
               access:'physical-copy-no-public-reusable-file-confirmed'
             },
             {
+              institution:'Türk Tarih Kurumu Kütüphanesi',
+              recordId:'423781',
+              callNumber:'A.IV/9738',
+              url:'https://kutuphane.ttk.gov.tr/details?id=423781&materialType=KT',
+              edition:'Ankara · Diyanet İşleri · 1955 · 159 s.',
+              access:'physical-copy-no-public-reusable-file-confirmed',
+              conditional:true
+            },
+            {
               institution:'Diyanet İşleri Başkanlığı yayın bibliyografyası',
               publicationNo:'40',
               edition:'2. baskı · Ankara · 1955 · 159–160 s.',
