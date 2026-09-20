@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {STARTER_LIBRARY} from '../src/library-catalog.mjs';
 
 const readyGeneric=STARTER_LIBRARY.filter(x=>x.availability==='ready'&&x.readerType==='generic');
-assert.equal(readyGeneric.length,3);
+assert.equal(readyGeneric.length,4);
 
 for(const book of readyGeneric){
   assert.ok(book.asset,book.id+' asset path missing');
@@ -17,6 +17,11 @@ for(const book of readyGeneric){
   const joined=data.pages.slice(0,20).map(x=>x.text).join('\n');
   assert.equal(/Karton Kapak\.indd|Semih Ofset|Yayın Yönetmeni|©\s*Diyanet/i.test(joined),false,book.id+' contains publisher/layout noise');
 }
+const yavrular=JSON.parse(fs.readFileSync('public/data/books/yavrularimiza-din-dersleri.json','utf8'));
+assert.match(yavrular.pages[0].text,/ÖNSÖZ|BİRİNCİ DERS/i);
+assert.ok(yavrular.pages.length>=180);
+assert.equal(yavrular.source?.sourceEditionYear,1967);
+assert.match(yavrular.source?.reviewNote||'',/Commercial release|ticari|human/i);
 const namaz=JSON.parse(fs.readFileSync('public/data/books/namaz-sureleri-tefsiri.json','utf8'));
 assert.match(namaz.pages[0].text,/ÖN SÖZ/);
 assert.ok(namaz.sections.some(x=>/Fâtiha/i.test(x.title)));
