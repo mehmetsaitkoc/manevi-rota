@@ -71,12 +71,14 @@ export const STARTER_LIBRARY=[
       },
   {
         order:3,stage:'level-2',id:'yavrularimiza-din-dersleri',title:'Yavrularımıza Din Dersleri',author:'Ahmed Hamdi Akseki',field:'Temel din eğitimi',level:'Seviye 2',
-        readerType:'generic',availability:'source-verified',coverGlyph:'ي',tone:'sage',
+        readerType:'generic',availability:'ready',coverGlyph:'ي',tone:'sage',
         shortLabel:'Sade ve kademeli din bilgisi',
-        sourceLabel:'1940’lar tarihî baskıları doğrulandı',
+        sourceLabel:'1967 tarihî tarama · Internet Archive',
+        asset:'public/data/books/yavrularimiza-din-dersleri.json',
+        requiresEditionReview:true,
         rightsStatus:'public-domain-turkey-author-term',
         originalYear:1941,authorDeathYear:1951,
-        rightsNote:'Tam metin yalnız güvenilir tarihî nüsha doğrulandıktan sonra açılacaktır.'
+        rightsNote:'Müellifin koruma süresi sona ermiştir. Okuyucu 1967 tarihli taramanın OCR aktarımını kullanır; muhtemel yayınevi/tashih katkıları ve OCR hataları ticari yayın öncesi insan editör tarafından karşılaştırılmalıdır.'
       },
   {
         order:4,stage:'level-2',id:'namaz-sureleri-tefsiri',title:'Namaz Sûrelerinin Türkçe Terceme ve Tefsiri',author:'Ahmed Hamdi Akseki',field:'Kur’ân · Namaz',level:'Seviye 2',
