@@ -100,8 +100,8 @@ jobs:
 
             await page.click('[data-starter-book="namaz-sureleri-tefsiri"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
-            await page.click('[data-book-highlight="0"]');
-            await page.click('[data-book-note="0"]');
+            await page.click('[data-book-highlight="1"]');
+            await page.click('[data-book-note="1"]');
             await page.fill('#genericBookNoteInput','Visual review — kişisel kitap notu');
             await page.click('#genericBookNoteSave');
             await page.screenshot({path:'visual-review/03-premium-book.png',fullPage:true});
