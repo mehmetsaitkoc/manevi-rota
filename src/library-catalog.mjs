@@ -113,6 +113,8 @@ export const STARTER_LIBRARY=[
           editionComparisonRequired:true,
           preferredScript:'latin',
           selectionReason:'Tam siyer hacmi, öğretici tarih yaklaşımı ve Latin harfli Cumhuriyet dönemi baskısı nedeniyle birinci üretim adayıdır.',
+          preferredFallbackId:'asri-saadet-siyret',
+          fallbackSelectionPolicy:'Akseki metni içerik kalite kapısını geçemezse sırf Latin harfli diye READY yapılmaz; yeniden kullanımı uygun tarihî tarama ve güvenilir literal çevriyazı doğrulandığında ilmî içerik gücü nedeniyle önce Asr-ı Saâdet adayı değerlendirilir.',
           conditionalEditionPolicy:'1955 Diyanet ikinci baskı yalnız 1934 müellif metniyle gövde karşılaştırması yapılıp Diyanet/editoryal ekler ayrılabildiğinde kullanılabilir.',
           contentQualityGate:{
             status:'review-required',
@@ -177,6 +179,12 @@ export const STARTER_LIBRARY=[
               author:'Şiblî Nu‘mânî · Süleyman Nedvî',
               translator:'Ömer Rıza Doğrul',
               editionYears:[1928],
+              priority:1,
+              accessGate:'historical-fulltext-known-rights-unverified',
+              knownCatalogRecords:[
+                {institution:'Wikilala',edition:'İstanbul · 1928 · 281 s. · Osmanlıca PDF',access:'fulltext-viewable-commercial-reuse-not-verified'},
+                {institution:'Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi',inventory:'56462',edition:'1346/1928 · 1. cilt · Peygamberimizin sireti',access:'physical-copy'}
+              ],
               note:'İlmî içerik açısından güçlü aday; müellifler ve mütercim koruma süresi dışındadır. 1928 Türkçe baskı Osmanlı harfli olduğundan production için yeniden kullanımı uygun tarihî tarama ve güvenilir literal Latin çevriyazı gerekir.',
               contentEvidence:'TDV, eseri İslâm kaynaklarının ciddi tahlil ve tenkidine dayanan ve dönemin önemli ilim adamlarınca takdir edilen çalışma olarak tanımlar.'
             },
