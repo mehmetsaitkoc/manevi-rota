@@ -21,9 +21,10 @@ export const STARTER_LIBRARY=[
   },
   {
     order:3,id:'islam-dini',title:'İslâm Dini',author:'Ahmed Hamdi Akseki',field:'İtikat · İbadet · Ahlâk',level:'Başlangıç',
-    readerType:'islam',availability:'ready',coverGlyph:'ك',tone:'gold',
+    readerType:'generic',availability:'ready',coverGlyph:'ك',tone:'gold',
     shortLabel:'Temel din bilgisi',
     sourceLabel:'1933 tarihli tarihî tarama/OCR',
+    asset:'public/data/islam-dini.json',
     rightsStatus:'public-domain-turkey-author-term',
     originalYear:1933,authorDeathYear:1951,
     rightsNote:'Müellif metni korunur; OCR/dizgi hataları ayrıca belirtilir.'
