@@ -19,7 +19,8 @@ const candidates=[
   {
     id:'kisas-cevdet',
     titles:['Kısas-ı Enbiya','Kısas-ı Enbiyâ','Kısas-ı Enbiya ve Tevarih-i Hulefa','Peygamber Efendimizin Hayatı'],
-    creators:['Ahmed Cevdet Paşa','Ahmet Cevdet Paşa','Cevdet Paşa','Ahmed Cevdet']
+    creators:['Ahmed Cevdet Paşa','Ahmet Cevdet Paşa','Cevdet Paşa','Ahmed Cevdet'],
+    knownIdentifiers:['KsasIEnbiya1','KsasIEnbiya2','KsasIEnbiya3','KsasIEnbiya4','KsasIEnbiya5','KsasIEnbiya6']
   },
   {
     id:'kurandan-ayetler',
@@ -29,8 +30,8 @@ const candidates=[
 ];
 
 const enc=encodeURIComponent,UA='Manevi-Rota-Core-Source-Probe/1.0';
-async function json(url){
-  const r=await fetch(url,{headers:{'user-agent':UA,'accept':'application/json'},signal:AbortSignal.timeout(10000)});
+async function json(url,timeout=10000){
+  const r=await fetch(url,{headers:{'user-agent':UA,'accept':'application/json'},signal:AbortSignal.timeout(timeout)});
   if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);
   return r.json();
 }
@@ -48,10 +49,13 @@ async function searchOne(c){
       for(const row of d?.response?.docs||[])if(row?.identifier&&!docs.has(row.identifier))docs.set(row.identifier,row);
     }catch{}
   }));
+  for(const identifier of c.knownIdentifiers||[]){
+    if(!docs.has(identifier))docs.set(identifier,{identifier,title:identifier,creator:'',year:null});
+  }
   const selected=[...docs.values()].slice(0,20);
   const results=await Promise.all(selected.map(async row=>{
     try{
-      const m=await json(`https://archive.org/metadata/${row.identifier}`);
+      const m=await json(`https://archive.org/metadata/${row.identifier}`,30000);
       const files=(m?.files||[]).filter(f=>/(djvu\.txt|\.txt$|\.pdf$|\.epub$)/i.test(String(f?.name||''))).map(f=>({
         name:f.name,size:Number(f.size||0)||null,format:f.format||null,source:f.source||null
       }));
