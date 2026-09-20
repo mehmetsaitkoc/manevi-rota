@@ -874,10 +874,192 @@ function renderIlimReviews(){
  app.innerHTML=`<section class="card"><button class="textButton" id="ilimHome">← İlim Rotası</button><div class="eyebrow">AKTİF GERİ ÇAĞIRMA</div><h1>Okuduğun şey geri gelsin.</h1><p class="lead">Önce hafızandan anlat, sonra kaynağı aç. 3. ve 7. gün tekrarları böylece sadece yeniden okumaya dönüşmez.</p></section><section class="card"><h2>Bugün</h2>${due.length?due.map(card).join(''):'<div class="emptyState">Bugün bekleyen tekrar yok.</div>'}</section><section class="card"><h3>Yaklaşanlar</h3>${upcoming.length?upcoming.map(r=>`<div class="upcomingReview"><span>${esc(r.dueDate)}</span><b>${esc(getHadis(r.hadisId)?.title||'Hadis')}</b><small>${r.kind==='recovery'?'geri çağırma':`${r.wave}. gün`}</small></div>`).join(''):'<p class="small">Henüz yaklaşan tekrar yok.</p>'}</section>`;
  document.querySelector('#ilimHome').onclick=()=>ilimGo('home');document.querySelectorAll('[data-open-review]').forEach(b=>b.onclick=()=>{S.ilim.ui.reviewOpenId=b.dataset.openReview;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()});
 }
-function renderIlimNotebook(){
- const entries=notebookEntries(S.ilim);
- app.innerHTML=`<section class="card"><button class="textButton" id="ilimHome">← İlim Rotası</button><div class="eyebrow">İLİM DEFTERİ</div><h1>Altını çizdikların, kendi cümlelerin.</h1><p class="lead">Kitabın kopyası değil; zamanla oluşan kişisel düşünce haritan.</p></section>${entries.length?entries.map(e=>`<section class="card notebookGroup"><div class="sectionHead"><div><small>HADİS ${e.hadis.id}</small><h3>${esc(e.hadis.title)}</h3></div>${e.bookmarked?'<span class="sourcePill">★ Kayıtlı</span>':''}</div>${e.highlights.map(x=>`<blockquote>${esc(x.text)}</blockquote>`).join('')}${e.notes.map(n=>`<div class="userNote"><span>📝</span><div><em class="noteTag ${n.tag||'not'}">${n.tag==='research'?'Araştır':n.tag==='practice'?'Uygula':'Not'}</em><p>${esc(n.text)}</p></div><small>${esc(n.date||'')}</small></div>`).join('')}<button class="textButton" data-open-hadis="${e.hadis.id}">Metne dön →</button></section>`).join(''):'<section class="card emptyState">Henüz not veya çizili yer yok. Okurken bir cümleye dokunarak başlayabilirsin.</section>'}`;
- document.querySelector('#ilimHome').onclick=()=>ilimGo('home');document.querySelectorAll('[data-open-hadis]').forEach(b=>b.onclick=()=>ilimGo('reader',b.dataset.openHadis));
+async function collectIlimNotebookEntries(){
+  const entries=[];
+  const hadithBook=starterBook('kirk-hadis');
+  for(const row of notebookEntries(S.ilim)){
+    for(const h of row.highlights||[]){
+      entries.push({
+        id:`hadith-highlight-${h.id}`,
+        bookId:'kirk-hadis',
+        bookTitle:hadithBook?.title||'Kırk Hadis',
+        bookOrder:hadithBook?.order||5,
+        kind:'hadith',
+        locator:`Hadis ${row.hadis.id}`,
+        title:row.hadis.title,
+        highlight:h.text,
+        color:h.color||'',
+        searchText:row.hadis.meaning||'',
+        target:{type:'hadith',hadisId:row.hadis.id}
+      });
+    }
+    for(const n of row.notes||[]){
+      entries.push({
+        id:`hadith-note-${n.id}`,
+        bookId:'kirk-hadis',
+        bookTitle:hadithBook?.title||'Kırk Hadis',
+        bookOrder:hadithBook?.order||5,
+        kind:'hadith',
+        locator:`Hadis ${row.hadis.id}`,
+        title:row.hadis.title,
+        note:n.text,
+        searchText:[row.hadis.meaning,n.tag,n.date].filter(Boolean).join(' '),
+        target:{type:'hadith',hadisId:row.hadis.id}
+      });
+    }
+    if(row.bookmarked){
+      entries.push({
+        id:`hadith-bookmark-${row.hadis.id}`,
+        bookId:'kirk-hadis',
+        bookTitle:hadithBook?.title||'Kırk Hadis',
+        bookOrder:hadithBook?.order||5,
+        kind:'hadith',
+        locator:`Hadis ${row.hadis.id}`,
+        title:row.hadis.title,
+        bookmarked:true,
+        searchText:row.hadis.meaning||'',
+        target:{type:'hadith',hadisId:row.hadis.id}
+      });
+    }
+  }
+
+  const quranBook=starterBook('quran');
+  const quranState=normalizeQuranReaderState(S.library.quran||{});
+  const qrefs=quranNotebookRefs(quranState);
+  await Promise.all([...new Set(qrefs.map(x=>x.surah))].map(async surah=>{try{await loadQuranChapter(surah)}catch{}}));
+  for(const ref of qrefs){
+    const meta=quranMeta(ref.surah);
+    const chapter=quranChapterCache.get(ref.surah);
+    const verse=chapter?.verses?.find(x=>Number(x.verse)===Number(ref.ayah));
+    const verseText=String(verse?.text||'').trim();
+    entries.push({
+      id:`quran-${ref.key}`,
+      bookId:'quran',
+      bookTitle:quranBook?.title||'Kur’ân-ı Kerîm',
+      bookOrder:quranBook?.order||1,
+      kind:'quran',
+      locator:`${meta.turkish} · ${ref.ayah}. âyet`,
+      title:meta.arabic,
+      note:ref.note,
+      highlight:ref.highlight?verseText:'',
+      bookmarked:ref.bookmarked,
+      color:ref.highlight,
+      searchText:verseText,
+      target:{type:'quran',surah:ref.surah,ayah:ref.ayah}
+    });
+  }
+
+  const genericBooks=STARTER_LIBRARY.filter(book=>book.availability==='ready'&&book.readerType==='generic');
+  for(const book of genericBooks){
+    const state=normalizeBookReaderState(S.library.books?.[book.id]||{});
+    const refs=genericNotebookRefs(state);
+    if(!refs.length)continue;
+    let data;
+    try{data=await loadGenericBook(book.id)}catch{continue}
+    for(const ref of refs){
+      const page=data.pages?.[ref.page-1];
+      const blocks=genericBookBlocks(page?.text||'');
+      const block=ref.index===null?'':String(blocks[ref.index]||'').trim();
+      const pagePreview=String(blocks[0]||'').trim();
+      entries.push({
+        id:`book-${book.id}-${ref.key}`,
+        bookId:book.id,
+        bookTitle:book.title,
+        bookOrder:book.order,
+        kind:'book',
+        locator:`Okuma ${ref.page}${page?.page?` · kaynak sayfa ${page.page}`:''}`,
+        title:ref.index===null?'Sayfa yer imi':'',
+        note:ref.note,
+        highlight:ref.highlight?block:'',
+        bookmarked:ref.bookmarked,
+        color:ref.highlight,
+        searchText:[block,pagePreview,book.author,book.field].filter(Boolean).join(' '),
+        target:{type:'book',bookId:book.id,page:ref.page}
+      });
+    }
+  }
+  return entries;
+}
+
+async function renderIlimNotebook(){
+  const loadingScreen=S.ilim.ui?.screen;
+  app.innerHTML=`<section class="card ilimNotebookHero"><button class="textButton" id="ilimHome">← İlim Rotası</button><div class="eyebrow">İLİM DEFTERİ v2</div><h1>Bütün okumaların tek defterde.</h1><p class="lead">Kur’ân, Kırk Hadis ve hazır kitaplarda aldığın notlar, vurgular ve yer imleri birlikte aranır.</p><div class="notebookLoading"><i></i><span>Kişisel kayıtların hazırlanıyor…</span></div></section>`;
+  document.querySelector('#ilimHome').onclick=()=>ilimGo('home');
+
+  const allEntries=await collectIlimNotebookEntries();
+  if(S.ilim.ui?.screen!==loadingScreen)return;
+
+  const query=String(S.ilim.ui?.notebookQuery||'');
+  const bookId=String(S.ilim.ui?.notebookBook||'all');
+  const kind=String(S.ilim.ui?.notebookKind||'all');
+  const filtered=filterNotebookEntries(allEntries,{query,bookId,kind});
+  const groups=groupNotebookEntries(filtered);
+  const summary=notebookSummary(allEntries);
+  const bookGroups=groupNotebookEntries(allEntries);
+  const optionBooks=bookGroups.map(g=>`<option value="${esc(g.bookId)}" ${g.bookId===bookId?'selected':''}>${esc(g.bookTitle)}</option>`).join('');
+
+  const groupHtml=groups.map(group=>{
+    const book=starterBook(group.bookId);
+    const stats=notebookSummary(group.entries);
+    const rows=group.entries.map(entry=>{
+      const badges=[
+        entry.note?'<span class="note">✎ Not</span>':'',
+        entry.highlight?'<span class="highlight">✦ Vurgu</span>':'',
+        entry.bookmarked?'<span class="bookmark">★ Yer imi</span>':''
+      ].filter(Boolean).join('');
+      const target=encodeURIComponent(JSON.stringify(entry.target||{}));
+      return `<article class="notebookEntry">
+        <div class="notebookEntryTop"><div><small>${esc(entry.locator)}</small><b>${esc(entry.title||book?.field||'Kişisel kayıt')}</b></div><div class="notebookBadges">${badges}</div></div>
+        ${entry.highlight?`<blockquote style="${entry.color?`--nb-hl:${hexToRgba(entry.color,.24)}`:''}">${esc(entry.highlight)}</blockquote>`:''}
+        ${entry.note?`<div class="notebookPersonalNote"><small>KİŞİSEL NOT</small><p>${esc(entry.note)}</p></div>`:''}
+        ${!entry.note&&!entry.highlight&&entry.bookmarked?`<p class="notebookBookmarkOnly">${esc(entry.searchText||'Bu konum daha sonra dönmek için kaydedildi.')}</p>`:''}
+        <button class="textButton" data-notebook-target="${target}">Metne dön →</button>
+      </article>`;
+    }).join('');
+    return `<section class="card notebookBookGroup">
+      <div class="notebookBookHead"><div class="notebookBookGlyph tone-${esc(book?.tone||'forest')}">${esc(book?.coverGlyph||'✎')}</div><div><small>ESER ${book?.order||''}</small><h2>${esc(group.bookTitle)}</h2><p>${stats.notes} not · ${stats.highlights} vurgu · ${stats.bookmarks} yer imi</p></div></div>
+      <div class="notebookEntryList">${rows}</div>
+    </section>`;
+  }).join('');
+
+  app.innerHTML=`<section class="card ilimNotebookHero">
+    <button class="textButton" id="ilimHome">← İlim Rotası</button>
+    <div class="eyebrow">İLİM DEFTERİ v2</div><h1>Bütün okumaların tek defterde.</h1>
+    <p class="lead">Kaynak metin değişmez; burada yalnız senin işaretlediğin yerler ve kendi notların bir araya gelir.</p>
+    <div class="notebookSummaryGrid"><div><b>${summary.books}</b><span>eser</span></div><div><b>${summary.notes}</b><span>not</span></div><div><b>${summary.highlights}</b><span>vurgu</span></div><div><b>${summary.bookmarks}</b><span>yer imi</span></div></div>
+  </section>
+  <section class="card notebookToolbar">
+    <form id="notebookSearchForm"><span>⌕</span><input id="notebookSearchInput" type="search" value="${esc(query)}" placeholder="Not, vurgu, kitap veya kavram ara…" autocomplete="off"><button class="btn primary" type="submit">Ara</button>${query?'<button class="btn ghost" type="button" id="notebookSearchClear">Temizle</button>':''}</form>
+    <div class="notebookFilters">
+      <label>Kitap<select id="notebookBookFilter"><option value="all">Tüm eserler</option>${optionBooks}</select></label>
+      <label>Tür<select id="notebookKindFilter"><option value="all" ${kind==='all'?'selected':''}>Tümü</option><option value="note" ${kind==='note'?'selected':''}>Notlar</option><option value="highlight" ${kind==='highlight'?'selected':''}>Vurgular</option><option value="bookmark" ${kind==='bookmark'?'selected':''}>Yer imleri</option></select></label>
+      <span>${filtered.length} kayıt gösteriliyor</span>
+    </div>
+  </section>
+  ${groupHtml||'<section class="card emptyState">Bu filtrelerde kayıt bulunamadı. Okurken not, vurgu veya ★ yer imi eklediğinde burada görünecek.</section>'}`;
+
+  document.querySelector('#ilimHome').onclick=()=>ilimGo('home');
+  document.querySelector('#notebookSearchForm').onsubmit=e=>{
+    e.preventDefault();
+    S.ilim.ui={...(S.ilim.ui||{}),notebookQuery:document.querySelector('#notebookSearchInput')?.value||''};
+    save();renderIlimNotebook();
+  };
+  const clear=document.querySelector('#notebookSearchClear');
+  if(clear)clear.onclick=()=>{S.ilim.ui={...(S.ilim.ui||{}),notebookQuery:''};save();renderIlimNotebook()};
+  document.querySelector('#notebookBookFilter').onchange=e=>{S.ilim.ui={...(S.ilim.ui||{}),notebookBook:e.target.value};save();renderIlimNotebook()};
+  document.querySelector('#notebookKindFilter').onchange=e=>{S.ilim.ui={...(S.ilim.ui||{}),notebookKind:e.target.value};save();renderIlimNotebook()};
+  document.querySelectorAll('[data-notebook-target]').forEach(btn=>btn.onclick=()=>{
+    let target={};try{target=JSON.parse(decodeURIComponent(btn.dataset.notebookTarget||''))}catch{}
+    if(target.type==='hadith')return ilimGo('reader',target.hadisId);
+    if(target.type==='quran'){
+      S.library.quran=normalizeQuranReaderState({...S.library.quran,surah:Number(target.surah)||1,ayah:Number(target.ayah)||1,noteFor:null});
+      S.library.lastBook='quran';save();return ilimGo('quran');
+    }
+    if(target.type==='book'&&target.bookId){
+      S.library.books[target.bookId]=normalizeBookReaderState({...S.library.books?.[target.bookId],page:Number(target.page)||1,noteFor:null});
+      save();return openStarterBook(target.bookId);
+    }
+  });
 }
 
 document.addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b&&S.onboardDone){S.view=b.dataset.view;save();render()}});
