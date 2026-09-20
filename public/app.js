@@ -469,7 +469,7 @@ function renderStarterBookCard(book,completedCount){
    <div class="starterBookOrder">${book.order}</div>
    <div class="starterBookCover"><span>${esc(book.coverGlyph||'ك')}</span><small>${esc(book.field)}</small></div>
    <div class="starterBookInfo">
-     <div class="starterBookBadges"><span>${esc(book.level)}</span><span class="${ready?'available':'checking'}">${ready?'Okunabilir':book.availability==='source-verified'?'Kaynak doğrulandı':'Kaynak doğrulanıyor'}</span></div>
+     <div class="starterBookBadges"><span>${esc(book.level)}</span>${book.alwaysOn?'<span class="alwaysOn">Her seviyede</span>':''}<span class="${ready?'available':'checking'}">${ready?'Okunabilir':book.availability==='source-verified'?'Kaynak doğrulandı':'Kaynak doğrulanıyor'}</span></div>
      <b>${esc(book.title)}</b><small>${esc(byline)}</small><p>${esc(book.shortLabel)}</p><em>${progress}</em>
    </div>
    <i>${ready?'›':'·'}</i>
@@ -481,7 +481,7 @@ function renderStarterPath(completedCount){
    return `<section class="starterStage" data-starter-stage="${esc(stage.id)}">
      <div class="starterStageHead">
        <div class="starterStageNumber">${stage.order}</div>
-       <div><small>AŞAMA ${stage.order}</small><b>${esc(stage.title)}</b><p>${esc(stage.subtitle)}</p></div>
+       <div><small>SEVİYE ${stage.order}</small><b>${esc(stage.title)}</b><p>${esc(stage.subtitle)}</p></div>
        <span>${ready}/${books.length} hazır</span>
      </div>
      <div class="starterLibraryGrid">${books.map(book=>renderStarterBookCard(book,completedCount)).join('')}</div>
@@ -556,7 +556,7 @@ function renderIlimHome(){
 
  <section class="card libraryShelf premiumStarterShelf">
    <div class="sectionHead starterShelfHead">
-     <div><div class="eyebrow">BAŞLANGIÇ KÜTÜPHANESİ</div><h2>10 eserlik sağlam başlangıç</h2><p>Az ama nitelikli. Metni ve kaynağı hazır olmayan eser okunabilir görünmez.</p></div>
+     <div><div class="eyebrow">BAŞLANGIÇ KÜTÜPHANESİ</div><h2>10 kitaplık gelişim yolu</h2><p>Seviye 1’den 5’e; temel bilgi, Kur’ân ve ibadet, sünnet, siyer, ahlâk ve tefekkür. Hazır olmayan tam metin okunabilir gösterilmez.</p></div>
      <span class="sourcePill">${readyBookCount} okunabilir · ${STARTER_LIBRARY.length-readyBookCount} tam metin bekliyor</span>
    </div>
    <div class="starterPath">${starterShelf}</div>
