@@ -82,7 +82,24 @@ async function buildTextBook({
   signature,startAtMatcher=null,sectionMatchers=[]
 }){
   console.log(`Preparing ${title} from OCR text…`);
-  const raw=await fetchOk(url,'text');
+  const localPath=path.join(BOUT,`${id}.json`);
+  if(process.env.FORCE_LIBRARY_REBUILD!=='1'){
+    try{
+      const existing=JSON.parse(await fs.readFile(localPath,'utf8'));
+      const localPages=Array.isArray(existing?.pages)?existing.pages:[];
+      const localText=localPages.map(x=>String(x?.text||'')).join('\n\n');
+      if(existing?.id===id&&localPages.length>=minReaderPages&&localText.length>=minChars&&existing?.source?.url===url){
+        console.log(`Using verified local ${title} asset (${localPages.length} reader pages).`);
+        return existing;
+      }
+    }catch{}
+  }
+  let raw='',lastErr;
+  for(let attempt=1;attempt<=3&&!raw;attempt++){
+    try{raw=await fetchOk(url,'text')}
+    catch(err){lastErr=err;if(attempt<3)await new Promise(r=>setTimeout(r,attempt*1200))}
+  }
+  if(!raw)throw lastErr||new Error(`${title}: source unavailable`);
   if(/^\s*<!doctype html/i.test(raw)||/<html[\s>]/i.test(raw.slice(0,2000)))throw new Error(`${title}: source returned HTML`);
   if(signature&&!signature.test(raw.slice(0,50000)))throw new Error(`${title}: source signature not found`);
   let rawPages=raw.split('\f');
