@@ -1,0 +1,89 @@
+{
+  "id": "asri-saadet-siyret-1928",
+  "title": "İslâm Tarihi: Asr-ı Saâdet — Peygamberimizin Sîreti",
+  "edition": {
+    "year": 1928,
+    "place": "İstanbul",
+    "script": "Ottoman Turkish",
+    "translator": "Ömer Rıza Doğrul",
+    "scope": "Volumes I–IV of the Turkish Sîretü’n-nebî translation"
+  },
+  "rights": {
+    "status": "author-term-apparently-expired-turkey-final-review-required",
+    "jurisdiction": "Türkiye",
+    "commercialLaunchReviewRequired": true,
+    "thirdPartyDigitizationRightsMustBeSeparate": true
+  },
+  "sourcePolicy": {
+    "productionMethod": "self-digitized-physical-originals",
+    "allowed": [
+      "Self-made scans of owned 1928 physical volumes I–IV",
+      "Institutional scans with explicit reusable/commercial permission"
+    ],
+    "rejected": [
+      "Wikilala PDF/OCR copied into production without written commercial permission",
+      "Modern simplified editions",
+      "Modern transliterations used as if they were the 1928 text",
+      "Academic thesis transcriptions used as production text",
+      "OCR-only text that has not been checked against the scan"
+    ]
+  },
+  "volumes": [
+    {
+      "volume": 1,
+      "title": "Peygamberimizin Sîreti",
+      "author": "Şiblî Nu‘mânî",
+      "scan": "sources/asri-saadet-1928/raw/volume-1.pdf",
+      "transcription": "sources/asri-saadet-1928/transcription/volume-1.txt"
+    },
+    {
+      "volume": 2,
+      "title": "Peygamberimizin Risâleti ve Şahsiyeti",
+      "author": "Şiblî Nu‘mânî",
+      "scan": "sources/asri-saadet-1928/raw/volume-2.pdf",
+      "transcription": "sources/asri-saadet-1928/transcription/volume-2.txt"
+    },
+    {
+      "volume": 3,
+      "title": "Peygamberimizin Rûhânî Hayatı",
+      "author": "Süleyman Nedvî",
+      "scan": "sources/asri-saadet-1928/raw/volume-3.pdf",
+      "transcription": "sources/asri-saadet-1928/transcription/volume-3.txt"
+    },
+    {
+      "volume": 4,
+      "title": "Peygamberimizin Rûhânî Hayatı",
+      "author": "Süleyman Nedvî",
+      "scan": "sources/asri-saadet-1928/raw/volume-4.pdf",
+      "transcription": "sources/asri-saadet-1928/transcription/volume-4.txt"
+    }
+  ],
+  "evidence": [
+    {
+      "label": "TDV İslâm Ansiklopedisi — Asr-ı Saâdet literatürü",
+      "url": "https://islamansiklopedisi.org.tr/asr-i-saadet--literatur"
+    },
+    {
+      "label": "TDV İslâm Ansiklopedisi — Ömer Rıza Doğrul",
+      "url": "https://islamansiklopedisi.org.tr/dogrul-omer-riza"
+    },
+    {
+      "label": "Diyanet İşleri Başkanlığı Kütüphanesi — 1928 Osmanlı Türkçesi kayıt",
+      "url": "https://ekutuphane.diyanet.gov.tr/details?detailType=modal&id=23137&materialType=KT"
+    },
+    {
+      "label": "Uludağ Üniversitesi İlahiyat Fakültesi Kütüphanesi — 1928 cilt kayıtları",
+      "url": "https://ilahiyatkutuphane.uludag.edu.tr/yordam/?dil=3&fq%5B%5D=kunyeAnaTurKN_str%3A%220100%22&fq%5B%5D=qDil_strs%3A%22ota%22&p=1&sno=112"
+    }
+  ],
+  "output": {
+    "asset": "public/data/books/asri-saadet-siyret.json",
+    "status": "blocked-until-four-scans-four-transcriptions-and-human-approval"
+  },
+  "releaseApproval": {
+    "status": "pending",
+    "approvedBy": null,
+    "approvedAt": null,
+    "notes": "Do not flip to approved until all four physical scans and literal Latin transcriptions have been compared page-by-page."
+  }
+}
