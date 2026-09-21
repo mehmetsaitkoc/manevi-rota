@@ -109,6 +109,15 @@ jobs:
             const firstRunText=await page.locator('#app').innerText();
             if(!firstRunText.includes('Bugün sana göre.')||!firstRunText.includes('Bugün gerçekten kaç dakikan var?'))throw new Error('First-run handoff did not reach daily check-in');
             await page.screenshot({path:'visual-review/00c-first-run-checkin.png',fullPage:true});
+            await page.click('#normalDay');
+            await page.waitForFunction(()=>document.querySelector('.checkinProgressPill')?.innerText.includes('5/5'),null,{timeout:5000});
+            if(await page.locator('#go').isDisabled())throw new Error('Daily calibration did not enable route analysis after normal-day preset');
+            await page.locator('.checkinActions').scrollIntoViewIfNeeded();
+            await page.waitForTimeout(100);
+            const checkinActionsBox=await page.locator('.checkinActions').boundingBox();
+            const checkinNavBox=await page.locator('#nav').boundingBox();
+            if(checkinActionsBox&&checkinNavBox&&checkinActionsBox.y+checkinActionsBox.height>checkinNavBox.y)throw new Error('Daily calibration actions are obscured by mobile navigation');
+            await page.screenshot({path:'visual-review/00d-first-run-checkin-ready.png'});
 
             const now=new Date();
             const iso=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);
