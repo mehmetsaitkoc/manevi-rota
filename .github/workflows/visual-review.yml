@@ -241,6 +241,9 @@ jobs:
             await page.waitForSelector('.todayPrimaryCard.completed',{timeout:10000});
             const completedTodayText=await page.locator('.todayPrimaryCard.completed').innerText();
             if(!completedTodayText.includes('BUGÜN TAMAMLANDI')||!completedTodayText.includes('7 dk'))throw new Error('Today completed state did not render real reading outcome');
+            const completionSurface=await page.locator('.todayCompletionStats>span').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+            const completionRgb=(completionSurface.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(completionRgb.length<3||completionRgb.some(v=>v>90))throw new Error('Today completion stats regressed to a light material surface');
             const yesterdayText=await page.locator('.todayYesterdayCard').innerText();
             if(!yesterdayText.includes('DÜN NE OLDU?')||!yesterdayText.includes('6 dk')||!yesterdayText.includes('3 sayfa'))throw new Error('Yesterday reading summary did not render');
             await page.screenshot({path:'visual-review/01b-today-completed.png',fullPage:true});
