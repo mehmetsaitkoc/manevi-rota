@@ -255,24 +255,21 @@ jobs:
             await page.waitForSelector('#app .libraryHero',{timeout:10000});
             await page.screenshot({path:'visual-review/02-ilim.png',fullPage:true});
 
-            const shelfCount=await page.locator('[data-starter-book]').count();
-            if(shelfCount!==10)throw new Error('Starter library must render exactly 10 catalog works, got '+shelfCount);
-            const readyShelfCount=await page.locator('[data-starter-book].ready').count();
-            const pendingShelfCount=await page.locator('[data-starter-book].pending').count();
-            if(readyShelfCount!==9||pendingShelfCount!==1)throw new Error('Premium Ilim route must expose 9 ready works and 1 source-pending work, got '+readyShelfCount+' ready / '+pendingShelfCount+' pending');
             const premiumLibraryUi=await page.getAttribute('.premiumLibraryHero','data-ui');
-            if(premiumLibraryUi!=='premium-library-v3')throw new Error('Premium Ilim route marker missing');
-            const premiumLibraryText=await page.locator('.premiumLibraryHero').innerText();
-            if(!premiumLibraryText.includes('Dokuz hazır eser'))throw new Error('Premium Ilim route ready-library headline missing');
-            const starterStages=await page.locator('[data-starter-stage]').count();
-            if(starterStages!==5)throw new Error('Starter library must render five reading levels, got '+starterStages);
-            await page.waitForSelector('.libraryLevelCard',{timeout:5000});
-            const levelCardText=await page.locator('.libraryLevelCard').innerText();
-            if(!levelCardText.includes('Seviye 1'))throw new Error('Library level guidance did not start at level 1');
-            const awarenessCount=await page.locator('.libraryAwarenessGoals li').count();
-            if(awarenessCount!==3)throw new Error('Awareness goals must render exactly three items, got '+awarenessCount);
-            await page.screenshot({path:'visual-review/02a-awareness-goals.png',fullPage:true});
+            if(premiumLibraryUi!=='premium-library-v4')throw new Error('Simplified Ilim v4 marker missing');
+            const simpleActions=await page.locator('.ilimSimpleAction').count();
+            if(simpleActions!==3)throw new Error('Ilim home must expose exactly three primary actions, got '+simpleActions);
+            if(await page.locator('[data-starter-book]').count()!==0)throw new Error('Book catalog must not crowd the Ilim home screen');
+            if(await page.locator('.libraryV2Rail,.libraryLevelCard,.memorySummary').count()!==0)throw new Error('Legacy dense library surfaces leaked into simplified Ilim home');
+            await page.click('#openSimpleLibrary');
+            await page.waitForSelector('.simpleLibraryGrid',{timeout:5000});
+            const shelfCount=await page.locator('[data-starter-book]').count();
+            if(shelfCount!==9)throw new Error('Simple library must render the 9 ready works, got '+shelfCount);
+            const pendingSummary=await page.locator('.simpleLibraryPending summary').innerText();
+            if(!pendingSummary.includes('1 eser'))throw new Error('Source-pending work must stay separated from the readable library');
+            await page.screenshot({path:'visual-review/02a-simple-library.png',fullPage:true});
 
+            await page.click('#simpleLibraryBack');
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));
               s.library=s.library||{};
@@ -283,14 +280,12 @@ jobs:
             await page.waitForSelector('.levelTransitionCard',{timeout:5000});
             const transitionText=await page.locator('.levelTransitionCard').innerText();
             if(!transitionText.includes('SEVİYE 1 TAMAMLANDI')||!transitionText.includes('Seviye 2'))throw new Error('Level transition card did not appear correctly');
-            const transitionGoals=await page.locator('.levelTransitionNext li').count();
-            if(transitionGoals!==2)throw new Error('Transition should preview two next-level awareness goals, got '+transitionGoals);
-            await page.screenshot({path:'visual-review/02b-level-transition.png',fullPage:true});
             await page.click('#ackLibraryLevel');
             await page.waitForTimeout(160);
             const acknowledgedLevel=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.path?.acknowledgedLevel,key);
             if(acknowledgedLevel!==2)throw new Error('Level transition acknowledgement was not persisted');
-
+            await page.click('#openSimpleLibrary');
+            await page.waitForSelector('.simpleLibraryGrid',{timeout:5000});
             const yavrularButton=page.locator('[data-starter-book="yavrularimiza-din-dersleri"]');
             if(await yavrularButton.isDisabled())throw new Error('Yavrularımıza Din Dersleri should be readable');
             await yavrularButton.click();
