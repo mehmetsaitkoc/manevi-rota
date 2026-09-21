@@ -556,7 +556,7 @@ function renderWeek(){
  app.innerHTML=`
  <section class="card progressHero premiumProgressHero">
    <div class="progressTopline">
-     <div><div class="eyebrow">İLERLEME</div><h1>${range==='7'?'Son 7 günlük':range==='30'?'Son 30 günlük':'Genel'} yolculuğun</h1><p class="lead">Yargı değil; ritim, öğrenme ve yük ayarı.</p></div>
+     <div><div class="eyebrow">DAVRANIŞ RİTMİ</div><h1>${range==='7'?'Son 7 günlük':range==='30'?'Son 30 günlük':'Genel'} kullanım özeti</h1><p class="lead">Okuma ve görev verilerinin özeti; manevî değer ölçümü değildir.</p></div>
      <span class="progressConfidence">${confidence} güven</span>
    </div>
    <div class="progressTabs">
@@ -571,10 +571,10 @@ function renderWeek(){
  </section>
 
  <section class="journeyMetricGrid">
-   ${metricCard('↗','İSTİKRAR',consistency,consistencyDelta===null?'Mevcut ritim':consistencyDelta>0?`+${consistencyDelta} puan`:consistencyDelta<0?`${consistencyDelta} puan`:'Değişmedi','consistency')}
-   ${metricCard('◉','ANLAMA',understanding,understandingSessions.length+' doğrudan kayıt','understanding')}
-   ${metricCard('↻','HATIRLAMA',recall,recalls.length+' geri çağırma','recall')}
-   ${metricCard('◒','YÜK TOLERANSI',loadTolerance,loadSamples.length+' geri bildirim','load')}
+   ${metricCard('↗','ROTA TAMAMLAMA',consistency,consistencyDelta===null?'Mevcut ritim':consistencyDelta>0?`+${consistencyDelta} puan`:consistencyDelta<0?`${consistencyDelta} puan`:'Değişmedi','consistency')}
+   ${metricCard('◉','ANLAMA KAYDI',understanding,understandingSessions.length+' doğrudan kayıt','understanding')}
+   ${metricCard('↻','GERİ ÇAĞIRMA',recall,recalls.length+' geri çağırma','recall')}
+   ${metricCard('◒','YÜK UYUMU',loadTolerance,loadSamples.length+' geri bildirim','load')}
  </section>
 
  <section class="card periodInsight">
@@ -584,7 +584,7 @@ function renderWeek(){
 
  ${slotRows.length?`<section class="card progressDetails"><details><summary>Zamanlama öğrenimini göster</summary><div class="slotStats">${slotRows.map(([slot,x])=>`<div class="slotStat"><span>${slotIcon(slot)}</span><div><b>${slotLabel(slot)}</b><small>${x.completed}/${x.samples} tamamlandı</small></div><strong>%${pct(x.completion)}</strong></div>`).join('')}</div></details></section>`:''}
 
- <section class="card progressDetails"><details><summary>Bu yüzdeler nasıl hesaplanıyor?</summary><p class="small"><b>İstikrar</b> gerçek rota görevlerinin tamamlanmasından; <b>Anlama</b> okuyucuda isteğe bağlı bırakılan 1–5 doğrudan anlama kaydından; <b>Hatırlama</b> geri çağırma sonuçlarından; <b>Yük toleransı</b> günlük ve görev sonrası Zor/Normal/Rahat geri bildirimlerinden gelir. Veri yoksa sistem yüzde üretmez.</p><p class="small">Bunlar maneviyat veya dinî değer puanı değildir.</p></details></section>`;
+ <section class="card progressDetails"><details><summary>Bu yüzdeler nasıl hesaplanıyor?</summary><p class="small"><b>Rota tamamlama</b> gerçek rota görevlerinin tamamlanmasından; <b>Anlama kaydı</b> okuyucuda isteğe bağlı bırakılan 1–5 doğrudan anlama kaydından; <b>Geri çağırma</b> tekrar sonuçlarından; <b>Yük uyumu</b> günlük ve görev sonrası Zor/Normal/Rahat geri bildirimlerinden gelir. Veri yoksa sistem yüzde üretmez.</p><p class="small">Bunlar maneviyat veya dinî değer puanı değildir.</p></details></section>`;
 
  document.querySelectorAll('[data-progress-range]').forEach(b=>b.onclick=()=>{S.profile.progressRange=b.dataset.progressRange;save();renderWeek()});
 }
@@ -739,6 +739,40 @@ function renderIlimHome(){
    </div>
  </section>
 
+ <section class="continueReadingCard">
+   <div class="continueCover"><span>${esc(resume.glyph||'ك')}</span><small>DEVAM ET</small></div>
+   <div class="continueBody">
+     <div class="eyebrow">${esc(resume.label)}</div>
+     <h2>${esc(resume.title)}</h2>
+     <p>${esc(resume.description)}</p>
+     <div class="continueMeta"><span>${esc(resume.meta)}</span><span>${esc(resume.book?.field||'İlim')}</span></div>
+     <button class="btn primary wide" id="continueLibrary">Okumaya devam →</button>
+   </div>
+ </section>
+
+ <section class="card libraryShelf premiumStarterShelf">
+   <div class="sectionHead starterShelfHead">
+     <div><div class="eyebrow">BAŞLANGIÇ KÜTÜPHANESİ</div><h2>10 kitaplık gelişim yolu</h2><p>Seviye 1’den 5’e; temel bilgi, Kur’ân ve ibadet, sünnet, siyer, ahlâk ve tefekkür. Hazır olmayan tam metin okunabilir gösterilmez.</p></div>
+     <span class="sourcePill">${readyBookCount} okunabilir · ${STARTER_LIBRARY.length-readyBookCount} tam metin bekliyor</span>
+   </div>
+   <div class="starterPath">${starterShelf}</div>
+ </section>
+
+ <section class="libraryTodayGrid">
+   <article class="libraryMiniCard todayFocus">
+     <div><span class="libraryIcon">✦</span><div><small>BUGÜNÜN OKUMASI</small><b>${esc(h.title)}</b><p>${plan.reviewFirst?'Önce kısa tekrar, sonra yeni okuma.':`${plan.minutes} dakikalık hafif okuma.`}</p></div></div>
+     <button id="openTodayHadis">Aç →</button>
+   </article>
+   <article class="libraryMiniCard">
+     <div><span class="libraryIcon">↻</span><div><small>TEKRARLAR</small><b>${due.length?due.length+' tekrar hazır':'Bugün temiz'}</b><p>${nextDue?esc(recallPromptFor(nextDue.hadisId)):'Bekleyen geri çağırma yok.'}</p></div></div>
+     <button id="ilimReviews">${due.length?'Başla →':'Görüntüle'}</button>
+   </article>
+   <article class="libraryMiniCard">
+     <div><span class="libraryIcon">✎</span><div><small>İLİM DEFTERİ v2</small><b>${defterSummary.notes} not · ${defterSummary.highlights} vurgu · ${defterSummary.bookmarks} yer imi</b><p>${defterSummary.books} eserdeki kişisel kayıtların tek yerde.</p></div></div>
+     <button id="ilimNotebook">Aç →</button>
+   </article>
+ </section>
+
  <section class="libraryV2Rail" aria-label="Okuma yolu seviyeleri">
    <div class="libraryRailHeader"><div><small>5 AŞAMALI YOL</small><b>Temelden şuura ilerleyen okuma rotası</b></div><div class="libraryRailStats"><span><b>${readyBookCount}/10</b> okunabilir</span><span><b>${libraryNotes}</b> not</span><span><b>${libraryHighlights}</b> vurgu</span><span><b>${defterSummary.bookmarks}</b> yer imi</span></div></div>
    <div class="libraryRailTrack">${levelRail}</div>
@@ -757,40 +791,6 @@ function renderIlimHome(){
  </section>
 
  ${transitionCard}
-
- <section class="continueReadingCard">
-   <div class="continueCover"><span>${esc(resume.glyph||'ك')}</span><small>DEVAM ET</small></div>
-   <div class="continueBody">
-     <div class="eyebrow">${esc(resume.label)}</div>
-     <h2>${esc(resume.title)}</h2>
-     <p>${esc(resume.description)}</p>
-     <div class="continueMeta"><span>${esc(resume.meta)}</span><span>${esc(resume.book?.field||'İlim')}</span></div>
-     <button class="btn primary wide" id="continueLibrary">Okumaya devam →</button>
-   </div>
- </section>
-
- <section class="libraryTodayGrid">
-   <article class="libraryMiniCard todayFocus">
-     <div><span class="libraryIcon">✦</span><div><small>BUGÜNÜN OKUMASI</small><b>${esc(h.title)}</b><p>${plan.reviewFirst?'Önce kısa tekrar, sonra yeni okuma.':`${plan.minutes} dakikalık hafif okuma.`}</p></div></div>
-     <button id="openTodayHadis">Aç →</button>
-   </article>
-   <article class="libraryMiniCard">
-     <div><span class="libraryIcon">↻</span><div><small>TEKRARLAR</small><b>${due.length?due.length+' tekrar hazır':'Bugün temiz'}</b><p>${nextDue?esc(recallPromptFor(nextDue.hadisId)):'Bekleyen geri çağırma yok.'}</p></div></div>
-     <button id="ilimReviews">${due.length?'Başla →':'Görüntüle'}</button>
-   </article>
-   <article class="libraryMiniCard">
-     <div><span class="libraryIcon">✎</span><div><small>İLİM DEFTERİ v2</small><b>${defterSummary.notes} not · ${defterSummary.highlights} vurgu · ${defterSummary.bookmarks} yer imi</b><p>${defterSummary.books} eserdeki kişisel kayıtların tek yerde.</p></div></div>
-     <button id="ilimNotebook">Aç →</button>
-   </article>
- </section>
-
- <section class="card libraryShelf premiumStarterShelf">
-   <div class="sectionHead starterShelfHead">
-     <div><div class="eyebrow">BAŞLANGIÇ KÜTÜPHANESİ</div><h2>10 kitaplık gelişim yolu</h2><p>Seviye 1’den 5’e; temel bilgi, Kur’ân ve ibadet, sünnet, siyer, ahlâk ve tefekkür. Hazır olmayan tam metin okunabilir gösterilmez.</p></div>
-     <span class="sourcePill">${readyBookCount} okunabilir · ${STARTER_LIBRARY.length-readyBookCount} tam metin bekliyor</span>
-   </div>
-   <div class="starterPath">${starterShelf}</div>
- </section>
 
  <section class="card memorySummary compactMemory">
    <div class="sectionHead"><div><div class="eyebrow">İLİM HAFIZASI</div><h2>Okudukların ne durumda?</h2></div><span class="sourcePill">${counts.stable||0} oturuyor</span></div>
