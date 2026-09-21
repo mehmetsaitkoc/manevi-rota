@@ -685,3 +685,64 @@ nav button:hover{transform:translateY(-1px)}
  .readingRecommendationActions{justify-content:space-between}
  .readingRecommendationCard .btn.primary{min-width:0;flex:1}
 }
+
+
+/* Bugün Deneyimi v2 — one decision first, system detail second */
+.todayPrimaryCard{margin-bottom:12px}
+.readingRecommendationCard.todayPrimaryCard{padding:24px;background:radial-gradient(circle at 90% 8%,rgba(231,200,137,.12),transparent 16rem),linear-gradient(145deg,#103d32 0%,#174d3e 58%,#215b49 100%)}
+.readingRecommendationCard.todayPrimaryCard h1{position:relative;z-index:1;color:#fff;font-family:Georgia,serif;font-size:clamp(31px,6vw,46px);line-height:1.04;margin:7px 0 9px;letter-spacing:-.035em}
+.readingRecommendationCard.todayPrimaryCard .readingRecommendationLevel{margin-top:2px}
+.todayPrimaryCard.completed{padding:24px;background:linear-gradient(145deg,#f8f3e8,#fffaf0);border:1px solid rgba(45,120,88,.22);box-shadow:0 18px 42px rgba(37,77,61,.09)}
+.todayPrimaryTop{display:flex;gap:14px;align-items:flex-start}
+.todayPrimaryCheck{width:46px;height:46px;flex:0 0 46px;border-radius:15px;display:grid;place-items:center;background:#1d6b52;color:#fff;font-size:22px;font-weight:900;box-shadow:0 10px 22px rgba(29,107,82,.18)}
+.todayPrimaryCard.completed h1{font-family:Georgia,serif;font-size:clamp(30px,6vw,44px);line-height:1.05;margin:6px 0 8px;color:#153f34}
+.todayPrimaryCard.completed p{margin:0;max-width:650px}
+.todayCompletionStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:18px}
+.todayCompletionStats span{border:1px solid rgba(102,90,63,.12);background:rgba(255,255,255,.72);border-radius:15px;padding:11px 12px}
+.todayCompletionStats b{display:block;font-size:14px;color:#174638}
+.todayCompletionStats small{display:block;margin-top:3px;font-size:9px;color:var(--muted);line-height:1.25}
+.todayPrimaryActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+.todayPrimaryCard.quiet h1{font-size:30px;margin-bottom:8px}
+
+.todayYesterdayCard{display:flex;align-items:center;gap:13px;padding:15px 17px;background:rgba(255,250,240,.76);box-shadow:none}
+.todayYesterdayIcon{width:40px;height:40px;flex:0 0 40px;border-radius:13px;display:grid;place-items:center;background:#edf1e7;color:#1b5a48;font-size:20px}
+.todayYesterdayCard .eyebrow{font-size:9px}
+.todayYesterdayCard b{display:block;margin-top:2px;font-family:Georgia,serif;font-size:16px;color:#173f34}
+.todayYesterdayCard p{margin:3px 0 0;font-size:11px}
+
+.premiumTodayHero.todayRouteOverview{padding:20px;background:linear-gradient(145deg,rgba(255,250,240,.96),rgba(242,238,226,.96));color:var(--ink);border:1px solid rgba(102,90,63,.13);box-shadow:0 10px 28px rgba(41,52,44,.06)}
+.premiumTodayHero.todayRouteOverview:before{display:none}
+.todayRouteOverview .eyebrow{color:var(--gold)}
+.todayRouteOverview h2{margin:4px 0 6px;font-family:Georgia,serif;font-size:23px;color:#153f34}
+.todayRouteOverview p{color:var(--muted)}
+.todayRouteOverview .heroProgress{width:70px;height:70px;flex-basis:70px;border-color:rgba(23,72,58,.18);box-shadow:inset 0 0 0 6px rgba(23,72,58,.04)}
+.todayRouteOverview .heroProgress b{color:#174b3d;font-size:20px}.todayRouteOverview .heroProgress span{color:#76827c}
+.todayRouteStats{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.todayRouteStats span{min-width:102px;background:#fff;border:1px solid rgba(102,90,63,.12);border-radius:14px;padding:9px 11px}
+.todayRouteStats b{display:block;color:#174638;font-size:13px}.todayRouteStats small{display:block;margin-top:2px;color:var(--muted);font-size:9px}
+.todayRouteActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.todayRouteActions .btn{padding:9px 12px;font-size:11px}
+.todayEngineDetails{margin-top:18px;box-shadow:none;background:rgba(255,250,240,.72)}
+.todayEngineDetails summary{font-size:12px}
+.todayFeedbackCard{margin-top:12px}
+.todayFeedbackCard p{margin-top:2px}
+
+.quranSessionCard{display:flex;justify-content:space-between;gap:16px;align-items:center;border:1px solid rgba(181,138,72,.28);background:linear-gradient(135deg,#fffaf0,#f5f0e5);border-radius:18px;padding:14px 15px;margin:10px 0 15px}
+.quranSessionCard small{display:block;font-size:9px;letter-spacing:.11em;color:var(--gold);font-weight:900}
+.quranSessionCard b{display:block;margin-top:4px;font-size:14px}
+.quranSessionCard p{margin:4px 0 0;font-size:10px;line-height:1.45;max-width:500px}
+.quranSessionCard>div:last-child{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.quranSessionCard button{border:1px solid var(--line);background:#fff;border-radius:11px;padding:8px 10px;font-size:10px;font-weight:850;cursor:pointer}
+.quranSessionCard button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+@media(max-width:640px){
+ .readingRecommendationCard.todayPrimaryCard{padding:20px}
+ .readingRecommendationCard.todayPrimaryCard h1{font-size:31px}
+ .todayCompletionStats{grid-template-columns:1fr 1fr}
+ .todayPrimaryTop{display:block}.todayPrimaryCheck{margin-bottom:10px}
+ .todayRouteOverview .premiumHeroTop{align-items:flex-start}
+ .todayRouteStats{display:grid;grid-template-columns:repeat(3,1fr)}
+ .todayRouteStats span{min-width:0}
+ .quranSessionCard{display:block}
+ .quranSessionCard>div:last-child{justify-content:flex-start;margin-top:10px}
+}
