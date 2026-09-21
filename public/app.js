@@ -127,7 +127,7 @@ async function loadGenericBook(id){
 let genericBookTotalsHydration=null;
 function hasPersistedBookProgress(bookId,state){
  const normalized=normalizeBookReaderState(state||{});
- return normalized.page>1||normalized.sessions.length>0||normalized.bookmarks.length>0||
+ return normalized.page>2||normalized.sessions.length>0||normalized.bookmarks.length>0||
    Object.keys(normalized.highlights||{}).length>0||Object.keys(normalized.notes||{}).length>0||
    S.library.lastBook===bookId;
 }
@@ -1046,7 +1046,15 @@ function renderIlimReader(id){
  const retryArabic=document.querySelector('#retryArabic');if(retryArabic)retryArabic.onclick=()=>{nawawiArabicError='';loadNawawiArabic().then(()=>renderIlimReader(h.id)).catch(()=>renderIlimReader(h.id))};
  document.querySelectorAll('[data-highlight-color]').forEach(b=>b.onclick=()=>{S.ilim.settings.highlightColor=b.dataset.highlightColor;save();renderIlimReader(h.id)});
  const customHighlight=document.querySelector('#customHighlightColor');if(customHighlight)customHighlight.oninput=()=>{S.ilim.settings.highlightColor=customHighlight.value;save()};
- document.querySelector('#ilimBack').onclick=()=>ilimGo('home');document.querySelector('#fontDown').onclick=()=>{S.ilim.settings.fontScale=Math.max(.9,Number(S.ilim.settings.fontScale||1)-.1);save();renderIlimReader(h.id)};document.querySelector('#fontUp').onclick=()=>{S.ilim.settings.fontScale=Math.min(1.5,Number(S.ilim.settings.fontScale||1)+.1);save();renderIlimReader(h.id)};document.querySelector('#focusReader').onclick=()=>{S.ilim.settings.focus=!S.ilim.settings.focus;save();renderIlimReader(h.id)};
+ document.querySelector('#ilimBack').onclick=()=>{
+   const active=S.library.recommendationMemory?.active;
+   if(active?.bookId==='kirk-hadis'&&active?.kind==='hadith'){
+     const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+     S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,at:new Date().toISOString()});
+     save();
+   }
+   ilimGo('home')
+ };document.querySelector('#fontDown').onclick=()=>{S.ilim.settings.fontScale=Math.max(.9,Number(S.ilim.settings.fontScale||1)-.1);save();renderIlimReader(h.id)};document.querySelector('#fontUp').onclick=()=>{S.ilim.settings.fontScale=Math.min(1.5,Number(S.ilim.settings.fontScale||1)+.1);save();renderIlimReader(h.id)};document.querySelector('#focusReader').onclick=()=>{S.ilim.settings.focus=!S.ilim.settings.focus;save();renderIlimReader(h.id)};
  document.querySelectorAll('[data-highlight]').forEach(sp=>sp.onclick=()=>{const [hid,si,idx]=sp.dataset.highlight.split(':');const txt=sentenceSplit(getHadis(hid).sections[Number(si)])[Number(idx)];addHadisHighlight(S.ilim,{hadisId:hid,sectionIndex:si,text:txt,date:today(),color:S.ilim.settings.highlightColor||'#e6c46f'});save();renderIlimReader(h.id)});
  document.querySelectorAll('[data-note-for]').forEach(b=>b.onclick=()=>{S.ilim.ui.noteFor=b.dataset.noteFor;save();renderIlimReader(h.id)});document.querySelector('#overallNote').onclick=()=>{S.ilim.ui.noteFor=`${h.id}:all`;save();renderIlimReader(h.id)};
  document.querySelectorAll('[data-note-tag]').forEach(b=>b.onclick=()=>{S.ilim.ui.noteTag=b.dataset.noteTag;save();renderIlimReader(h.id)});const cancel=document.querySelector('#cancelIlimNote');if(cancel)cancel.onclick=()=>{S.ilim.ui.noteFor=null;save();renderIlimReader(h.id)};const saveNote=document.querySelector('#saveIlimNote');if(saveNote)saveNote.onclick=()=>{const txt=document.querySelector('#ilimNoteText').value.trim();if(!txt)return;addHadisNote(S.ilim,{hadisId:saveNote.dataset.hadis,sectionIndex:saveNote.dataset.section==='all'?null:Number(saveNote.dataset.section),text:txt,date:today(),tag:S.ilim.ui.noteTag||'not'});S.ilim.ui.noteFor=null;S.ilim.ui.noteTag='not';save();renderIlimReader(h.id)};
@@ -1075,7 +1083,14 @@ function renderIlimReviews(){
    const h=getHadis(selected.hadisId),reveal=!!S.ilim.ui.reviewReveal,draft=S.ilim.ui.recallDraft||'',wave=selected.kind==='recovery'?'KISA GERİ ÇAĞIRMA':`${selected.wave}. GÜN TEKRARI`;
    app.innerHTML=`<section class="card"><button class="textButton" id="backReviews">← Tekrarlara dön</button><div class="eyebrow">${wave}</div><h1>Önce hafızandan getir.</h1><p class="lead">Özet görünmeden önce kendi cümleni kur. Amaç sınav olmak değil; neyin gerçekten sende kaldığını görmek.</p></section>
    <section class="card activeRecall"><div class="sourcePill">Hadis ${h.id} · ${esc(h.title)}</div><h2>${esc(recallPromptFor(h.id))}</h2>${!reveal?`<textarea id="recallDraft" rows="5" placeholder="Hatırladığın kadarıyla yaz…">${esc(draft)}</textarea><div class="actions"><button class="btn ghost" id="cantRecall">Hatırlayamıyorum</button><button class="btn primary" id="revealRecall">Cevabımı karşılaştır →</button></div>`:`<div class="yourRecall"><small>SENİN HATIRLADIĞIN</small><p>${draft?esc(draft):'<i>Bir cevap yazılmadı.</i>'}</p></div><div class="recallReveal"><small>KAYNAĞA DÖN</small><h3>${esc(h.meaning)}</h3><p>${esc(h.why)}</p><div class="sourcePill">${esc(h.source)}</div></div><p class="small">Şimdi kendini değerlendir. Bu değerlendirme “ilim puanı” değildir; yalnızca bir sonraki tekrar dozunu ayarlar.</p><div class="reviewButtons triple"><button data-recall-result="forgot">Hatırlayamadım</button><button data-recall-result="hard">Zor hatırladım</button><button data-recall-result="remembered">Hatırladım</button></div>`}</section>`;
-   document.querySelector('#backReviews').onclick=()=>{S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()};
+   document.querySelector('#backReviews').onclick=()=>{
+     const active=S.library.recommendationMemory?.active;
+     if(active?.bookId==='kirk-hadis'&&active?.kind==='hadith-review'){
+       const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+       S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,at:new Date().toISOString()});
+     }
+     S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()
+   };
    if(!reveal){const ta=document.querySelector('#recallDraft');document.querySelector('#revealRecall').onclick=()=>{S.ilim.ui.recallDraft=ta.value.trim();S.ilim.ui.reviewReveal=true;save();renderIlimReviews()};document.querySelector('#cantRecall').onclick=()=>{S.ilim.ui.recallDraft='';S.ilim.ui.reviewReveal=true;save();renderIlimReviews()}}
    else document.querySelectorAll('[data-recall-result]').forEach(b=>b.onclick=()=>{
      const result=b.dataset.recallResult;
@@ -1094,7 +1109,15 @@ function renderIlimReviews(){
  }
  const card=r=>{const h=getHadis(r.hadisId),k=knowledgeSignal(S.ilim,r.hadisId,today()),wave=r.kind==='recovery'?'Kısa geri çağırma':`${r.wave}. gün`;return `<button class="reviewStartCard" data-open-review="${r.id}"><div><small>${wave} · ${esc(r.dueDate)}</small><b>${esc(h?.title||'Hadis')}</b><p>${esc(recallPromptFor(r.hadisId))}</p></div><span class="knowledgeChip ${k.key}">${esc(k.label)}</span><i>›</i></button>`};
  app.innerHTML=`<section class="card"><button class="textButton" id="ilimHome">← İlim Rotası</button><div class="eyebrow">AKTİF GERİ ÇAĞIRMA</div><h1>Okuduğun şey geri gelsin.</h1><p class="lead">Önce hafızandan anlat, sonra kaynağı aç. 3. ve 7. gün tekrarları böylece sadece yeniden okumaya dönüşmez.</p></section><section class="card"><h2>Bugün</h2>${due.length?due.map(card).join(''):'<div class="emptyState">Bugün bekleyen tekrar yok.</div>'}</section><section class="card"><h3>Yaklaşanlar</h3>${upcoming.length?upcoming.map(r=>`<div class="upcomingReview"><span>${esc(r.dueDate)}</span><b>${esc(getHadis(r.hadisId)?.title||'Hadis')}</b><small>${r.kind==='recovery'?'geri çağırma':`${r.wave}. gün`}</small></div>`).join(''):'<p class="small">Henüz yaklaşan tekrar yok.</p>'}</section>`;
- document.querySelector('#ilimHome').onclick=()=>ilimGo('home');document.querySelectorAll('[data-open-review]').forEach(b=>b.onclick=()=>{S.ilim.ui.reviewOpenId=b.dataset.openReview;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()});
+ document.querySelector('#ilimHome').onclick=()=>{
+   const active=S.library.recommendationMemory?.active;
+   if(active?.bookId==='kirk-hadis'&&active?.kind==='hadith-review'){
+     const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+     S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,at:new Date().toISOString()});
+     save();
+   }
+   ilimGo('home')
+ };document.querySelectorAll('[data-open-review]').forEach(b=>b.onclick=()=>{S.ilim.ui.reviewOpenId=b.dataset.openReview;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()});
 }
 async function collectIlimNotebookEntries(){
   const entries=[];
