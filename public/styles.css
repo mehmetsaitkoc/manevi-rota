@@ -1749,3 +1749,99 @@ nav button:hover{transform:translateY(-1px)}
   .checkinActions{display:grid;grid-template-columns:1fr 1.15fr;gap:7px}
   .checkinActions .btn{width:100%;font-size:9px;padding:9px 7px}
 }
+
+
+/* Premium UX v2.2 — daily retention
+   Keep one dominant decision on Today and push secondary reader tools out of the reading path. */
+.todayPlanBar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:16px;
+  align-items:center;
+  padding:16px 18px;
+  border-radius:22px;
+  background:rgba(251,250,247,.92);
+  border:1px solid rgba(52,56,53,.10);
+  box-shadow:0 8px 24px rgba(28,31,29,.04);
+}
+.todayPlanMain{min-width:0}
+.todayPlanLine{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-top:3px}
+.todayPlanLine h2{
+  margin:0;
+  font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;
+  font-size:21px;
+  color:#222724;
+}
+.todayPlanLine>span{font-size:9px;font-weight:800;color:#7b7e79}
+.todayPlanProgress{
+  height:5px;
+  margin-top:9px;
+  border-radius:999px;
+  background:#e8e5de;
+  overflow:hidden;
+}
+.todayPlanProgress i{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#28332e,#ad874d);
+  transition:width .22s ease;
+}
+.todayPlanActions{display:flex;gap:6px}
+.todayPlanActions .btn{padding:8px 10px;border-radius:11px;font-size:9px;white-space:nowrap}
+.todayPlanActions .btn.primary{box-shadow:none}
+
+.genericBookUtilityDrawer{
+  margin:0 0 7px;
+  border:1px solid rgba(52,56,53,.10);
+  border-radius:13px;
+  background:rgba(251,250,247,.82);
+  overflow:hidden;
+}
+.genericBookUtilityDrawer>summary{
+  list-style:none;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:8px 10px;
+  cursor:pointer;
+  color:#59605b;
+}
+.genericBookUtilityDrawer>summary::-webkit-details-marker{display:none}
+.genericBookUtilityDrawer>summary>span{
+  width:25px;height:25px;
+  display:grid;place-items:center;
+  border-radius:8px;
+  background:#efede7;
+  color:#5b675f;
+  font-size:15px;
+}
+.genericBookUtilityDrawer>summary b{font-size:10px;color:#414844}
+.genericBookUtilityDrawer>summary small{font-size:8px;color:#93958f}
+.genericBookUtilityDrawer[open]>summary{
+  border-bottom:1px solid rgba(52,56,53,.08);
+  background:#f4f1eb;
+}
+.genericBookUtilityBody{padding:8px}
+.genericBookUtilityDrawer .genericBookSearch,
+.genericBookUtilityDrawer .genericBookSectionJump{margin-bottom:0}
+.genericBookUtilityDrawer .genericBookSearchResults{margin:8px 0 0}
+
+@media(max-width:640px){
+  .todayPlanBar{grid-template-columns:1fr;padding:12px 13px;gap:9px;border-radius:18px}
+  .todayPlanLine{justify-content:space-between;gap:7px}
+  .todayPlanLine h2{font-size:18px}
+  .todayPlanLine>span{font-size:8px}
+  .todayPlanProgress{margin-top:7px;height:4px}
+  .todayPlanActions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .todayPlanActions .btn{width:100%;padding:7px 8px;font-size:8.5px}
+  .genericBookUtilityDrawer>summary{padding:7px 8px}
+  .genericBookUtilityDrawer>summary>span{width:23px;height:23px;font-size:14px}
+  .genericBookUtilityDrawer>summary b{font-size:9px}
+  .genericBookUtilityDrawer>summary small{font-size:7px}
+  .genericBookUtilityBody{padding:6px}
+  .genericBookUtilityDrawer .genericBookSearch{margin-bottom:0}
+  .genericBookUtilityDrawer .genericBookSectionJump{margin-top:6px}
+  .genericBookUtilityDrawer .genericBookSearchResults{max-height:260px}
+}
