@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#0f3b31" />
+<meta name="theme-color" content="#171b19" />
 <meta name="description" content="Manevî Rota — sana göre şekillenen manevî düzen ve ilim yolculuğu." />
 <title>Manevî Rota — Sana göre şekillenen ilim yolculuğu</title>
 <link rel="stylesheet" href="public/styles.css" />
@@ -36,6 +36,25 @@ linear-gradient(180deg,#efe4cf 0%,#f7f1e7 54%,#ede2cf 100%);color:var(--intro-in
 .mr-noteLine{text-align:center;color:#77746b;font-size:10px;margin-top:16px;letter-spacing:.04em}
 @media(max-width:820px){.mr-toplinks{display:none}.mr-stage{grid-template-columns:1fr;max-width:390px}.mr-phone.mid{transform:none}.mr-phone:not(.mid){display:none}.mr-features{grid-template-columns:1fr 1fr}.mr-feature:nth-child(2){border-right:0}.mr-feature:nth-child(-n+2){border-bottom:1px solid rgba(103,93,63,.18)}.mr-screen,.mr-phone.mid .mr-screen{min-height:555px}.mr-hero{padding-top:18px}}
 @media(max-width:480px){.mr-intro-inner{width:min(100% - 20px,1180px)}.mr-hero h1{font-size:55px}.mr-hero .sub{font-size:20px}.mr-features{margin-top:54px}.mr-feature{padding:16px 9px}.mr-feature b{font-size:15px}}
+
+/* editorial-v1 — quieter luxury landing */
+:root{--intro-bg:#efede7;--intro-paper:#faf8f3;--intro-ink:#171b19;--intro-gold:#a57b3e;--intro-deep:#171d1a}
+.mr-intro{background:
+radial-gradient(circle at 50% -12%,rgba(165,123,62,.18),transparent 31rem),
+linear-gradient(180deg,#efede7 0%,#f8f6f1 52%,#ebe8df 100%);color:var(--intro-ink)}
+.mr-intro:before{border-color:rgba(165,123,62,.18);box-shadow:0 0 0 28px rgba(255,255,255,.12),0 0 0 29px rgba(165,123,62,.06)}
+.mr-mark{border-radius:14px;background:#171d1a;border-color:rgba(165,123,62,.5);color:#c8a364;box-shadow:0 14px 40px rgba(18,22,20,.14)}
+.mr-brand span{color:#171b19;letter-spacing:-.02em}.mr-toplinks{color:#666a65}.mr-toplinks a:hover{color:#171b19}
+.mr-hero h1{color:#171b19;text-shadow:none;letter-spacing:-.06em}.mr-hero .sub{color:#343936}.mr-hero .desc{color:#70736f}
+.mr-cta{background:#171d1a;border-color:#171d1a;box-shadow:0 14px 35px rgba(18,22,20,.18)}.mr-cta.secondary{background:rgba(250,248,243,.75);color:#252a27;border-color:rgba(24,28,25,.12)}
+.mr-mantra b{color:#272c29}.mr-dot{color:#a57b3e}
+.mr-phone{background:#171a18;border-color:#292d2a;box-shadow:0 30px 80px rgba(29,27,22,.18),inset 0 0 0 1px rgba(255,255,255,.05)}
+.mr-screen{background:#faf8f3}.mr-screen.dark{background:linear-gradient(180deg,#171d1a 0,#1d2823 31%,#f8f5ee 31%)}
+.mr-mini-card{border-color:rgba(25,30,27,.08);box-shadow:0 10px 30px rgba(28,32,29,.05)}
+.mr-ico{background:#222925}.mr-check{background:#3a6657}
+.mr-book-title,.mr-stat b{color:#202623}.mr-bottom{background:rgba(250,248,243,.72);border-color:rgba(165,123,62,.20)}
+.mr-bottom h2{color:#202522}
+
 </style>
 </head>
 <body>
@@ -126,15 +145,15 @@ linear-gradient(180deg,#efe4cf 0%,#f7f1e7 54%,#ede2cf 100%);color:var(--intro-in
   </div>
 </section>
 
-<div id="productApp" hidden>
+<div id="productApp" data-ui="editorial-v1" hidden>
   <div class="shell"><main id="app"></main><div class="notice">Manevî Rota ibadetleri puanlamaz veya manevî değer biçmez; yalnızca kişisel rutin planlamana ve kendi tuttuğun kayıtlara yardımcı olur.</div></div>
   <nav id="nav" class="hidden" aria-label="Ana menü">
-    <button data-view="today">🌿<br><small>Bugün</small></button>
-    <button data-view="prayer">🕌<br><small>Namaz</small></button>
-    <button data-view="ilim">📚<br><small>İlim</small></button>
-    <button data-view="checkin">🧭<br><small>Durum</small></button>
-    <button data-view="week">📊<br><small>Analiz</small></button>
-    <button data-view="profile">👤<br><small>Profil</small></button>
+    <button data-view="today"><span class="navGlyph" aria-hidden="true">⌂</span><small>Bugün</small></button>
+    <button data-view="prayer"><span class="navGlyph" aria-hidden="true">◷</span><small>Namaz</small></button>
+    <button data-view="ilim"><span class="navGlyph" aria-hidden="true">▤</span><small>İlim</small></button>
+    <button data-view="checkin"><span class="navGlyph" aria-hidden="true">◇</span><small>Durum</small></button>
+    <button data-view="week"><span class="navGlyph" aria-hidden="true">↗</span><small>Analiz</small></button>
+    <button data-view="profile"><span class="navGlyph" aria-hidden="true">○</span><small>Profil</small></button>
   </nav>
 </div>
 

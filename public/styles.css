@@ -746,3 +746,526 @@ nav button:hover{transform:translateY(-1px)}
  .quranSessionCard{display:block}
  .quranSessionCard>div:last-child{justify-content:flex-start;margin-top:10px}
 }
+
+
+/* Premium UX v1 — editorial ink system */
+:root{
+  --bg:#efede7;
+  --paper:#fbfaf7;
+  --ink:#181c1a;
+  --muted:#6b6e69;
+  --brand:#1d2924;
+  --brand2:#355d50;
+  --soft:#eeece6;
+  --line:#dedbd3;
+  --gold:#a57b3e;
+  --shadow:0 20px 60px rgba(28,31,29,.075);
+  --shadow-soft:0 10px 28px rgba(28,31,29,.045);
+  --ink-deep:#151917;
+  --bronze:#b08a50;
+  --cream:#f6f2e9;
+}
+html{background:var(--bg)}
+body{
+  background:
+    radial-gradient(circle at 50% -8%,rgba(165,123,62,.14),transparent 30rem),
+    linear-gradient(180deg,#efede7 0,#f5f3ee 44rem,#efede7 100%);
+  color:var(--ink);
+  letter-spacing:-.004em;
+}
+.shell{width:min(860px,100%);padding:20px 14px 126px}
+.card{
+  background:rgba(251,250,247,.95);
+  border:1px solid rgba(52,56,53,.10);
+  border-radius:28px;
+  box-shadow:var(--shadow-soft);
+}
+h1,h2,.libraryHero h1,.continueBody h2,.starterBookInfo>b,.starterStageHead>div:nth-child(2)>b,
+.hadisReader>h1,.genericBookTitleCard h1,.quranSurahHead h1,.periodInsight h2{
+  font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;
+}
+.eyebrow{color:var(--gold);font-size:10px;letter-spacing:.14em}
+.btn,.opt,.chip,.rating{border-color:rgba(45,49,46,.13)}
+.btn{
+  border-radius:14px;
+  font-weight:780;
+  letter-spacing:-.01em;
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease;
+}
+.btn.primary{
+  background:var(--ink-deep);
+  border-color:var(--ink-deep);
+  color:#fff;
+  box-shadow:0 8px 20px rgba(21,25,23,.12);
+}
+.btn.primary:hover{box-shadow:0 11px 26px rgba(21,25,23,.16)}
+.btn.ghost{background:#f2f0eb;color:#343a36}
+.textButton{color:#2a5146}
+:focus-visible{outline:3px solid rgba(165,123,62,.34);outline-offset:3px}
+
+/* navigation: monochrome, tactile and product-like */
+nav{
+  bottom:12px;
+  width:min(820px,calc(100% - 20px));
+  grid-template-columns:repeat(6,1fr);
+  gap:4px;
+  padding:6px;
+  border-radius:24px;
+  background:rgba(21,25,23,.955);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 22px 58px rgba(17,20,18,.24);
+  backdrop-filter:blur(22px) saturate(120%);
+}
+nav button{
+  min-width:0;
+  padding:8px 2px 7px;
+  color:#a9ada8;
+  border-radius:18px;
+  font-size:inherit;
+  transition:background .16s ease,color .16s ease,transform .16s ease;
+}
+nav button .navGlyph{
+  width:28px;height:27px;
+  margin:0 auto 2px;
+  display:grid;place-items:center;
+  font:700 18px/1 Iowan Old Style,Georgia,serif;
+  color:#d1cec5;
+}
+nav button small{display:block;font-size:9px;letter-spacing:.01em;color:inherit}
+nav button.active{
+  background:#f6f2e9;
+  color:#171b19;
+  box-shadow:0 8px 18px rgba(0,0,0,.16);
+}
+nav button.active .navGlyph{color:#8d6735}
+nav button:hover{transform:translateY(-1px)}
+.notice{color:#777a75;font-size:10px;line-height:1.4;padding:0 5px 12px}
+
+/* Today: one editorial decision first */
+.readingRecommendationCard.todayPrimaryCard{
+  position:relative;
+  overflow:hidden;
+  padding:27px;
+  background:
+    radial-gradient(circle at 88% -12%,rgba(186,148,88,.22),transparent 16rem),
+    linear-gradient(145deg,#151a18 0%,#1d2924 62%,#26372f 100%);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:30px;
+  box-shadow:0 26px 70px rgba(20,27,23,.20);
+}
+.readingRecommendationCard.todayPrimaryCard:after{
+  content:"✦";
+  position:absolute;right:20px;top:15px;
+  color:rgba(203,171,116,.32);
+  font-size:32px;
+  font-family:Georgia,serif;
+}
+.readingRecommendationCard.todayPrimaryCard .eyebrow{color:#c5a466}
+.readingRecommendationCard.todayPrimaryCard h1{
+  max-width:620px;
+  font-size:clamp(34px,6vw,49px);
+  letter-spacing:-.045em;
+  color:#fff;
+}
+.readingRecommendationCard.todayPrimaryCard p{color:rgba(242,242,237,.70);max-width:610px}
+.readingRecommendationLevel{
+  background:rgba(255,255,255,.07)!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+  color:#ede9df!important;
+  box-shadow:none!important;
+}
+.readingRecommendationLocation{
+  margin-top:18px;
+  background:rgba(255,255,255,.065)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:18px!important;
+  padding:14px 15px!important;
+}
+.readingRecommendationLocation small{color:#caa968!important}
+.readingRecommendationLocation b{color:#fff!important;font-size:15px}
+.readingRecommendationWhy{
+  border-top-color:rgba(255,255,255,.12)!important;
+  border-bottom-color:rgba(255,255,255,.12)!important;
+}
+.readingRecommendationWhy summary,.readingRecommendationWhy li{color:rgba(244,244,239,.78)!important}
+.readingRecommendationActions .btn.primary{
+  background:#f8f5ee;border-color:#f8f5ee;color:#171b19;
+  box-shadow:none;
+}
+.readingRecommendationAlt{color:#d9d6ce!important}
+.todayPrimaryCard.completed{
+  background:linear-gradient(145deg,#f9f7f1,#f2eee5);
+  border-color:rgba(165,123,62,.18);
+  border-radius:30px;
+  box-shadow:var(--shadow);
+}
+.todayPrimaryCheck{background:#202a25;box-shadow:none;border-radius:50%}
+.todayPrimaryCard.completed h1{color:#1c211e}
+.todayCompletionStats span{
+  background:rgba(255,255,255,.78);
+  border-color:rgba(44,48,45,.10);
+  border-radius:16px;
+}
+.todayCompletionStats b{color:#252b27}
+.todayYesterdayCard{
+  padding:14px 17px;
+  border-radius:22px;
+  background:rgba(250,248,243,.78);
+  border-color:rgba(45,49,46,.08);
+}
+.todayYesterdayIcon{
+  width:36px;height:36px;flex-basis:36px;
+  border-radius:50%;
+  background:#e9e6dd;color:#40564d;
+  font-size:16px;
+}
+.todayYesterdayCard b{color:#252a27;font-size:15px}
+.premiumTodayHero.todayRouteOverview{
+  background:rgba(250,248,243,.74);
+  border-color:rgba(45,49,46,.09);
+  border-radius:25px;
+  box-shadow:none;
+}
+.todayRouteOverview h2{color:#202522}
+.todayRouteOverview .heroProgress{
+  border-color:rgba(36,40,37,.12);
+  box-shadow:inset 0 0 0 6px rgba(36,40,37,.025);
+}
+.todayRouteOverview .heroProgress b{color:#222824}
+.todayRouteStats span{
+  background:rgba(255,255,255,.66);
+  border-color:rgba(45,49,46,.09);
+  border-radius:13px;
+}
+.todayRouteStats b{color:#2c312e}
+
+/* task hierarchy: quieter cards, less emoji noise */
+.slotGroup{margin-bottom:22px}
+.slotHead{color:#363b38;padding-left:3px}
+.slotHead>span{filter:grayscale(1);opacity:.58;font-size:18px}
+.slotHead b{font-family:Iowan Old Style,Georgia,serif;font-size:18px}
+.slotHead small{font-size:10px}
+.task.premiumTask{
+  padding:16px;
+  border-radius:20px;
+  border-color:rgba(43,47,44,.09);
+  background:rgba(251,250,247,.92);
+  box-shadow:0 8px 24px rgba(27,30,28,.035);
+}
+.taskTop{align-items:start}
+.ico{
+  width:40px;height:40px;
+  display:grid;place-items:center;
+  border-radius:13px;
+  background:#202925;
+  filter:grayscale(1);
+  font-size:17px;
+  box-shadow:none;
+}
+.taskTitleLine h3{font-family:Iowan Old Style,Georgia,serif;font-size:18px;color:#242925}
+.taskTitleLine>span{background:#eeebe3!important;color:#6a604f!important}
+.reason{color:#747772}
+.method{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#f2eee3;
+  color:#8c6835;
+  font-size:10px;
+}
+.taskDeepLink{background:#e7ebe7;color:#2d4d43;border-radius:10px}
+.toggle{border-color:#b9b7af;background:#fff}
+.task.done{opacity:.58}
+.task.done .toggle{background:#252d29;border-color:#252d29}
+.taskWhy summary{color:#77736b!important}
+.todayEngineDetails,.todayFeedbackCard{box-shadow:none}
+.todayFeedbackCard{background:rgba(250,248,243,.76)}
+.dayFeedback .rating{background:#fff;border-color:rgba(43,47,44,.12);text-align:center}
+.dayFeedback .rating.sel{background:#202724;color:#fff;border-color:#202724}
+
+/* library: editorial hierarchy instead of stacked green panels */
+.libraryHero{
+  padding:24px;
+  background:
+    radial-gradient(circle at 92% 0,rgba(176,138,80,.16),transparent 14rem),
+    #f8f6f0;
+  border-color:rgba(45,49,46,.09);
+  border-radius:30px;
+}
+.libraryHero:after{border-color:rgba(165,123,62,.10)}
+.libraryHero h1{color:#1b201d;font-size:clamp(37px,6vw,52px);letter-spacing:-.045em}
+.libraryHero .lead{color:#6f726d}
+.libraryHero .ilimProgressRing{
+  background:conic-gradient(#a57b3e calc(var(--p)*1%),#e6e1d8 0);
+}
+.libraryHero .ilimProgressRing:before{background:#f8f6f0}
+.libraryHero .ilimProgressRing b{color:#252a27}
+.libraryHero .ilimProgressRing span{color:#77746d}
+.libraryV2Rail{
+  padding:16px 18px;
+  border-radius:24px;
+  background:#1c2420;
+  border-color:#1c2420;
+  box-shadow:0 18px 48px rgba(23,29,26,.12);
+}
+.libraryRailHeader b{font-size:19px}
+.libraryRailStats span{background:rgba(255,255,255,.055)}
+.libraryRailStep{border-radius:14px!important}
+.libraryLevelCard{
+  padding:22px;
+  border-radius:26px;
+  background:#f8f5ed;
+  border:1px solid rgba(165,123,62,.18);
+  color:#202522;
+  box-shadow:var(--shadow-soft);
+}
+.libraryLevelCard .eyebrow{color:#9a7238}
+.libraryLevelCard h2{color:#202522}
+.libraryLevelCard p,.libraryLevelCard .small{color:#6f726d}
+.libraryLevelBadge{
+  background:#fff;
+  border-color:rgba(45,49,46,.10);
+  color:#242925;
+}
+.libraryLevelBadge span{color:#777a75}
+.libraryLevelProgress{background:#e6e2d9}
+.libraryLevelProgress i{background:#a57b3e}
+.libraryLevelMeta span{background:#ede9df;color:#5c605b}
+.libraryLevelCard .btn{background:#1b211e;border-color:#1b211e;color:#fff}
+.libraryAwarenessGoals{background:#f0ece3!important;border-color:rgba(45,49,46,.08)!important}
+.libraryAwarenessGoals li{color:#4f544f}
+.continueReadingCard{
+  grid-template-columns:104px 1fr;
+  background:linear-gradient(145deg,#171d1a,#24312b);
+  border-radius:28px;
+  box-shadow:0 22px 58px rgba(20,26,23,.15);
+}
+.continueCover{background:#111613}
+.continueCover span{border-radius:50%;border-color:rgba(203,171,116,.36);color:#c7a362}
+.continueBody .eyebrow{color:#c7a362}
+.continueBody p{color:#bfc5c1}
+.continueMeta span{background:rgba(255,255,255,.055)}
+.continueBody .btn.primary{background:#f7f3ea;color:#171b19;border-color:#f7f3ea}
+.libraryMiniCard{
+  border-color:rgba(45,49,46,.09);
+  background:rgba(251,250,247,.90);
+  border-radius:20px;
+  box-shadow:none;
+}
+.libraryMiniCard.todayFocus{background:#f3eee3}
+.libraryIcon{background:#202824;color:#fff;border-radius:50%}
+.libraryMiniCard button{background:#ece9e1;color:#343a36}
+.starterStage{
+  padding:17px;
+  border-color:rgba(45,49,46,.09);
+  border-radius:24px;
+  background:rgba(251,250,247,.70);
+}
+.starterStage.current{border-color:rgba(165,123,62,.32);box-shadow:0 12px 34px rgba(31,34,32,.05)}
+.starterStage.complete{background:#f4f4ef;border-color:rgba(53,90,75,.18)}
+.starterStageNumber{background:#222925;box-shadow:none}
+.starterStageHead>div:nth-child(2)>b{color:#252a27;font-size:18px}
+.starterStageHead>div:nth-child(2)>p{color:#73766f}
+.starterStageStatus.current{background:#232a26}
+.starterBookCard{
+  border-color:rgba(45,49,46,.10)!important;
+  border-radius:18px!important;
+  background:#fdfcf9!important;
+  box-shadow:none!important;
+}
+.starterBookCard:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(27,30,28,.055)!important}
+.starterBookCard.completed{background:#f3f4ef!important;border-color:rgba(55,88,74,.18)!important}
+.starterBookOrder{background:#ece8df!important;color:#595e59!important}
+.starterBookCard.completed .starterBookOrder{background:#2d4d42!important;color:#fff!important}
+.starterBookCover{box-shadow:none!important}
+.starterBookInfo>b{color:#232825;font-size:17px}
+
+/* reader: calm paper, stronger chrome, book-like typography */
+.readerTop{
+  margin:0 0 12px;
+  padding:8px;
+  border:1px solid rgba(45,49,46,.09);
+  border-radius:18px;
+  background:rgba(248,247,243,.91);
+  box-shadow:0 8px 24px rgba(25,29,26,.045);
+  backdrop-filter:blur(18px);
+}
+.readerBack,.readerTools button{
+  background:#fff;
+  color:#2e3732;
+  border:1px solid rgba(45,49,46,.09);
+  border-radius:11px;
+}
+.genericBookNav,.quranNavBar{
+  border-color:rgba(45,49,46,.09)!important;
+  background:rgba(249,248,244,.84)!important;
+  box-shadow:none!important;
+}
+.genericBookTitleCard{
+  background:linear-gradient(145deg,#171d1a,#27352e)!important;
+  border-radius:26px!important;
+  box-shadow:0 18px 46px rgba(20,26,23,.13)!important;
+}
+.genericBookTitleCard .eyebrow{color:#c6a363!important}
+.genericBookTitleCard h1{color:#fff!important;letter-spacing:-.035em}
+.genericBookTitleCard p,.genericBookTitleCard small{color:#c9cfcb!important}
+.genericBookSessionCard,.quranSessionCard{
+  border-color:rgba(165,123,62,.18);
+  background:#f4f0e7;
+  border-radius:20px;
+}
+.genericBookSessionCard button,.quranSessionCard button{border-radius:12px}
+.genericBookSessionCard button.primary,.quranSessionCard button.primary{
+  background:#202724;border-color:#202724;color:#fff;
+}
+.genericBookMarkupBar,.quranMarkupBar{
+  background:#f7f5ef!important;
+  border-color:rgba(45,49,46,.08)!important;
+}
+.genericBookPaper{
+  border:1px solid rgba(45,49,46,.08);
+  background:#fdfbf6;
+  border-radius:24px;
+  box-shadow:0 16px 42px rgba(27,30,28,.045);
+}
+.genericBookPaper p{
+  color:#2c302d;
+  font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;
+  line-height:1.88;
+}
+.genericBookPaper h2{color:#202522}
+.genericBookPageMarker{color:#9a7238}
+.genericBookCompletion{background:#f8f5ee;border-color:rgba(45,49,46,.10);border-radius:22px}
+.genericBookCompletion b{color:#202522}
+.quranReaderShell,.hadisReader{
+  background:#fdfbf6;
+  border:1px solid rgba(45,49,46,.08);
+  border-radius:28px;
+  box-shadow:0 18px 50px rgba(27,30,28,.045);
+}
+.quranSurahHead h1{color:#202522}
+.quranAyah{
+  border-bottom-color:rgba(45,49,46,.08)!important;
+}
+.quranAyah p{
+  color:#252a27;
+  line-height:2;
+}
+.quranAyah.savedAyah{background:#f5f1e7!important}
+.hadisReader>h1{color:#202522}
+.meaningCard{background:#1c2420;color:#f8f5ee}
+.meaningCard p{color:#f3efe6}
+.whyCard,.reflectionCard{background:#f1ede4}
+.recallReveal{background:#1c2420}
+
+/* progress: data first, less “green dashboard” */
+.journeyHero{
+  background:linear-gradient(145deg,#171d1a,#26352e)!important;
+  border-radius:30px!important;
+  box-shadow:0 22px 60px rgba(20,26,23,.16)!important;
+}
+.journeyHero .eyebrow{color:#c7a362!important}
+.journeyRange{background:rgba(255,255,255,.07)!important}
+.journeyRange button.sel{background:#f7f3e9!important;color:#171b19!important}
+.journeyChartCard{background:#f8f6ef!important;border-color:rgba(45,49,46,.08)!important}
+.journeyBarTrack{background:#e8e4dc!important}
+.journeyBarTrack i{background:linear-gradient(180deg,#6e8d80,#304f44)!important}
+.journeyMetricGrid>div{
+  background:#fbfaf7!important;
+  border-color:rgba(45,49,46,.08)!important;
+  box-shadow:none!important;
+}
+.periodInsight{background:#f8f6f0;border-color:rgba(45,49,46,.08)}
+.periodInsightRow{background:#eeece6!important}
+.periodInsightRow>span{background:#202824!important}
+.progressDetails{box-shadow:none;background:rgba(250,248,243,.76)}
+
+/* prayer, check-in and profile use the same material language */
+.prayerHero{
+  background:linear-gradient(145deg,#171d1a,#293a32);
+  border-radius:30px;
+  box-shadow:0 22px 60px rgba(20,26,23,.16);
+}
+.prayerSetup,.qadaCard,.sourceCard,.onboardingCard,.pilotCard{
+  background:rgba(251,250,247,.94);
+  border-color:rgba(45,49,46,.09);
+}
+.prayerTime{background:#f0eee8}
+.prayerTime.next{background:#e7ebe6;border-color:#c9d6cf}
+.qadaSummary>div{background:#eeece6}
+.switch.on{background:#26332d}
+.analysisMark{background:#202824;box-shadow:0 14px 38px rgba(20,26,23,.16)}
+.analysisStep.active{background:#eeece6}
+.analysisStep.active>span{background:#202824}
+.engineGrid>div,.explain,.sourceNote,.privacyNote{background:#eeece6}
+
+/* compact mobile polish */
+@media(max-width:640px){
+  .shell{padding:14px 10px 122px}
+  .card{border-radius:24px}
+  .readingRecommendationCard.todayPrimaryCard{padding:22px;border-radius:27px}
+  .readingRecommendationCard.todayPrimaryCard h1{font-size:34px}
+  .todayYesterdayCard{border-radius:20px}
+  .premiumTodayHero.todayRouteOverview{padding:18px;border-radius:23px}
+  .todayRouteStats{gap:6px}
+  .todayRouteStats span{padding:8px}
+  .task.premiumTask{padding:14px}
+  .ico{width:36px;height:36px;border-radius:12px}
+  .slotHead b{font-size:17px}
+  .libraryHero{padding:20px;border-radius:26px}
+  .libraryHero h1{font-size:37px}
+  .libraryV2Rail{padding:15px;border-radius:22px}
+  .libraryLevelCard{padding:18px;border-radius:24px}
+  .continueReadingCard{grid-template-columns:76px 1fr;border-radius:24px}
+  .continueCover{padding:13px}
+  .continueCover span{width:46px;height:46px}
+  .continueBody{padding:16px}
+  .continueBody h2{font-size:24px}
+  .starterStage{padding:13px;border-radius:20px}
+  .starterStageHead{grid-template-columns:34px 1fr auto}
+  .starterStageNumber{width:34px;height:34px;border-radius:11px}
+  .readerTop{border-radius:16px}
+  .genericBookPaper,.quranReaderShell,.hadisReader{border-radius:22px}
+  nav{width:calc(100% - 16px);bottom:8px;border-radius:22px}
+  nav button{padding:7px 0 6px}
+  nav button .navGlyph{font-size:17px}
+  nav button small{font-size:8.5px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation-duration:.001ms!important;animation-iteration-count:1!important}
+}
+
+
+/* Premium UX v1.1 — progress contrast repair */
+.progressHero.premiumProgressHero{
+  background:
+    radial-gradient(circle at 90% 4%,rgba(176,138,80,.18),transparent 16rem),
+    linear-gradient(145deg,#171d1a 0%,#223029 100%);
+  color:#fff;
+  border-color:rgba(255,255,255,.07);
+  box-shadow:0 22px 60px rgba(20,26,23,.16);
+}
+.progressHero.premiumProgressHero .eyebrow{color:#c7a362}
+.progressHero.premiumProgressHero h1{color:#fff}
+.progressHero.premiumProgressHero .lead{color:#c8d0cc}
+.progressHero.premiumProgressHero .progressConfidence{
+  background:rgba(255,255,255,.07);
+  border-color:rgba(255,255,255,.10);
+  color:#e9ece9;
+}
+.progressHero.premiumProgressHero .progressTabs{background:rgba(255,255,255,.065)}
+.progressHero.premiumProgressHero .progressTabs button{color:#bdc5c1}
+.progressHero.premiumProgressHero .progressTabs button.active{
+  background:#f7f3ea;
+  color:#171b19;
+  box-shadow:none;
+}
+.progressHero.premiumProgressHero .journeyChartCard{
+  background:#f8f6ef!important;
+  color:#202522;
+  border-color:rgba(255,255,255,.08)!important;
+}
+.progressHero.premiumProgressHero .journeyChartHead b{color:#202522}
+.progressHero.premiumProgressHero .journeyChartHead>span{color:#777a75}
