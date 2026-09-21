@@ -3208,3 +3208,44 @@ nav button:hover{transform:translateY(-1px)}
   color:#849194!important;
   border-color:rgba(255,255,255,.05)!important;
 }
+
+
+/* Premium UI v3.6 — Today micro-surfaces and completion polish */
+#productApp[data-design="premium-night-v3"] .todayCompletionStats>span{
+  background:#122534!important;
+  border:1px solid rgba(216,181,109,.10)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#productApp[data-design="premium-night-v3"] .todayCompletionStats b{color:#ead8b1!important}
+#productApp[data-design="premium-night-v3"] .todayCompletionStats small{color:#7d898c!important}
+#productApp[data-design="premium-night-v3"] .taskTitleLine>span{
+  background:rgba(216,181,109,.09)!important;
+  color:#ddbf7a!important;
+  border:1px solid rgba(216,181,109,.13)!important;
+}
+#productApp[data-design="premium-night-v3"] .premiumTask .method{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(216,181,109,.075)!important;
+  color:#d5b775!important;
+  border:1px solid rgba(216,181,109,.11);
+}
+#productApp[data-design="premium-night-v3"] .premiumTask .taskWhy summary{color:#7f8c8e}
+#productApp[data-design="premium-night-v3"] .premiumTask .toggle{
+  background:#132533!important;
+  border-color:rgba(216,181,109,.18)!important;
+  color:#748184!important;
+}
+#productApp[data-design="premium-night-v3"] .premiumTask.done .toggle{
+  background:linear-gradient(135deg,#dfc27d,#b88b44)!important;
+  border-color:#d1ab64!important;
+  color:#10191b!important;
+}
+#productApp[data-design="premium-night-v3"] .todayFeedbackCard{
+  background:linear-gradient(155deg,rgba(15,30,44,.94),rgba(8,20,32,.96))!important;
+}
+#productApp[data-design="premium-night-v3"] .todayFeedbackCard h3{color:#e9dfcf}
+#productApp[data-design="premium-night-v3"] .todayFeedbackCard p{color:#879396}
