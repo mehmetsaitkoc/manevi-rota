@@ -153,6 +153,12 @@ jobs:
             if(todayPlanBox&&todayPlanBox.height>150)throw new Error('V2.2 Today plan summary became too tall on 390px mobile');
             const editorialUi=await page.getAttribute('#productApp','data-ui');
             if(editorialUi!=='editorial-v1')throw new Error('Premium editorial UI marker missing');
+            const designUi=await page.getAttribute('#productApp','data-design');
+            if(designUi!=='premium-night-v3')throw new Error('Premium night v3 design marker missing');
+            const homeHero=page.locator('.homeNightHero[data-ui="premium-home-v3"]');
+            if(await homeHero.count()!==1)throw new Error('Premium home journey hero missing');
+            const homeHeroText=await homeHero.innerText();
+            if(!homeHeroText.includes('Manevî Rotan')||!homeHeroText.includes('Her güzel yolculuk'))throw new Error('Premium home hero copy regressed');
             const navGlyphs=await page.locator('#nav .navGlyph').count();
             if(navGlyphs!==6)throw new Error('Premium navigation must use six monochrome glyphs');
             await page.waitForFunction((k)=>Number(JSON.parse(localStorage.getItem(k)||'{}').library?.books?.['islam-dini']?.totalPages||0)>0,key,{timeout:10000});
@@ -238,7 +244,14 @@ jobs:
             await page.screenshot({path:'visual-review/02-ilim.png',fullPage:true});
 
             const shelfCount=await page.locator('[data-starter-book]').count();
-            if(shelfCount!==10)throw new Error('Starter library must render exactly 10 works, got '+shelfCount);
+            if(shelfCount!==10)throw new Error('Starter library must render exactly 10 catalog works, got '+shelfCount);
+            const readyShelfCount=await page.locator('[data-starter-book].ready').count();
+            const pendingShelfCount=await page.locator('[data-starter-book].pending').count();
+            if(readyShelfCount!==9||pendingShelfCount!==1)throw new Error('Premium Ilim route must expose 9 ready works and 1 source-pending work, got '+readyShelfCount+' ready / '+pendingShelfCount+' pending');
+            const premiumLibraryUi=await page.getAttribute('.premiumLibraryHero','data-ui');
+            if(premiumLibraryUi!=='premium-library-v3')throw new Error('Premium Ilim route marker missing');
+            const premiumLibraryText=await page.locator('.premiumLibraryHero').innerText();
+            if(!premiumLibraryText.includes('Dokuz hazır eser'))throw new Error('Premium Ilim route ready-library headline missing');
             const starterStages=await page.locator('[data-starter-stage]').count();
             if(starterStages!==5)throw new Error('Starter library must render five reading levels, got '+starterStages);
             await page.waitForSelector('.libraryLevelCard',{timeout:5000});
@@ -457,6 +470,10 @@ jobs:
             },key);
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#app .pilotCard',{timeout:10000});
+            const profileHero=page.locator('.profileJourneyHero[data-ui="premium-profile-v3"]');
+            if(await profileHero.count()!==1)throw new Error('Premium profile journey hero missing');
+            const profileHeroText=await profileHero.innerText();
+            if(!profileHeroText.includes('YOLCULUĞUN')||!profileHeroText.includes('kayıtlı gün'))throw new Error('Premium profile journey summary regressed');
             await page.screenshot({path:'visual-review/08-profile-pilot-off.png',fullPage:true});
             page.once('dialog',dialog=>dialog.accept());
             await page.click('#pilotToggle');
