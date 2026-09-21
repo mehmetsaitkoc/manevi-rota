@@ -83,14 +83,19 @@ jobs:
               onboardStep:7,onboardDone:true,
               profile:{
                 rhythm:'steady',baseMinutes:20,quranLevel:'regular',reading:'regular',
-                priorities:['quran','reading','learning'],prayerTracking:false,
+                priorities:['reading'],prayerTracking:false,
                 blocker:'variable',pace:'balanced',slotOverrides:{},slotSuggestionSnooze:{}
               },
               daily:{},
               view:'today',
               prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},
               qada:{},
-              ilim:{}
+              ilim:{},
+              library:{
+                books:{'islam-dini':{page:120}},
+                lastBook:'islam-dini',
+                recommendationMemory:{active:null,history:[]}
+              }
             };
             state.daily[iso]={checkin:{minutes:20,energy:3,load:3,mood:'normal',context:'normal'},done:[],taskFeedback:{},feedback:null,route:null,lightDay:false};
             await page.evaluate(([k,s])=>{
@@ -100,8 +105,12 @@ jobs:
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#app .premiumTodayHero',{timeout:10000});
             await page.waitForSelector('.readingRecommendationCard',{timeout:5000});
+            await page.waitForFunction((k)=>Number(JSON.parse(localStorage.getItem(k)||'{}').library?.books?.['islam-dini']?.totalPages||0)>0,key,{timeout:10000});
+            const hydratedTotal=await page.evaluate((k)=>Number(JSON.parse(localStorage.getItem(k)).library?.books?.['islam-dini']?.totalPages||0),key);
+            if(hydratedTotal<=120)throw new Error('Legacy generic-book progress did not hydrate totalPages before recommendation ranking');
             const readingRecommendationText=await page.locator('.readingRecommendationCard').innerText();
             if(!readingRecommendationText.includes('BUGÜN SANA ÖNERİM')||!readingRecommendationText.includes('Okumaya Başla'))throw new Error('Today v2 primary recommendation card is incomplete');
+            if(!readingRecommendationText.includes('İslâm Dini')||!readingRecommendationText.includes('Okuma 120'))throw new Error('Today recommendation did not preserve the legacy reader location');
             const readingRecommendationCount=await page.locator('.readingRecommendationCard').count();
             if(readingRecommendationCount!==1)throw new Error('Today view must show exactly one primary reading recommendation');
             const recommendationBox=await page.locator('.readingRecommendationCard').boundingBox();
@@ -109,6 +118,28 @@ jobs:
             if(recommendationBox&&navBox&&recommendationBox.y+recommendationBox.height>navBox.y)throw new Error('Primary reading recommendation is obscured by mobile navigation');
             await page.screenshot({path:'visual-review/01-today.png',fullPage:true});
             await page.screenshot({path:'visual-review/01a-reading-recommendation.png',fullPage:true});
+
+            await page.click('#startReadingRecommendation');
+            await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            const recommendedPage=await page.locator('#genericBookPageInput').inputValue();
+            if(recommendedPage!=='120')throw new Error('Recommendation CTA did not open the exact persisted book location: '+recommendedPage);
+            const activeRecommendation=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.recommendationMemory?.active,key);
+            if(activeRecommendation?.bookId!=='islam-dini'||activeRecommendation?.kind!=='book')throw new Error('Recommendation CTA did not persist the active reading recommendation');
+            await page.screenshot({path:'visual-review/01aa-recommendation-reader.png',fullPage:true});
+            await page.click('#genericBookBack');
+            await page.waitForSelector('#ilimNotebook',{timeout:10000});
+            const memoryAfterExit=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.recommendationMemory,key);
+            if(memoryAfterExit?.active)throw new Error('Early reader exit left a stale active recommendation');
+            if(!memoryAfterExit?.history?.some(x=>x.bookId==='islam-dini'&&x.status==='abandoned'))throw new Error('Early reader exit was not persisted as abandoned');
+            await page.click('#ilimNotebook');
+            await page.waitForSelector('.notebookToolbar',{timeout:10000});
+            await page.screenshot({path:'visual-review/01ab-recommendation-to-notebook.png',fullPage:true});
+            await page.evaluate((k)=>{
+              const s=JSON.parse(localStorage.getItem(k));s.view='today';s.ilim=s.ilim||{};s.ilim.ui={...(s.ilim.ui||{}),screen:'home'};s.library.recommendationDay=null;s.library.recommendationIndex=0;localStorage.setItem(k,JSON.stringify(s));
+            },key);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('.readingRecommendationCard',{timeout:10000});
+
             const alternate=page.locator('#nextReadingRecommendation');
             if(await alternate.count()){
               const beforeTitle=await page.locator('.readingRecommendationCard h1').innerText();
