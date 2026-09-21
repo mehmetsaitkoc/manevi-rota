@@ -40,7 +40,16 @@ const signal=recommendationPreferenceSignal(positive,'islam-dini','2026-09-22');
 assert.ok(signal.adjustment>0,'repeated completed recommendations should create a positive selection signal');
 assert.ok(signal.reason?.includes('devam'));
 
+let kindMemory=emptyReadingRecommendationMemory();
+const review={bookId:'kirk-hadis',kind:'hadith-review',title:'1 kısa hadis tekrarı',minutes:4,rank:1};
+for(const date of ['2026-09-20','2026-09-21']){
+  kindMemory=startReadingRecommendation(kindMemory,review,{date,at:date+'T18:00:00Z'});
+  kindMemory=completeReadingRecommendation(kindMemory,{bookId:'kirk-hadis',date,minutes:4,feedback:'ideal',at:date+'T18:04:00Z'});
+}
+assert.ok(recommendationPreferenceSignal(kindMemory,'kirk-hadis','2026-09-22','hadith-review').adjustment>0);
+assert.equal(recommendationPreferenceSignal(kindMemory,'kirk-hadis','2026-09-22','hadith').adjustment,0,'review completion must not leak into new-hadith selection preference');
+
 const normalized=normalizeReadingRecommendationMemory({active:{bad:true},history:[{status:'nonsense'}]});
 assert.deepEqual(normalized,{active:null,history:[]});
 
-console.log('reading-recommendation-memory: start, skip, completion and preference learning passed');
+console.log('reading-recommendation-memory: start, skip, completion, kind isolation and preference learning passed');
