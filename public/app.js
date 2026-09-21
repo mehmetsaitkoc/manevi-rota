@@ -10,7 +10,7 @@ import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilot
 import {genericNotebookRefs,quranNotebookRefs,filterNotebookEntries,groupNotebookEntries,notebookSummary} from '../src/ilim-notebook.mjs';
 import {rankReadingRecommendations} from '../src/reading-recommendation.mjs';
 import {
-  emptyReadingRecommendationMemory,normalizeReadingRecommendationMemory,
+  emptyReadingRecommendationMemory,normalizeReadingRecommendationMemory,isMeaningfulRecommendationSession,
   startReadingRecommendation,skipReadingRecommendation,completeReadingRecommendation
 } from '../src/reading-recommendation-memory.mjs';
 
@@ -189,7 +189,7 @@ function finalizeGenericBookSession(bookId,page,feedback='ideal'){
  S.library.books[bookId]=result.state;
  if(result.session){
    syncGenericReadingSession(bookId,result.session);
-   const meaningful=result.session.minutes>=2||result.session.pages>=1;
+   const meaningful=isMeaningfulRecommendationSession(result.session);
    if(meaningful){
      S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{
        bookId,date:today(),minutes:result.session.minutes,feedback:result.session.feedback,at:result.session.endedAt
