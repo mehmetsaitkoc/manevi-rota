@@ -423,6 +423,9 @@ function renderToday(){
  const todayPages=Math.max(0,Number(todaySession?.pages||0)),todayVerses=Math.max(0,Number(todaySession?.verses||0));
  const completedBook=todayCompleted?starterBook(todayCompleted.bookId):null;
  const completedFeedback=todayCompleted?readingFeedbackLabel(todayCompleted.feedback):'';
+ const completedHadithCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
+ const journeySnapshot=libraryPathSnapshot({pathState:S.library.path,hadithCompletedCount:completedHadithCount});
+ const activeJourneyStage=journeySnapshot.levels.find(level=>level.order===journeySnapshot.currentLevel)||journeySnapshot.levels[0];
  const yesterdayDetail=yesterdaySummary.hasActivity
    ?[yesterdaySummary.minutes+' dk',yesterdaySummary.pages?yesterdaySummary.pages+' sayfa':'',yesterdaySummary.verses?yesterdaySummary.verses+' âyet':'',yesterdaySummary.feedbackLabel].filter(Boolean).join(' · ')
    :'Dün okuma kaydı oluşmadı. Bugün küçük bir adım yeter.';
@@ -443,7 +446,23 @@ function renderToday(){
      </section>`
     :`<section class="card todayPrimaryCard quiet" data-today-primary="empty"><div class="eyebrow">BUGÜN</div><h1>Yeni bir ana okuma gerekmiyor.</h1><p>Bugünün diğer küçük adımlarına devam edebilirsin.</p></section>`;
 
- app.innerHTML=`${primaryCard}
+ const premiumHomeHero=`<section class="mrNightHero homeNightHero" data-ui="premium-home-v3">
+   <div class="mrNightAura" aria-hidden="true"><span class="mrNightCrescent">☾</span></div>
+   <div class="mrNightHeroContent">
+     <div class="eyebrow">MANEVÎ ROTAN</div>
+     <h1>Manevî Rotan</h1>
+     <p>Her güzel yolculuk, içten bir niyetle başlar.</p>
+     <div class="mrNightStage"><small>ŞU ANKİ İLİM AŞAMASI</small><b>Seviye ${journeySnapshot.currentLevel} · ${esc(activeJourneyStage?.title||'Temel')}</b></div>
+   </div>
+   <div class="mrNightProgress" style="--p:${progress}"><div><b>%${progress}</b><span>bugünkü rota</span></div></div>
+   <div class="mrNightStats">
+     <span><b>${done.size}/${r.tasks.length}</b><small>adım</small></span>
+     <span><b>${r.totalMinutes} dk</b><small>bugünkü plan</small></span>
+     <span><b>${remainingCount}</b><small>kalan</small></span>
+   </div>
+ </section>`;
+
+ app.innerHTML=`${premiumHomeHero}${primaryCard}
  <section class="card todayYesterdayCard"><div class="todayYesterdayIcon">↶</div><div><div class="eyebrow">DÜN NE OLDU?</div><b>${esc(yesterdaySummary.title)}</b><p>${esc(yesterdayDetail)}</p></div></section>
 
  <section class="card todayRouteOverview todayPlanBar" data-ui="today-plan-v2.2">
@@ -639,8 +658,17 @@ function renderWeek(){
 function renderProfile(){
  const p=S.profile,overrides=Object.entries(p.slotOverrides||{}),pilot=normalizePilotState(S.pilot||{});
  S.pilot=pilot;
+ const completedHadithCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
+ const profileJourney=libraryPathSnapshot({pathState:S.library.path,hadithCompletedCount:completedHadithCount});
+ const activeProfileLevel=profileJourney.levels.find(level=>level.order===profileJourney.currentLevel)||profileJourney.levels[0];
+ const totalCompletedTasks=records().reduce((sum,day)=>sum+(Array.isArray(day.done)?day.done.length:0),0);
+ const trackedDays=records().filter(day=>day.checkin&&Object.keys(day.checkin).length).length;
  const pilotStatus=!pilot.enabled?'Kapalı':pilot.transport==='connected'?'Collector bağlı':pilot.transport==='error'?'Bağlantı bekliyor':'Cihaz kuyruğu';
- app.innerHTML=`<section class="card"><div class="eyebrow">Profil</div><h1>Motor seni böyle tanıyor.</h1><p><b>Normal gün:</b> ${p.baseMinutes||'-'} dk</p><p><b>Öncelikler:</b> ${(p.priorities||[]).map(id=>TASK_CATALOG[id]?.title).filter(Boolean).join(', ')||'—'}</p><p><b>Yaklaşım:</b> ${p.pace||'—'}</p><p><b>En sık engel:</b> ${p.blocker||'—'}</p><div class="toggleLine"><div><b>Namaz Merkezi</b><small>Vakitleri Bugün ekranına bağlar.</small></div><button class="switch ${p.prayerTracking?'on':''}" id="profilePrayer"><i></i></button></div>${overrides.length?`<div class="divider"></div><h3>Öğrenilmiş zaman tercihleri</h3><div class="preferenceList">${overrides.map(([id,slot])=>`<div><span>${TASK_CATALOG[id]?.icon} ${TASK_CATALOG[id]?.title}</span><b>${slotLabel(slot)}</b></div>`).join('')}</div>`:''}<div class="explain">Profil kalıcıdır; günlük rota ayrıca bugünkü durum, geçmiş kullanım ve zamanlama sinyallerini kullanır. Zaman değişiklikleri yalnızca sen kabul edersen kalıcı olur.</div><div class="actions"><button class="btn ghost" id="resetTiming">Zaman tercihlerini sıfırla</button><button class="btn ghost" id="resetToday">Bugünü sıfırla</button><button class="btn warn" id="resetAll">Her şeyi sıfırla</button></div></section>
+ app.innerHTML=`<section class="mrNightHero profileJourneyHero" data-ui="premium-profile-v3">
+   <div class="mrNightHeroContent"><div class="eyebrow">YOLCULUĞUN</div><h1>İstikrarın görünür olsun.</h1><p>Buradaki sayılar maneviyatını puanlamaz; yalnızca kendi oluşturduğun okuma ve rota kayıtlarını özetler.</p><div class="mrNightStage"><small>MEVCUT İLİM AŞAMASI</small><b>Seviye ${profileJourney.currentLevel} · ${esc(activeProfileLevel?.title||'Temel')}</b></div></div>
+   <div class="profileJourneyStats"><span><b>${trackedDays}</b><small>kayıtlı gün</small></span><span><b>${totalCompletedTasks}</b><small>tamamlanan adım</small></span><span><b>${completedHadithCount}</b><small>Kırk Hadis ilerlemesi</small></span></div>
+  </section>
+  <section class="card profileSettingsCard"><div class="eyebrow">Profil ve ayarlar</div><h1>Motor seni böyle tanıyor.</h1><p><b>Normal gün:</b> ${p.baseMinutes||'-'} dk</p><p><b>Öncelikler:</b> ${(p.priorities||[]).map(id=>TASK_CATALOG[id]?.title).filter(Boolean).join(', ')||'—'}</p><p><b>Yaklaşım:</b> ${p.pace||'—'}</p><p><b>En sık engel:</b> ${p.blocker||'—'}</p><div class="toggleLine"><div><b>Namaz Merkezi</b><small>Vakitleri Bugün ekranına bağlar.</small></div><button class="switch ${p.prayerTracking?'on':''}" id="profilePrayer"><i></i></button></div>${overrides.length?`<div class="divider"></div><h3>Öğrenilmiş zaman tercihleri</h3><div class="preferenceList">${overrides.map(([id,slot])=>`<div><span>${TASK_CATALOG[id]?.icon} ${TASK_CATALOG[id]?.title}</span><b>${slotLabel(slot)}</b></div>`).join('')}</div>`:''}<div class="explain">Profil kalıcıdır; günlük rota ayrıca bugünkü durum, geçmiş kullanım ve zamanlama sinyallerini kullanır. Zaman değişiklikleri yalnızca sen kabul edersen kalıcı olur.</div><div class="actions"><button class="btn ghost" id="resetTiming">Zaman tercihlerini sıfırla</button><button class="btn ghost" id="resetToday">Bugünü sıfırla</button><button class="btn warn" id="resetAll">Her şeyi sıfırla</button></div></section>
  <section class="card pilotCard">
    <div class="pilotHead"><div><div class="eyebrow">PİLOT v1</div><h2>Motoru gerçek kullanımla kalibre et</h2></div><button class="switch ${pilot.enabled?'on':''}" id="pilotToggle" aria-label="Pilot veri paylaşımı"><i></i></button></div>
    <p class="lead">İsteğe bağlıdır. Yalnız planın sürdürülebilirliğini ölçen teknik sinyaller paylaşılır.</p>
@@ -776,12 +804,13 @@ function renderIlimHome(){
  const libraryHighlights=defterSummary.highlights;
  const levelRail=pathSnapshot.levels.map(level=>`<button class="libraryRailStep ${esc(level.status)}" data-level-rail="${level.order}"><span>${level.status==='complete'?'✓':level.order}</span><div><small>SEVİYE ${level.order}</small><b>${esc(level.title)}</b></div></button>`).join('');
  app.innerHTML=`
- <section class="card libraryHero">
+ <section class="card libraryHero premiumLibraryHero" data-ui="premium-library-v3">
    <div class="libraryHeroTop">
      <div>
-       <div class="eyebrow">İLİM KÜTÜPHANESİ</div>
-       <h1>Bugün ne okuyacağını düşünme.</h1>
-       <p class="lead">Kaldığın yer, bekleyen tekrar ve notların tek ekranda. Motor yalnızca öğrenme yükünü düzenler.</p>
+       <div class="eyebrow">İLİM ROTASI</div>
+       <h1>Dokuz hazır eser, tek sakin öğrenme yolu.</h1>
+       <p class="lead">Kur’ân, hadis, temel din bilgisi, ahlâk ve tefekkür okumalarını beş seviyede; gerçek ilerleme verinle kaldığın yerden sürdür.</p>
+       <div class="libraryHeroPills"><span>${readyBookCount} okunabilir eser</span><span>${pathSnapshot.totalLevels} seviye</span><span>${defterSummary.notes} not</span></div>
      </div>
      <div class="ilimProgressRing" style="--p:${p}"><b>${p}%</b><span>Kırk Hadis</span></div>
    </div>
@@ -800,8 +829,8 @@ function renderIlimHome(){
 
  <section class="card libraryShelf premiumStarterShelf">
    <div class="sectionHead starterShelfHead">
-     <div><div class="eyebrow">BAŞLANGIÇ KÜTÜPHANESİ</div><h2>10 kitaplık gelişim yolu</h2><p>Seviye 1’den 5’e; temel bilgi, Kur’ân ve ibadet, sünnet, siyer, ahlâk ve tefekkür. Hazır olmayan tam metin okunabilir gösterilmez.</p></div>
-     <span class="sourcePill">${readyBookCount} okunabilir · ${STARTER_LIBRARY.length-readyBookCount} tam metin bekliyor</span>
+     <div><div class="eyebrow">SEÇKİ · 2026.09</div><h2>${readyBookCount} hazır eserle gelişim yolu</h2><p>Seviye 1’den 5’e; temel bilgi, Kur’ân ve ibadet, sünnet, ahlâk ve tefekkür. Katalogdaki kaynak hazırlığı süren eser okunabilir gibi gösterilmez.</p></div>
+     <span class="sourcePill">${readyBookCount} hazır · ${STARTER_LIBRARY.length-readyBookCount} kaynak hazırlığında</span>
    </div>
    <div class="starterPath">${starterShelf}</div>
  </section>
@@ -822,7 +851,7 @@ function renderIlimHome(){
  </section>
 
  <section class="libraryV2Rail" aria-label="Okuma yolu seviyeleri">
-   <div class="libraryRailHeader"><div><small>5 AŞAMALI YOL</small><b>Temelden şuura ilerleyen okuma rotası</b></div><div class="libraryRailStats"><span><b>${readyBookCount}/10</b> okunabilir</span><span><b>${libraryNotes}</b> not</span><span><b>${libraryHighlights}</b> vurgu</span><span><b>${defterSummary.bookmarks}</b> yer imi</span></div></div>
+   <div class="libraryRailHeader"><div><small>5 AŞAMALI YOL</small><b>Temelden şuura ilerleyen okuma rotası</b></div><div class="libraryRailStats"><span><b>${readyBookCount}</b> hazır eser</span><span><b>${libraryNotes}</b> not</span><span><b>${libraryHighlights}</b> vurgu</span><span><b>${defterSummary.bookmarks}</b> yer imi</span></div></div>
    <div class="libraryRailTrack">${levelRail}</div>
  </section>
 
@@ -834,7 +863,7 @@ function renderIlimHome(){
    <div class="libraryLevelProgress"><i style="width:${Math.round((pathSnapshot.completedLevels/pathSnapshot.totalLevels)*100)}%"></i></div>
    <div class="libraryLevelMeta"><span>${activeLevel.completedCount}/${activeLevel.requiredCount} eser tamamlandı</span><span>${esc(activeLevelNotice)}</span></div>
    <div class="libraryAwarenessGoals"><small>BU SEVİYEDE ODAKLAN</small><ol>${(activeLevel.goals||[]).map(goal=>`<li>${esc(goal)}</li>`).join('')}</ol></div>
-   <p class="small">Bu hedefler ve seviye bir maneviyat veya iman puanı değildir; yalnızca 10 kitaplık okuma yolunda neyi anlamaya çalışacağını gösterir. Sonraki seviyelerdeki hazır eserleri de istediğin zaman açabilirsin.</p>
+   <p class="small">Bu hedefler ve seviye bir maneviyat veya iman puanı değildir; yalnızca katalogdaki okuma yolunda neyi anlamaya çalışacağını gösterir. Hazır olan dokuz eseri istediğin zaman açabilir, kaynak hazırlığı süren eseri ise ancak doğrulama tamamlandığında okuyabilirsin.</p>
    <button class="btn ghost" id="jumpCurrentLevel">Aktif seviyeye git ↓</button>
  </section>
 
