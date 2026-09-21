@@ -41,4 +41,19 @@ assert.equal(second.bookId,'islam-dini');
 assert.ok(second.minutes<finished.session.minutes,'the next-day dose should react immediately to the latest heavy real session');
 assert.ok(second.minutes<=7,'a 9-minute heavy session should return with a clearly smaller next-day dose');
 
-console.log('reading-recommendation-closed-loop: recommendation -> real session -> next-day adaptation passed');
+library.recommendationMemory=startReadingRecommendation(library.recommendationMemory,second,{date:day2,at:day2+'T18:00:00Z'});
+reader=beginBookReadingSession(library.books['islam-dini'],{page:5,at:day2+'T18:00:00Z'});
+reader=touchBookReadingSession(reader,7);
+const secondFinished=finishBookReadingSession(reader,{page:7,at:day2+'T18:05:00Z',feedback:'ideal'});
+library.books['islam-dini']=secondFinished.state;
+library.recommendationMemory=completeReadingRecommendation(library.recommendationMemory,{
+  bookId:'islam-dini',date:day2,minutes:secondFinished.session.minutes,feedback:secondFinished.session.feedback,at:day2+'T18:05:00Z'
+});
+
+const day3='2026-09-23';
+const third=buildReadingRecommendation({date:day3,profile,checkin,library,ilim,records:[],bookTotals:{'islam-dini':250}});
+assert.equal(third.bookId,'islam-dini');
+assert.ok(third.preferenceAdjustment>0,'repeated completed recommendations should become a small behavioral selection preference');
+assert.ok(third.reasons.some(x=>x.includes('düzenli olarak devam')),'the learned preference must remain explainable');
+
+console.log('reading-recommendation-closed-loop: recommendation -> real session -> next-day adaptation -> preference learning passed');
