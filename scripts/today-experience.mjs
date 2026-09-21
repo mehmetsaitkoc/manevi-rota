@@ -26,6 +26,7 @@ assert.equal(yesterday.hasActivity,true);
 assert.equal(yesterday.minutes,7);
 assert.equal(yesterday.pages,4);
 assert.equal(yesterday.feedbackLabel,'Rahat geldi');
+assert.equal(yesterday.verses,0);
 
 const snapshot=todayExperienceSnapshot({memory,records,date:'2026-09-21'});
 assert.equal(snapshot.primaryState,'completed');
