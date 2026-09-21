@@ -25,15 +25,19 @@ jobs:
             curl -fsSL -H 'Cache-Control: no-cache' "$base/public/styles.css?smoke=295f42c-$i" -o /tmp/styles.css 2>/dev/null || true
             curl -fsSL -H 'Cache-Control: no-cache' "$base/public/app.js?smoke=295f42c-$i" -o /tmp/app.js 2>/dev/null || true
 
-            health_ok=0; editorial_ok=0; nav_ok=0; styles_ok=0; today_ok=0
+            health_ok=0; editorial_ok=0; nav_ok=0; styles_ok=0; today_ok=0; closed_loop_ok=0
             [ "$health_code" = "200" ] && grep -q '"service":"manevi-rota"' /tmp/health.json && health_ok=1 || true
             grep -q 'data-ui="editorial-v1"' /tmp/index.html 2>/dev/null && editorial_ok=1 || true
             [ "$(grep -o 'class="navGlyph"' /tmp/index.html 2>/dev/null | wc -l | tr -d ' ')" = "6" ] && nav_ok=1 || true
             grep -q 'Premium UX v1' /tmp/styles.css 2>/dev/null && grep -q 'progressHero.premiumProgressHero' /tmp/styles.css 2>/dev/null && styles_ok=1 || true
             grep -q 'BUGÜN SANA ÖNERİM' /tmp/app.js 2>/dev/null && today_ok=1 || true
+            grep -q 'completeReadingRecommendation' /tmp/app.js 2>/dev/null && \
+              grep -q 'skipReadingRecommendation' /tmp/app.js 2>/dev/null && \
+              grep -q 'abandonReadingRecommendation' /tmp/app.js 2>/dev/null && \
+              grep -q 'isMeaningfulRecommendationSession' /tmp/app.js 2>/dev/null && closed_loop_ok=1 || true
 
-            echo "attempt=$i health=$health_ok editorial=$editorial_ok nav=$nav_ok styles=$styles_ok today=$today_ok"
-            if [ "$health_ok$editorial_ok$nav_ok$styles_ok$today_ok" = "11111" ]; then
+            echo "attempt=$i health=$health_ok editorial=$editorial_ok nav=$nav_ok styles=$styles_ok today=$today_ok closed_loop=$closed_loop_ok"
+            if [ "$health_ok$editorial_ok$nav_ok$styles_ok$today_ok$closed_loop_ok" = "111111" ]; then
               ready=1
               break
             fi
@@ -42,4 +46,4 @@ jobs:
 
           cat /tmp/health.json || true
           test "$ready" = "1"
-          echo "production-smoke: premium editorial UI v1 is live"
+          echo "production-smoke: premium editorial UI v1 and recommendation closed loop are live"
