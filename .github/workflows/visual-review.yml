@@ -22,6 +22,8 @@ on:
       - 'src/reading-recommendation-memory.mjs'
       - 'scripts/reading-recommendation-memory.mjs'
       - 'scripts/reading-recommendation-closed-loop.mjs'
+      - 'src/today-experience.mjs'
+      - 'scripts/today-experience.mjs'
       - 'src/library-path.mjs'
       - 'scripts/library-catalog.mjs'
       - 'scripts/book-reader.mjs'
@@ -99,7 +101,7 @@ jobs:
             await page.waitForSelector('#app .premiumTodayHero',{timeout:10000});
             await page.waitForSelector('.readingRecommendationCard',{timeout:5000});
             const readingRecommendationText=await page.locator('.readingRecommendationCard').innerText();
-            if(!readingRecommendationText.includes('BUGÜN NE OKUYAYIM?')||!readingRecommendationText.includes('Okumaya Başla'))throw new Error('Daily reading recommendation card is incomplete');
+            if(!readingRecommendationText.includes('BUGÜN SANA ÖNERİM')||!readingRecommendationText.includes('Okumaya Başla'))throw new Error('Today v2 primary recommendation card is incomplete');
             const readingRecommendationCount=await page.locator('.readingRecommendationCard').count();
             if(readingRecommendationCount!==1)throw new Error('Today view must show exactly one primary reading recommendation');
             const recommendationBox=await page.locator('.readingRecommendationCard').boundingBox();
@@ -109,14 +111,38 @@ jobs:
             await page.screenshot({path:'visual-review/01a-reading-recommendation.png',fullPage:true});
             const alternate=page.locator('#nextReadingRecommendation');
             if(await alternate.count()){
-              const beforeTitle=await page.locator('.readingRecommendationCard h2').innerText();
+              const beforeTitle=await page.locator('.readingRecommendationCard h1').innerText();
               await alternate.click();
               await page.waitForTimeout(120);
-              const afterTitle=await page.locator('.readingRecommendationCard h2').innerText();
+              const afterTitle=await page.locator('.readingRecommendationCard h1').innerText();
               if(afterTitle===beforeTitle)throw new Error('Alternate reading recommendation did not rotate');
               const memoryAfterSkip=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.recommendationMemory,key);
               if(!memoryAfterSkip?.history?.some(x=>x.status==='skipped'))throw new Error('Alternate recommendation choice did not persist an explicit skip signal');
             }
+
+            await page.evaluate(([k,iso])=>{
+              const s=JSON.parse(localStorage.getItem(k));
+              const yesterday=new Date(iso+'T12:00:00Z');yesterday.setUTCDate(yesterday.getUTCDate()-1);
+              const y=yesterday.toISOString().slice(0,10);
+              s.library=s.library||{};
+              s.library.recommendationMemory={
+                active:null,
+                history:[
+                  {id:'vr-today',date:iso,bookId:'islam-dini',kind:'book',title:'İslâm Dini',recommendedMinutes:8,rank:1,status:'completed',actualMinutes:7,feedback:'ideal',createdAt:iso+'T18:07:00.000Z'},
+                  {id:'vr-yesterday',date:y,bookId:'islam-dini',kind:'book',title:'İslâm Dini',recommendedMinutes:8,rank:1,status:'completed',actualMinutes:6,feedback:'easy',createdAt:y+'T18:06:00.000Z'}
+                ]
+              };
+              s.daily=s.daily||{};
+              s.daily[y]={checkin:{minutes:20,energy:3,load:3,mood:'normal',context:'normal'},done:['reading'],taskFeedback:{reading:'normal'},feedback:'ideal',route:null,lightDay:false,readingSessions:[{id:'vr-session',bookId:'islam-dini',date:y,minutes:6,pages:3,feedback:'easy'}]};
+              localStorage.setItem(k,JSON.stringify(s));
+            },[key,iso]);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('.todayPrimaryCard.completed',{timeout:10000});
+            const completedTodayText=await page.locator('.todayPrimaryCard.completed').innerText();
+            if(!completedTodayText.includes('BUGÜN TAMAMLANDI')||!completedTodayText.includes('7 dk'))throw new Error('Today completed state did not render real reading outcome');
+            const yesterdayText=await page.locator('.todayYesterdayCard').innerText();
+            if(!yesterdayText.includes('DÜN NE OLDU?')||!yesterdayText.includes('6 dk')||!yesterdayText.includes('3 sayfa'))throw new Error('Yesterday reading summary did not render');
+            await page.screenshot({path:'visual-review/01b-today-completed.png',fullPage:true});
 
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));s.view='ilim';localStorage.setItem(k,JSON.stringify(s));
@@ -247,6 +273,9 @@ jobs:
 
             await page.click('[data-starter-book="quran"]');
             await page.waitForSelector('.quranAyah',{timeout:10000});
+            await page.waitForSelector('.quranSessionCard',{timeout:5000});
+            const quranSessionText=await page.locator('.quranSessionCard').innerText();
+            if(!quranSessionText.includes('AKTİF OKUMA OTURUMU')||!quranSessionText.includes('Tam kıvamında'))throw new Error('Quran reading session feedback card missing');
             await page.click('[data-quran-highlight="1"]');
             await page.click('[data-quran-bookmark="1"]');
             await page.click('[data-quran-note="1"]');
