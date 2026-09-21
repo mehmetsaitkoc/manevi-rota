@@ -271,6 +271,19 @@ jobs:
             if(await completedCard.locator('.starterBookBadges .done').count()!==1)throw new Error('Completed library book badge did not update');
             await page.screenshot({path:'visual-review/03d-library-level-progress.png',fullPage:true});
 
+            await page.evaluate(([k,iso])=>{
+              const s=JSON.parse(localStorage.getItem(k));
+              s.library=s.library||{};
+              const history=Array.isArray(s.library.recommendationMemory?.history)?s.library.recommendationMemory.history.filter(x=>x.date!==iso):[];
+              s.library.recommendationMemory={
+                active:{id:'vr-quran-active',date:iso,bookId:'quran',kind:'quran',title:'Kur’ân-ı Kerîm',recommendedMinutes:6,rank:1,startedAt:iso+'T18:00:00.000Z'},
+                history
+              };
+              s.view='ilim';s.ilim=s.ilim||{};s.ilim.ui={...(s.ilim.ui||{}),screen:'home'};
+              localStorage.setItem(k,JSON.stringify(s));
+            },[key,iso]);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('[data-starter-book="quran"]',{timeout:10000});
             await page.click('[data-starter-book="quran"]');
             await page.waitForSelector('.quranAyah',{timeout:10000});
             await page.waitForSelector('.quranSessionCard',{timeout:5000});
@@ -288,7 +301,19 @@ jobs:
             await page.waitForSelector('.quranFocusMode',{timeout:5000});
             await page.screenshot({path:'visual-review/04b-quran-focus.png',fullPage:true});
             await page.click('#quranFocus');
-            await page.click('#quranBack');
+            await page.click('[data-quran-ayah="2"]');
+            await page.click('[data-quran-session-feedback="ideal"]');
+            await page.waitForSelector('.todayPrimaryCard.completed',{timeout:10000});
+            const quranCompletedText=await page.locator('.todayPrimaryCard.completed').innerText();
+            if(!quranCompletedText.includes('BUGÜN TAMAMLANDI')||!quranCompletedText.includes('Kur’ân-ı Kerîm'))throw new Error('Recommended Quran session did not return to Today completed state');
+            await page.screenshot({path:'visual-review/04bb-quran-to-today.png',fullPage:true});
+            const quranOutcome=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.recommendationMemory?.history?.find(x=>x.bookId==='quran'&&x.status==='completed'),key);
+            if(!quranOutcome)throw new Error('Recommended Quran completion was not persisted');
+
+            await page.evaluate((k)=>{
+              const s=JSON.parse(localStorage.getItem(k));s.view='ilim';s.ilim.ui={...(s.ilim.ui||{}),screen:'home'};localStorage.setItem(k,JSON.stringify(s));
+            },key);
+            await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#ilimNotebook',{timeout:10000});
 
             await page.click('#ilimNotebook');
