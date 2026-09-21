@@ -219,6 +219,16 @@ jobs:
             if(!yavrularTitle.includes('Yavrularımıza Din Dersleri'))throw new Error('Yavrularımız reader title mismatch');
             const sourceEdition=await page.locator('.genericBookEdition').innerText();
             if(!sourceEdition.includes('1967'))throw new Error('Yavrularımız source edition disclosure missing');
+            const yavrularMax=Number(await page.locator('#genericBookPageInput').getAttribute('max'));
+            if(yavrularMax!==313)throw new Error('Yavrularımız publisher-ad tail pages were not removed: '+yavrularMax);
+            await page.locator('#genericBookPageInput').fill('2');
+            await page.locator('#genericBookPageInput').dispatchEvent('change');
+            await page.waitForTimeout(180);
+            const yavrularPage2=await page.locator('.genericBookPaper').innerText();
+            if(/Cc\s*[—-]|C€\s*[—-]|S5\s*[—-]|\bKEK\b|\bMüneala\b/.test(yavrularPage2))throw new Error('Yavrularımız known Q/A OCR label noise is still visible');
+            await page.locator('#genericBookPageInput').fill('1');
+            await page.locator('#genericBookPageInput').dispatchEvent('change');
+            await page.waitForTimeout(180);
             await page.screenshot({path:'visual-review/03-yavrularimiz-reader.png',fullPage:true});
             await page.click('#genericBookBack');
             await page.waitForSelector('[data-starter-book="namaz-sureleri-tefsiri"]',{timeout:10000});
@@ -246,6 +256,14 @@ jobs:
             const tanriEdition=await page.locator('.genericBookEdition').innerText();
             if(!tanriEdition.includes('1955'))throw new Error('Tanri Buyrugu historical edition disclosure missing');
             await page.screenshot({path:'visual-review/03aa-tanri-buyrugu-reader.png',fullPage:true});
+            await page.locator('#genericBookPageInput').fill('852');
+            await page.locator('#genericBookPageInput').dispatchEvent('change');
+            await page.waitForSelector('.readerQualityWarning',{timeout:5000});
+            const tanriQualityWarning=await page.locator('.readerQualityWarning').innerText();
+            if(!tanriQualityWarning.includes('Kaynak kontrolü bekleyen sayfa'))throw new Error('Tanri Buyrugu OCR verification disclosure missing');
+            await page.evaluate(()=>window.scrollTo(0,0));
+            await page.waitForTimeout(120);
+            await page.screenshot({path:'visual-review/03aaa-tanri-buyrugu-ocr-review.png',fullPage:true});
             await page.click('#genericBookBack');
             await page.waitForSelector('[data-starter-book="kurandan-ayetler"]',{timeout:10000});
 
@@ -367,6 +385,8 @@ jobs:
 
             await page.click('[data-starter-book="islam-dini"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            const islamDiniStart=await page.locator('.genericBookPaper').innerText();
+            if(!islamDiniStart.includes('ÖNSÖZ')||islamDiniStart.includes('GÜZEL SANATLAR MATBAASI'))throw new Error('Islam Dini reader still exposes publisher front matter before the author preface');
             await page.evaluate(()=>window.scrollTo(0,0));
             await page.waitForTimeout(120);
             await page.screenshot({path:'visual-review/05-islam-dini-premium.png',fullPage:true});
