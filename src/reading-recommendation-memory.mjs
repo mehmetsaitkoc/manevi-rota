@@ -1,6 +1,6 @@
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,Number(n)||0));
 const object=value=>value&&typeof value==='object'&&!Array.isArray(value)?value:{};
-const statuses=new Set(['skipped','completed']);
+const statuses=new Set(['skipped','abandoned','completed']);
 const feedbacks=new Set(['heavy','ideal','easy']);
 
 const iso=value=>{
@@ -47,6 +47,10 @@ function normalizeHistoryRow(value){
   if(status==='completed'){
     row.actualMinutes=clamp(raw.actualMinutes||row.recommendedMinutes,1,120);
     row.feedback=feedbacks.has(raw.feedback)?raw.feedback:'ideal';
+  }else if(status==='abandoned'){
+    row.actualMinutes=clamp(raw.actualMinutes,0,120);
+    row.pages=Math.max(0,Math.round(Number(raw.pages)||0));
+    row.verses=Math.max(0,Math.round(Number(raw.verses)||0));
   }
   return row;
 }
@@ -97,6 +101,28 @@ export function skipReadingRecommendation(memory,recommendation,{date,at=new Dat
   return next;
 }
 
+export function abandonReadingRecommendation(memory,{bookId,date,minutes=0,pages=0,verses=0,at=new Date().toISOString()}={}){
+  const next=normalizeReadingRecommendationMemory(memory),active=next.active;
+  if(!active||!bookId||active.bookId!==bookId)return next;
+  const abandonDate=dateOnly(date||active.date);
+  const duplicate=next.history.some(x=>x.status==='abandoned'&&x.date===abandonDate&&x.bookId===active.bookId&&x.kind===active.kind);
+  if(!duplicate){
+    next.history.unshift(normalizeHistoryRow({
+      ...active,
+      id:uid('rrh'),
+      date:abandonDate,
+      status:'abandoned',
+      actualMinutes:minutes,
+      pages,
+      verses,
+      createdAt:at
+    }));
+    next.history=next.history.slice(0,80);
+  }
+  next.active=null;
+  return next;
+}
+
 export function completeReadingRecommendation(memory,{bookId,date,minutes,feedback='ideal',at=new Date().toISOString()}={}){
   const next=normalizeReadingRecommendationMemory(memory),active=next.active;
   if(!active||!bookId||active.bookId!==bookId)return next;
@@ -118,7 +144,7 @@ export function completeReadingRecommendation(memory,{bookId,date,minutes,feedba
 export function recommendationPreferenceSignal(memory,bookId,today,kind=null){
   const state=normalizeReadingRecommendationMemory(memory);
   const rows=state.history.filter(x=>x.bookId===bookId&&(!kind||x.kind===kind)&&daysBetween(x.date,today)<=30);
-  let completedWeight=0,skippedWeight=0,heavyWeight=0,easyWeight=0;
+  let completedWeight=0,skippedWeight=0,abandonedWeight=0,heavyWeight=0,easyWeight=0;
   for(const row of rows){
     const freshness=Math.max(.20,1-daysBetween(row.date,today)/30);
     if(row.status==='completed'){
@@ -126,18 +152,22 @@ export function recommendationPreferenceSignal(memory,bookId,today,kind=null){
       if(row.feedback==='heavy')heavyWeight+=freshness;
       if(row.feedback==='easy')easyWeight+=freshness;
     }else if(row.status==='skipped')skippedWeight+=freshness;
+    else if(row.status==='abandoned')abandonedWeight+=freshness;
   }
-  const effectiveSamples=completedWeight+skippedWeight;
+  const effectiveSamples=completedWeight+skippedWeight+abandonedWeight*.5;
   let adjustment=0;
   if(effectiveSamples>=1.5){
-    adjustment=Math.round(clamp(completedWeight*3-skippedWeight*3+easyWeight-heavyWeight,-10,10));
+    adjustment=Math.round(clamp(completedWeight*3-skippedWeight*3-abandonedWeight*1.35+easyWeight-heavyWeight,-10,10));
   }
   let reason=null;
   if(adjustment>=4)reason='önceki önerilerde bu esere düzenli olarak devam ettin';
-  else if(adjustment<=-4)reason='bu eseri birkaç kez başka öneriyle değiştirdin';
+  else if(adjustment<=-4)reason=skippedWeight>=abandonedWeight
+    ?'bu eseri birkaç kez başka öneriyle değiştirdin'
+    :'bu eserden birkaç kez erken çıktın; daha hafif bir seçenek daha uygun olabilir';
   return {
     samples:rows.length,effectiveSamples:Number(effectiveSamples.toFixed(2)),
     completedWeight:Number(completedWeight.toFixed(2)),skippedWeight:Number(skippedWeight.toFixed(2)),
+    abandonedWeight:Number(abandonedWeight.toFixed(2)),
     adjustment,reason
   };
 }
