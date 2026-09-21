@@ -787,6 +787,20 @@ function libraryResume(currentHadis,completedCount){
  return {book:starterBook('kirk-hadis'),glyph:'ح',label:'KALDIĞIN YER',title:hadis.title,description:hadis.meaning,meta:`Hadis ${hadis.id}/${KIRK_HADIS_META.totalUnits} · ${completedCount} tamamlandı`,action:()=>ilimGo('reader',S.ilim.currentId)};
 }
 
+function renderSimpleLibrary(){
+ const completedCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
+ const pathSnapshot=libraryPathSnapshot({pathState:S.library.path,hadithCompletedCount:completedCount});
+ const readyBooks=STARTER_LIBRARY.filter(book=>book.availability==='ready');
+ const pendingBooks=STARTER_LIBRARY.filter(book=>book.availability!=='ready');
+ const completedIds=pathSnapshot.completedBooks||[];
+ app.innerHTML=`<section class="simpleLibraryTop"><button class="readerBack" id="simpleLibraryBack">←</button><div><div class="eyebrow">KİTAPLARIM</div><h1>Sade kitaplık</h1><p>Bir eser seç ve kaldığın yerden devam et.</p></div></section>
+ <section class="simpleLibrarySummary"><span><b>${readyBooks.length}</b><small>hazır eser</small></span><span><b>${completedIds.length}</b><small>tamamlanan</small></span><span><b>${pendingBooks.length}</b><small>hazırlanıyor</small></span></section>
+ <section class="simpleLibraryGrid">${readyBooks.map(book=>renderStarterBookCard(book,completedCount,completedIds)).join('')}</section>
+ ${pendingBooks.length?`<details class="simpleLibraryPending"><summary>${pendingBooks.length} eser kaynak hazırlığında</summary><div>${pendingBooks.map(book=>`<span><b>${esc(book.title)}</b><small>${esc(book.author||'')}</small></span>`).join('')}</div></details>`:''}`;
+ document.querySelector('#simpleLibraryBack').onclick=()=>ilimGo('home');
+ document.querySelectorAll('[data-starter-book]').forEach(btn=>btn.onclick=()=>openStarterBook(btn.dataset.starterBook));
+}
+
 function renderIlimHome(){
  loadNawawiArabic().catch(()=>{});
  const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,p=hadisProgressPct(S.ilim),due=dueHadisReviews(S.ilim,today(),9),overview=knowledgeOverview(S.ilim,today()),defterSummary=ilimNotebookQuickSummary();
