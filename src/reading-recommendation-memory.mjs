@@ -154,7 +154,7 @@ export function recommendationPreferenceSignal(memory,bookId,today,kind=null){
     }else if(row.status==='skipped')skippedWeight+=freshness;
     else if(row.status==='abandoned')abandonedWeight+=freshness;
   }
-  const effectiveSamples=completedWeight+skippedWeight+abandonedWeight*.5;
+  const effectiveSamples=completedWeight+skippedWeight+abandonedWeight*.6;
   let adjustment=0;
   if(effectiveSamples>=1.5){
     adjustment=Math.round(clamp(completedWeight*3-skippedWeight*3-abandonedWeight*1.35+easyWeight-heavyWeight,-10,10));
