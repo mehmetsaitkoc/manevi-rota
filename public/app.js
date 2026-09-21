@@ -901,6 +901,33 @@ function renderIlimHome(){
  document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');
  document.querySelector('#ilimNotebook').onclick=()=>ilimGo('notebook');
 }
+  app.innerHTML=`
+  <section class="card libraryHero premiumLibraryHero simpleIlimHero" data-ui="premium-library-v4">
+    <div class="libraryHeroTop"><div><div class="eyebrow">İLİM ROTASI</div><h1>Okumaya odaklan.</h1><p class="lead">Kaldığın yer, kitapların ve kişisel kayıtların. Ayrıntıları yalnız gerektiğinde aç.</p></div></div>
+  </section>
+  <section class="continueReadingCard simpleContinueCard">
+    <div class="continueCover"><span>${esc(resume.glyph||'ك')}</span><small>DEVAM ET</small></div>
+    <div class="continueBody"><div class="eyebrow">${esc(resume.label)}</div><h2>${esc(resume.title)}</h2><p>${esc(resume.description)}</p><div class="continueMeta"><span>${esc(resume.meta)}</span></div><button class="btn primary wide" id="continueLibrary">Okumaya devam →</button></div>
+  </section>
+  <section class="ilimSimpleActions">
+    <button class="ilimSimpleAction" id="openSimpleLibrary"><span class="libraryIcon">▤</span><div><small>KİTAPLARIM</small><b>${readyBookCount} hazır eser</b><p>Tüm kitapları sade bir kitaplıkta gör.</p></div><i>›</i></button>
+    <button class="ilimSimpleAction" id="openSimpleReviews"><span class="libraryIcon">↻</span><div><small>TEKRARLAR</small><b>${due.length?due.length+' tekrar hazır':'Bugün temiz'}</b><p>${nextDue?esc(recallPromptFor(nextDue.hadisId)):'Bekleyen geri çağırma yok.'}</p></div><i>›</i></button>
+    <button class="ilimSimpleAction" id="openSimpleNotebook"><span class="libraryIcon">✎</span><div><small>NOTLAR & VURGULAR</small><b>${defterSummary.notes} not · ${defterSummary.highlights} vurgu</b><p>Kişisel kayıtlarını tek yerde aç.</p></div><i>›</i></button>
+  </section>
+  <details class="card ilimRouteDetails">
+    <summary><span>Okuma yolum</span><b>Seviye ${pathSnapshot.currentLevel} · ${esc(activeLevel.title)}</b></summary>
+    <div class="libraryLevelProgress"><i style="width:${Math.round((pathSnapshot.completedLevels/pathSnapshot.totalLevels)*100)}%"></i></div>
+    <p>${activeLevel.completedCount}/${activeLevel.requiredCount} eser tamamlandı · ${esc(activeLevelNotice)}</p>
+    <div class="libraryAwarenessGoals"><small>BU SEVİYEDE ODAKLAN</small><ol>${(activeLevel.goals||[]).map(goal=>`<li>${esc(goal)}</li>`).join('')}</ol></div>
+  </details>
+  ${transitionCard}
+  <section class="card sourceCard"><details><summary>Metin ve kaynak politikası</summary><p>${esc(KIRK_HADIS_META.rightsNote)}</p><p>${esc(KIRK_HADIS_META.editorialNote)}</p></details></section>`;
+  document.querySelector('#continueLibrary').onclick=resume.action;
+  document.querySelector('#openSimpleLibrary').onclick=()=>ilimGo('library');
+  document.querySelector('#openSimpleReviews').onclick=()=>ilimGo('reviews');
+  document.querySelector('#openSimpleNotebook').onclick=()=>ilimGo('notebook');
+  const ackLevel=document.querySelector('#ackLibraryLevel');if(ackLevel)ackLevel.onclick=()=>{S.library.path=acknowledgeLibraryLevel(S.library.path,pathSnapshot.currentLevel);save();renderIlimHome()};
+}
 
 async function renderGenericBookReader(){
  const bookId=S.ilim.ui?.bookId,book=starterBook(bookId),screen=S.ilim.ui?.screen;
