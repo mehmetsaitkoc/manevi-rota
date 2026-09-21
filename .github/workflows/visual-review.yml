@@ -94,6 +94,13 @@ jobs:
             const onboardActionsBox=await page.locator('.onboardingActions').boundingBox();
             if(!onboardActionsBox||onboardActionsBox.y+onboardActionsBox.height>844)throw new Error('Onboarding actions are below the 390x844 first fold');
             if(await page.locator('#nav:not(.hidden)').count())throw new Error('Navigation must remain hidden during onboarding');
+            const onboardingVisual=await page.locator('.onboardingCard .opt').first().evaluate(el=>({
+              background:getComputedStyle(el).backgroundImage,
+              color:getComputedStyle(el).color
+            }));
+            if(!onboardingVisual.background.includes('linear-gradient'))throw new Error('Premium onboarding option surface regressed to a flat/light card');
+            const onboardingColor=(onboardingVisual.color.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(onboardingColor.length<3||onboardingColor.some(v=>v<180))throw new Error('Premium onboarding option text contrast regressed');
             await page.screenshot({path:'visual-review/00b-onboarding-first-fold.png'});
 
             // Walk the real first-run setup to guard the handoff into daily calibration.
@@ -234,6 +241,9 @@ jobs:
             await page.waitForSelector('.todayPrimaryCard.completed',{timeout:10000});
             const completedTodayText=await page.locator('.todayPrimaryCard.completed').innerText();
             if(!completedTodayText.includes('BUGÜN TAMAMLANDI')||!completedTodayText.includes('7 dk'))throw new Error('Today completed state did not render real reading outcome');
+            const completionSurface=await page.locator('.todayCompletionStats>span').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+            const completionRgb=(completionSurface.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(completionRgb.length<3||completionRgb.some(v=>v>90))throw new Error('Today completion stats regressed to a light material surface');
             const yesterdayText=await page.locator('.todayYesterdayCard').innerText();
             if(!yesterdayText.includes('DÜN NE OLDU?')||!yesterdayText.includes('6 dk')||!yesterdayText.includes('3 sayfa'))throw new Error('Yesterday reading summary did not render');
             await page.screenshot({path:'visual-review/01b-today-completed.png',fullPage:true});
@@ -428,6 +438,14 @@ jobs:
             const namazGroup=page.locator('.notebookBookGroup').filter({hasText:'Namaz Sûrelerinin'});
             if(await quranGroup.count()!==1)throw new Error('Quran annotations missing from Ilim Defteri v2');
             if(await namazGroup.count()!==1)throw new Error('Generic book annotations missing from Ilim Defteri v2');
+            const notebookVisual=await page.evaluate(()=>({
+              input:getComputedStyle(document.querySelector('.notebookToolbar input')).backgroundColor,
+              head:getComputedStyle(document.querySelector('.notebookBookHead')).backgroundImage,
+              quote:getComputedStyle(document.querySelector('.notebookEntry blockquote')).backgroundImage
+            }));
+            const notebookInputRgb=(notebookVisual.input.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(notebookInputRgb.length<3||notebookInputRgb.some(v=>v>90))throw new Error('Ilim Defteri search input regressed to a light surface');
+            if(!notebookVisual.head.includes('linear-gradient')||!notebookVisual.quote.includes('linear-gradient'))throw new Error('Ilim Defteri editorial surfaces regressed');
             await page.screenshot({path:'visual-review/04c-ilim-defteri-v2.png',fullPage:true});
             await page.fill('#notebookSearchInput','Visual review');
             await page.click('#notebookSearchForm button[type="submit"]');
@@ -451,6 +469,29 @@ jobs:
             await page.waitForTimeout(500);
             await page.screenshot({path:'visual-review/06-hadis-reader.png',fullPage:true});
 
+            // Prayer Center first-use + private qada tracking should share the premium night material system.
+            await page.evaluate((k)=>{
+              const s=JSON.parse(localStorage.getItem(k));
+              s.view='prayer';
+              s.profile={...(s.profile||{}),prayerTracking:true};
+              s.prayer={location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null};
+              s.qada={...(s.qada||{}),enabled:false,balances:{fajr:0,dhuhr:0,asr:0,maghrib:0,isha:0},logs:[],dailyTarget:1};
+              localStorage.setItem(k,JSON.stringify(s));
+            },key);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('.prayerSetup',{timeout:10000});
+            const prayerInputColor=await page.locator('.formGrid input').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+            const prayerInputRgb=(prayerInputColor.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(prayerInputRgb.length<3||prayerInputRgb.some(v=>v>90))throw new Error('Prayer setup inputs regressed to a light material surface');
+            await page.screenshot({path:'visual-review/06a-prayer-setup.png',fullPage:true});
+            await page.click('#toggleQada');
+            await page.waitForSelector('.qadaInput',{timeout:5000});
+            if(await page.locator('.qadaInput').count()!==5)throw new Error('Prayer qada tracker did not render five prayer rows');
+            const qadaInputColor=await page.locator('.qadaInput').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+            const qadaInputRgb=(qadaInputColor.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(qadaInputRgb.length<3||qadaInputRgb.some(v=>v>90))throw new Error('Qada inputs regressed to a light material surface');
+            await page.screenshot({path:'visual-review/06b-prayer-qada.png',fullPage:true});
+
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));s.view='week';localStorage.setItem(k,JSON.stringify(s));
             },key);
@@ -465,6 +506,15 @@ jobs:
             });
             const headingRgb=(progressContrast.heading.match(/\d+/g)||[]).slice(0,3).map(Number);
             if(!progressContrast.background.includes('linear-gradient')||headingRgb.length<3||headingRgb.some(v=>v<220))throw new Error('Premium progress hero contrast regressed');
+            const progressSurface=await page.evaluate(()=>({
+              chart:getComputedStyle(document.querySelector('.journeyChartCard')).backgroundImage,
+              metric:getComputedStyle(document.querySelector('.journeyMetric')).backgroundImage,
+              insight:getComputedStyle(document.querySelector('.periodInsight')).backgroundImage,
+              track:getComputedStyle(document.querySelector('.journeyBarTrack')).backgroundColor
+            }));
+            if(!progressSurface.chart.includes('linear-gradient')||!progressSurface.metric.includes('linear-gradient')||!progressSurface.insight.includes('linear-gradient'))throw new Error('Progress screen regressed to mixed light material cards');
+            const trackRgb=(progressSurface.track.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(trackRgb.length<3||trackRgb.some(v=>v>90))throw new Error('Progress chart tracks regressed to the legacy light material');
             await page.screenshot({path:'visual-review/07-progress.png',fullPage:true});
 
             await page.evaluate((k)=>{

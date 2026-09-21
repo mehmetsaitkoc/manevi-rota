@@ -2788,3 +2788,464 @@ nav button:hover{transform:translateY(-1px)}
 @media(max-width:374px){
   #productApp[data-design="premium-night-v3"] nav button small{font-size:7.2px}
 }
+
+
+/* Premium UI v3.3 — first-run and progress visual consistency */
+#productApp[data-design="premium-night-v3"] .onboardingCard{
+  background:
+    radial-gradient(circle at 100% 0,rgba(219,181,105,.10),transparent 15rem),
+    linear-gradient(155deg,rgba(15,31,46,.98),rgba(8,20,32,.98))!important;
+  border-color:rgba(216,181,109,.16)!important;
+  box-shadow:0 24px 64px rgba(0,0,0,.26)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard:after{
+  border-color:rgba(216,181,109,.11)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingBrandRow small,
+#productApp[data-design="premium-night-v3"] .onboardingPrompt .eyebrow{color:#deb96c}
+#productApp[data-design="premium-night-v3"] .onboardingBrandRow b,
+#productApp[data-design="premium-night-v3"] .onboardingPrompt h1{color:#f5ead8}
+#productApp[data-design="premium-night-v3"] .onboardingBrandRow>span{
+  background:rgba(255,255,255,.055);
+  color:#b8c0bf;
+  border:1px solid rgba(255,255,255,.07);
+}
+#productApp[data-design="premium-night-v3"] .onboardingPrompt .lead{color:#9ca8aa}
+#productApp[data-design="premium-night-v3"] .onboardingCard .step{
+  background:rgba(255,255,255,.12);
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .step.on{
+  background:linear-gradient(90deg,#9e773a,#dfbe74);
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt{
+  background:linear-gradient(150deg,rgba(24,42,57,.88),rgba(14,29,42,.92))!important;
+  border-color:rgba(255,255,255,.075)!important;
+  color:#e7dfd1!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt:hover{
+  border-color:rgba(216,181,109,.28)!important;
+  background:linear-gradient(150deg,rgba(27,48,64,.96),rgba(15,32,46,.96))!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt b{color:#ece3d5}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt small{
+  color:#899597!important;
+  opacity:1!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt.sel{
+  background:
+    radial-gradient(circle at 100% 0,rgba(216,181,109,.13),transparent 8rem),
+    linear-gradient(150deg,#172c3d,#0d2232)!important;
+  border-color:rgba(220,185,113,.42)!important;
+  color:#f3e6cb!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.16),inset 0 0 0 1px rgba(216,181,109,.06)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt.sel small{color:#c3b89f!important}
+#productApp[data-design="premium-night-v3"] .onboardingChoiceMark{
+  border-color:#66747a;
+  background:#101f2c;
+  box-shadow:inset 0 0 0 4px #101f2c;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt.sel .onboardingChoiceMark{
+  border-color:#dfbd72;
+  background:#dfbd72;
+  box-shadow:inset 0 0 0 4px #112331;
+}
+#productApp[data-design="premium-night-v3"] .onboardingChips .chip{
+  background:rgba(255,255,255,.045)!important;
+  color:#b7c0bf;
+  border-color:rgba(255,255,255,.075)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingChips .chip.sel{
+  background:rgba(216,181,109,.13)!important;
+  border-color:rgba(216,181,109,.36)!important;
+  color:#f0d8a7!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingAssurance span{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.055);
+  color:#899597;
+}
+#productApp[data-design="premium-night-v3"] .onboardingActions{
+  border-color:rgba(255,255,255,.075);
+}
+#productApp[data-design="premium-night-v3"] .onboardingActions .btn.primary{
+  background:linear-gradient(135deg,#dfbf77,#b98c44);
+  border-color:#d0aa63;
+  color:#10191c;
+}
+#productApp[data-design="premium-night-v3"] .onboardingActions .btn.ghost{
+  background:rgba(255,255,255,.04);
+  color:#839092;
+  border-color:rgba(255,255,255,.07);
+}
+
+/* Progress: keep the entire analysis view in one material system instead of
+   mixing parchment cards with the night shell. */
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .progressTabs{
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .progressTabs button{
+  color:#8f9a9b;
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .progressTabs button.active{
+  background:linear-gradient(135deg,rgba(222,187,116,.20),rgba(222,187,116,.10));
+  color:#ecd6a7;
+  border:1px solid rgba(216,181,109,.19);
+  box-shadow:none;
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .journeyChartCard{
+  background:linear-gradient(155deg,rgba(11,24,36,.94),rgba(7,18,29,.96))!important;
+  color:#e9dfd0!important;
+  border-color:rgba(216,181,109,.12)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .journeyChartHead small{
+  color:#d7b66f;
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .journeyChartHead b{
+  color:#eee3d2!important;
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .journeyChartHead>span{
+  color:#8d9899!important;
+}
+#productApp[data-design="premium-night-v3"] .journeyBarTrack{
+  background:rgba(255,255,255,.065);
+  border:1px solid rgba(255,255,255,.025);
+}
+#productApp[data-design="premium-night-v3"] .journeyBarTrack i{
+  background:linear-gradient(180deg,#d7bd7a,#557d70);
+  box-shadow:0 -6px 16px rgba(210,177,107,.10);
+}
+#productApp[data-design="premium-night-v3"] .journeyBarCol small{color:#758285}
+#productApp[data-design="premium-night-v3"] .progressEmpty{color:#829092}
+#productApp[data-design="premium-night-v3"] .journeyMetric{
+  background:linear-gradient(150deg,rgba(17,34,49,.92),rgba(9,22,34,.94));
+  border-color:rgba(216,181,109,.10);
+  box-shadow:0 12px 30px rgba(0,0,0,.14);
+}
+#productApp[data-design="premium-night-v3"] .journeyMetricIcon{
+  background:rgba(216,181,109,.10);
+  color:#dfbd75;
+  border:1px solid rgba(216,181,109,.13);
+}
+#productApp[data-design="premium-night-v3"] .journeyMetric.understanding .journeyMetricIcon{
+  background:rgba(181,94,76,.12);color:#dfa897;border-color:rgba(181,94,76,.16)
+}
+#productApp[data-design="premium-night-v3"] .journeyMetric.recall .journeyMetricIcon{
+  background:rgba(79,143,116,.13);color:#aad2bf;border-color:rgba(79,143,116,.17)
+}
+#productApp[data-design="premium-night-v3"] .journeyMetric.load .journeyMetricIcon{
+  background:rgba(186,143,69,.13);color:#ddc07f;border-color:rgba(186,143,69,.17)
+}
+#productApp[data-design="premium-night-v3"] .journeyMetric small{color:#b69a65}
+#productApp[data-design="premium-night-v3"] .journeyMetric b{color:#f0e4d1}
+#productApp[data-design="premium-night-v3"] .journeyMetric span{color:#859193}
+#productApp[data-design="premium-night-v3"] .periodInsight{
+  background:linear-gradient(155deg,rgba(15,30,44,.94),rgba(8,20,32,.95))!important;
+  border-color:rgba(216,181,109,.11)!important;
+}
+#productApp[data-design="premium-night-v3"] .periodInsight h2{color:#eee3d2}
+#productApp[data-design="premium-night-v3"] .periodInsightRow{
+  background:rgba(255,255,255,.035)!important;
+  border:1px solid rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .periodInsightRow>span{
+  background:rgba(216,181,109,.10)!important;
+  color:#debd76!important;
+}
+#productApp[data-design="premium-night-v3"] .periodInsightRow p{
+  color:#a5afb0!important;
+}
+#productApp[data-design="premium-night-v3"] .progressDetails{
+  background:rgba(12,25,38,.82)!important;
+  border-color:rgba(216,181,109,.09)!important;
+}
+#productApp[data-design="premium-night-v3"] .progressDetails summary{
+  color:#c9ac70;
+}
+#productApp[data-design="premium-night-v3"] .progressDetails .small{color:#8e9a9b}
+#productApp[data-design="premium-night-v3"] .slotStat{
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .slotStat b{color:#ddd6c9}
+#productApp[data-design="premium-night-v3"] .slotStat small{color:#7f8c8e}
+#productApp[data-design="premium-night-v3"] .slotStat strong{color:#d9b970}
+
+@media(max-width:640px){
+  #productApp[data-design="premium-night-v3"] .onboardingCard .opt{
+    min-height:58px;
+  }
+  #productApp[data-design="premium-night-v3"] .journeyMetric{
+    min-height:86px;
+  }
+}
+
+
+/* Premium UI v3.3.1 — defeat legacy light-material !important rules */
+#productApp[data-design="premium-night-v3"] .journeyBarTrack{
+  background:#132433!important;
+  border-color:rgba(255,255,255,.035)!important;
+}
+#productApp[data-design="premium-night-v3"] .journeyBarTrack i{
+  background:linear-gradient(180deg,#d9bf7d,#567c70)!important;
+}
+#productApp[data-design="premium-night-v3"] .journeyMetricGrid>div{
+  background:linear-gradient(150deg,rgba(17,34,49,.96),rgba(9,22,34,.97))!important;
+  border-color:rgba(216,181,109,.10)!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.14)!important;
+}
+#productApp[data-design="premium-night-v3"] .periodInsightRow{
+  background:rgba(255,255,255,.035)!important;
+}
+#productApp[data-design="premium-night-v3"] .periodInsightRow>span{
+  background:rgba(216,181,109,.10)!important;
+  color:#debd76!important;
+}
+
+
+/* Premium UI v3.4 — prayer center material consistency */
+#productApp[data-design="premium-night-v3"] .prayerSetup,
+#productApp[data-design="premium-night-v3"] .prayerTimesCard,
+#productApp[data-design="premium-night-v3"] .qadaCard,
+#productApp[data-design="premium-night-v3"] .sourceCard{
+  background:
+    radial-gradient(circle at 100% 0,rgba(216,181,109,.07),transparent 15rem),
+    linear-gradient(155deg,rgba(15,31,46,.96),rgba(8,20,32,.97))!important;
+  border-color:rgba(216,181,109,.11)!important;
+}
+#productApp[data-design="premium-night-v3"] .prayerSetup h1,
+#productApp[data-design="premium-night-v3"] .prayerTimesCard h2,
+#productApp[data-design="premium-night-v3"] .qadaCard h2{color:#f0e5d4}
+#productApp[data-design="premium-night-v3"] .prayerSetup .lead,
+#productApp[data-design="premium-night-v3"] .qadaCard>p{color:#96a2a4}
+#productApp[data-design="premium-night-v3"] .formGrid label span{
+  color:#b89d69;
+  font-size:9px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+#productApp[data-design="premium-night-v3"] .formGrid input,
+#productApp[data-design="premium-night-v3"] .qadaInput{
+  background:#102230;
+  border-color:rgba(255,255,255,.075);
+  color:#ece3d5;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#productApp[data-design="premium-night-v3"] .formGrid input::placeholder,
+#productApp[data-design="premium-night-v3"] .qadaInput::placeholder{color:#657378}
+#productApp[data-design="premium-night-v3"] .formGrid input:focus,
+#productApp[data-design="premium-night-v3"] .qadaInput:focus{
+  border-color:rgba(216,181,109,.34);
+  box-shadow:0 0 0 3px rgba(216,181,109,.07);
+}
+#productApp[data-design="premium-night-v3"] .sourceNote,
+#productApp[data-design="premium-night-v3"] .privacyNote{
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.045);
+  color:#849194;
+}
+#productApp[data-design="premium-night-v3"] .sourceNote b{color:#ccb173}
+#productApp[data-design="premium-night-v3"] .prayerTime{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .prayerTime>span{filter:saturate(.75)}
+#productApp[data-design="premium-night-v3"] .prayerTime small{color:#819093}
+#productApp[data-design="premium-night-v3"] .prayerTime b{color:#e7dfd1}
+#productApp[data-design="premium-night-v3"] .prayerTime.next{
+  background:linear-gradient(145deg,rgba(216,181,109,.13),rgba(216,181,109,.055));
+  border-color:rgba(216,181,109,.28);
+}
+#productApp[data-design="premium-night-v3"] .prayerTime.next b,
+#productApp[data-design="premium-night-v3"] .prayerTime.next i{color:#e1c27b}
+#productApp[data-design="premium-night-v3"] .sunriseLine{
+  border-color:rgba(255,255,255,.07);
+  color:#7d898c;
+}
+#productApp[data-design="premium-night-v3"] .sunriseLine b{color:#ddd4c7}
+#productApp[data-design="premium-night-v3"] .qadaSummary>div{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .qadaSummary span{color:#829093}
+#productApp[data-design="premium-night-v3"] .qadaSummary b{color:#e0c17b}
+#productApp[data-design="premium-night-v3"] .targetRow{
+  border-color:rgba(255,255,255,.06);
+}
+#productApp[data-design="premium-night-v3"] .chips.compact .chip{
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.07);
+  color:#9eaaaa;
+}
+#productApp[data-design="premium-night-v3"] .chips.compact .chip.sel{
+  background:rgba(216,181,109,.13);
+  border-color:rgba(216,181,109,.30);
+  color:#e3c77e;
+}
+#productApp[data-design="premium-night-v3"] .qadaRow{
+  border-color:rgba(255,255,255,.065);
+  background:rgba(255,255,255,.022);
+}
+#productApp[data-design="premium-night-v3"] .qadaRow b{color:#ddd5c8}
+#productApp[data-design="premium-night-v3"] .qadaRow small{color:#768487}
+#productApp[data-design="premium-night-v3"] .qadaDone{
+  background:linear-gradient(135deg,#d9b870,#b88a42);
+  color:#11191b;
+}
+#productApp[data-design="premium-night-v3"] .qadaDone:disabled{
+  background:#1c2c36;
+  color:#59686c;
+}
+#productApp[data-design="premium-night-v3"] .sourceCard details{color:#909c9e}
+#productApp[data-design="premium-night-v3"] .sourceCard summary{color:#d4b773}
+#productApp[data-design="premium-night-v3"] .sourceCard p{color:#879396}
+#productApp[data-design="premium-night-v3"] .errorBox{
+  background:rgba(158,77,54,.14);
+  border:1px solid rgba(194,107,81,.14);
+  color:#dfaa96;
+}
+
+
+/* Premium UI v3.5 — Ilim Defteri dark editorial system */
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero{
+  background:
+    radial-gradient(circle at 100% 0,rgba(216,181,109,.10),transparent 16rem),
+    linear-gradient(155deg,rgba(15,31,46,.98),rgba(8,20,32,.98))!important;
+  border-color:rgba(216,181,109,.14)!important;
+  overflow:hidden;
+}
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero:after{
+  background:rgba(216,181,109,.05)!important;
+}
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero h1{color:#f3e8d7}
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero .lead{color:#98a4a6}
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero .textButton{
+  color:#cdb06f;
+}
+#productApp[data-design="premium-night-v3"] .notebookSummaryGrid>div{
+  background:rgba(255,255,255,.04)!important;
+  border-color:rgba(216,181,109,.10)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#productApp[data-design="premium-night-v3"] .notebookSummaryGrid b{color:#dfbd73}
+#productApp[data-design="premium-night-v3"] .notebookSummaryGrid span{color:#7f8c8e}
+#productApp[data-design="premium-night-v3"] .notebookToolbar{
+  background:rgba(8,20,32,.94)!important;
+  border-color:rgba(216,181,109,.10)!important;
+  backdrop-filter:blur(18px);
+}
+#productApp[data-design="premium-night-v3"] .notebookToolbar form>span{color:#d8b970}
+#productApp[data-design="premium-night-v3"] .notebookToolbar input,
+#productApp[data-design="premium-night-v3"] .notebookFilters select{
+  background:#102230!important;
+  color:#e7dfd2!important;
+  border-color:rgba(255,255,255,.075)!important;
+}
+#productApp[data-design="premium-night-v3"] .notebookToolbar input::placeholder{color:#6f7c80}
+#productApp[data-design="premium-night-v3"] .notebookToolbar input:focus,
+#productApp[data-design="premium-night-v3"] .notebookFilters select:focus{
+  outline:none;
+  border-color:rgba(216,181,109,.34)!important;
+  box-shadow:0 0 0 3px rgba(216,181,109,.06);
+}
+#productApp[data-design="premium-night-v3"] .notebookFilters label{color:#9b8a67}
+#productApp[data-design="premium-night-v3"] .notebookFilters>span{color:#788689}
+#productApp[data-design="premium-night-v3"] .notebookBookGroup{
+  background:linear-gradient(155deg,rgba(14,29,43,.96),rgba(8,20,31,.97))!important;
+  border-color:rgba(216,181,109,.10)!important;
+}
+#productApp[data-design="premium-night-v3"] .notebookBookHead{
+  background:
+    radial-gradient(circle at 100% 0,rgba(216,181,109,.08),transparent 12rem),
+    linear-gradient(145deg,#132738,#0b1d2b)!important;
+  border-color:rgba(216,181,109,.09)!important;
+}
+#productApp[data-design="premium-night-v3"] .notebookBookHead small{color:#d4b56f}
+#productApp[data-design="premium-night-v3"] .notebookBookHead h2{color:#efe4d3}
+#productApp[data-design="premium-night-v3"] .notebookBookHead p{color:#7f8c8f}
+#productApp[data-design="premium-night-v3"] .notebookBookGlyph{
+  border:1px solid rgba(216,181,109,.15);
+  box-shadow:0 10px 24px rgba(0,0,0,.14);
+}
+#productApp[data-design="premium-night-v3"] .notebookEntry{
+  border-color:rgba(255,255,255,.065)!important;
+}
+#productApp[data-design="premium-night-v3"] .notebookEntryTop small{color:#d5b56f}
+#productApp[data-design="premium-night-v3"] .notebookEntryTop b{color:#e6ded1}
+#productApp[data-design="premium-night-v3"] .notebookBadges span{
+  border:1px solid rgba(255,255,255,.055);
+}
+#productApp[data-design="premium-night-v3"] .notebookBadges .note{
+  background:rgba(82,142,118,.13);color:#afd1c1
+}
+#productApp[data-design="premium-night-v3"] .notebookBadges .highlight{
+  background:rgba(216,181,109,.13);color:#e2c783
+}
+#productApp[data-design="premium-night-v3"] .notebookBadges .bookmark{
+  background:rgba(158,105,135,.13);color:#d6b2c6
+}
+#productApp[data-design="premium-night-v3"] .notebookEntry blockquote{
+  background:
+    linear-gradient(90deg,var(--nb-hl,rgba(216,181,109,.15)),rgba(255,255,255,.035))!important;
+  color:#cdd3d1!important;
+  border-left-color:#d1af69!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+}
+#productApp[data-design="premium-night-v3"] .notebookPersonalNote{
+  background:rgba(255,255,255,.04)!important;
+  border:1px solid rgba(255,255,255,.05);
+}
+#productApp[data-design="premium-night-v3"] .notebookPersonalNote small{color:#d0b16f}
+#productApp[data-design="premium-night-v3"] .notebookPersonalNote p{color:#aab4b4}
+#productApp[data-design="premium-night-v3"] .notebookBookmarkOnly{color:#899597}
+#productApp[data-design="premium-night-v3"] .notebookEntry .textButton{color:#c8aa69}
+#productApp[data-design="premium-night-v3"] .notebookLoading{color:#899597}
+#productApp[data-design="premium-night-v3"] .emptyState{
+  background:rgba(255,255,255,.035)!important;
+  color:#849194!important;
+  border-color:rgba(255,255,255,.05)!important;
+}
+
+
+/* Premium UI v3.6 — Today micro-surfaces and completion polish */
+#productApp[data-design="premium-night-v3"] .todayCompletionStats>span{
+  background:#122534!important;
+  border:1px solid rgba(216,181,109,.10)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#productApp[data-design="premium-night-v3"] .todayCompletionStats b{color:#ead8b1!important}
+#productApp[data-design="premium-night-v3"] .todayCompletionStats small{color:#7d898c!important}
+#productApp[data-design="premium-night-v3"] .taskTitleLine>span{
+  background:rgba(216,181,109,.09)!important;
+  color:#ddbf7a!important;
+  border:1px solid rgba(216,181,109,.13)!important;
+}
+#productApp[data-design="premium-night-v3"] .premiumTask .method{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(216,181,109,.075)!important;
+  color:#d5b775!important;
+  border:1px solid rgba(216,181,109,.11);
+}
+#productApp[data-design="premium-night-v3"] .premiumTask .taskWhy summary{color:#7f8c8e}
+#productApp[data-design="premium-night-v3"] .premiumTask .toggle{
+  background:#132533!important;
+  border-color:rgba(216,181,109,.18)!important;
+  color:#748184!important;
+}
+#productApp[data-design="premium-night-v3"] .premiumTask.done .toggle{
+  background:linear-gradient(135deg,#dfc27d,#b88b44)!important;
+  border-color:#d1ab64!important;
+  color:#10191b!important;
+}
+#productApp[data-design="premium-night-v3"] .todayFeedbackCard{
+  background:linear-gradient(155deg,rgba(15,30,44,.94),rgba(8,20,32,.96))!important;
+}
+#productApp[data-design="premium-night-v3"] .todayFeedbackCard h3{color:#e9dfcf}
+#productApp[data-design="premium-night-v3"] .todayFeedbackCard p{color:#879396}
