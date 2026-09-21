@@ -87,6 +87,90 @@ linear-gradient(180deg,#efede7 0%,#f8f6f1 52%,#ebe8df 100%);color:var(--intro-in
   .mr-intro[data-first-impression="v2.1"] .mr-stage{margin-top:23px}
 }
 
+
+/* Premium UI v3 — first impression follows the same midnight/gold visual DNA. */
+.mr-intro[data-first-impression="v2.1"]{
+  --intro-bg:#06101c;--intro-paper:#0d1c2a;--intro-ink:#f3e8d5;--intro-gold:#d7b56d;--intro-deep:#091925;
+  color:#f3e8d5;
+  background:
+    radial-gradient(circle at 77% 6%,rgba(222,181,97,.16),transparent 25rem),
+    radial-gradient(circle at 10% 28%,rgba(38,79,100,.22),transparent 29rem),
+    linear-gradient(180deg,#050c15 0%,#081725 54%,#07111d 100%);
+}
+.mr-intro[data-first-impression="v2.1"]:before{
+  border-color:rgba(218,181,106,.14);
+  box-shadow:0 0 0 28px rgba(218,181,106,.016),0 0 0 29px rgba(218,181,106,.08);
+}
+.mr-intro[data-first-impression="v2.1"] .mr-brand span{color:#f1e6d3}
+.mr-intro[data-first-impression="v2.1"] .mr-mark{
+  background:linear-gradient(150deg,#102737,#071923);
+  border-color:rgba(216,181,109,.38);
+  color:#e1c079;
+  box-shadow:0 14px 38px rgba(0,0,0,.28);
+}
+.mr-intro[data-first-impression="v2.1"] .mr-toplinks{color:#8e999b}
+.mr-intro[data-first-impression="v2.1"] .mr-toplinks a:hover{color:#e5c57e}
+.mr-intro[data-first-impression="v2.1"] .mr-kicker{color:#d2ae66}
+.mr-intro[data-first-impression="v2.1"] .mr-hero h1{
+  color:#f7ecda;
+  text-shadow:0 5px 30px rgba(0,0,0,.36);
+}
+.mr-intro[data-first-impression="v2.1"] .mr-hero .sub{color:#d9d3c8}
+.mr-intro[data-first-impression="v2.1"] .mr-hero .desc{color:#9ca8a9}
+.mr-intro[data-first-impression="v2.1"] .mr-proofRow>span{
+  background:rgba(255,255,255,.038);
+  border-color:rgba(216,181,109,.13);
+  box-shadow:0 10px 28px rgba(0,0,0,.12);
+}
+.mr-intro[data-first-impression="v2.1"] .mr-proofRow b{color:#e9dbc0}
+.mr-intro[data-first-impression="v2.1"] .mr-proofRow small,
+.mr-intro[data-first-impression="v2.1"] .mr-trustLine{color:#839093}
+.mr-intro[data-first-impression="v2.1"] .mr-trustLine i{color:#d4b36d}
+.mr-intro[data-first-impression="v2.1"] .mr-cta{
+  background:linear-gradient(135deg,#e1c17a,#bb8f45);
+  border-color:#d2aa61;
+  color:#11191b;
+  box-shadow:0 14px 38px rgba(173,126,50,.16);
+}
+.mr-intro[data-first-impression="v2.1"] .mr-cta.secondary{
+  background:rgba(255,255,255,.045);
+  color:#d4d9d6;
+  border-color:rgba(216,181,109,.14);
+  box-shadow:none;
+}
+.mr-intro[data-first-impression="v2.1"] .mr-phone{
+  background:#040b12;
+  border-color:rgba(216,181,109,.18);
+  box-shadow:0 30px 75px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.035);
+}
+.mr-intro[data-first-impression="v2.1"] .mr-screen{
+  background:linear-gradient(180deg,#fdf8ee,#f5eee1);
+  color:#202a26;
+}
+.mr-intro[data-first-impression="v2.1"] .mr-screen.dark{
+  background:linear-gradient(180deg,#081925 0%,#102b39 31%,#f8f2e8 31%);
+}
+.mr-intro[data-first-impression="v2.1"] .mr-mini-card{box-shadow:0 10px 30px rgba(0,0,0,.07)}
+.mr-intro[data-first-impression="v2.1"] .mr-features .mr-feature{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(216,181,109,.10);
+  box-shadow:none;
+}
+.mr-intro[data-first-impression="v2.1"] .mr-feature b{color:#e4d8c5}
+.mr-intro[data-first-impression="v2.1"] .mr-feature small{color:#879496}
+.mr-intro[data-first-impression="v2.1"] .mr-feature .fi{
+  background:rgba(216,181,109,.09);color:#d6b670
+}
+.mr-intro[data-first-impression="v2.1"] .mr-bottom{
+  background:
+    radial-gradient(circle at 90% 0,rgba(216,181,109,.09),transparent 18rem),
+    rgba(10,24,36,.80);
+  border-color:rgba(216,181,109,.15);
+}
+.mr-intro[data-first-impression="v2.1"] .mr-bottom h2{color:#f0e5d3}
+.mr-intro[data-first-impression="v2.1"] .mr-bottom p,
+.mr-intro[data-first-impression="v2.1"] .mr-noteLine{color:#8d999a}
+
 </style>
 </head>
 <body>
@@ -109,7 +193,7 @@ linear-gradient(180deg,#efede7 0%,#f8f6f1 52%,#ebe8df 100%);color:var(--intro-in
       <div class="sub">Her gün ne yapacağını sadeleştir. Okuma ritmini zamanla sana göre ayarla.</div>
       <p class="desc">Kur’ân, hadis ve temel eserleri tek akışta buluşturur. Kaldığın yeri, gerçek okuma süreni ve geri bildirimini kullanarak yükü dengeler; maneviyatını puanlamaz.</p>
       <div class="mr-proofRow" aria-label="Manevî Rota öne çıkanları">
-        <span><b>10 eser</b><small>başlangıç yolu</small></span>
+        <span><b>9 hazır eser</b><small>5 seviyelik ilim yolu</small></span>
         <span><b>Kaldığın yer</b><small>tek dokunuşla devam</small></span>
         <span><b>Gerçek ritim</b><small>kullanıma göre ayar</small></span>
       </div>
