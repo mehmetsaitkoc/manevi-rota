@@ -130,11 +130,13 @@ function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,pa
     if(book.id===lastBook){score+=22;scoreReasons.push('kaldığın yere devam');}
 
     if(book.readerType==='quran'){
-      const q=library?.quran||{};
+      const q=library?.quran||{},stats=perBookStats(events,'quran',date);
       if(Number(q.surah||1)>1||Number(q.ayah||1)>1){score+=8;scoreReasons.push('Kur’ân’da kaldığın yer kayıtlı');}
+      if(stats.daysSince<=2){score+=6;scoreReasons.push('yakın zamanda Kur’ân okudun');}
+      if(stats.latest?.feedback==='heavy'){score-=4;scoreReasons.unshift('son Kur’ân oturumu ağır geldi; süreyi küçült');}
       if(sameBook.bookId==='quran'&&sameBook.count>=5){score-=50;scoreReasons.push('son okumalarında Kur’ân ağırlığı zaten yüksek');}
       else if(sameBook.count>=5&&sameBook.bookId!=='quran'&&level===path.currentLevel){score+=18;scoreReasons.push('aynı seviyede hafif çeşitlilik sağlayabilir');}
-      const minutes=recommendationMinutes({book,stats:null,checkin,routeTypical,returning});
+      const minutes=recommendationMinutes({book,stats,checkin,routeTypical,returning});
       out.push({
         kind:'quran',bookId:book.id,title:book.title,minutes,score,
         locator:`${Number(q.surah||1)}. sûre · ${Number(q.ayah||1)}. âyet`,
