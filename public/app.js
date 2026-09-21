@@ -824,6 +824,7 @@ async function renderGenericBookReader(){
  if(Number(state.totalPages)!==total){state={...state,totalPages:total};S.library.books[bookId]=state;save()}
  if(!state.activeSession){state=beginBookReadingSession(state,{page:state.page,at:new Date().toISOString()});S.library.books[bookId]=state;save();}
  const pageNo=Math.max(1,Math.min(total,Number(state.page)||1)),page=data.pages[pageNo-1],scale=Number(state.fontScale||1);
+ const qualityReview=(Array.isArray(data.qualityReviewPages)?data.qualityReviewPages:[]).find(x=>Number(x?.page)===Number(page?.page));
  const completed=isPathBookCompleted({book,pathState:S.library.path,hadithCompletedCount:S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length});
  const completionEligible=completed||pageNo>=Math.ceil(total*.85);
  const selectedColor=state.highlightColor||'#e6c46f',blocks=genericBookBlocks(page?.text||''),bookmarked=state.bookmarks.includes(pageNo);
@@ -864,6 +865,7 @@ async function renderGenericBookReader(){
    </header>
    <section class="genericBookSessionCard"><div><small>AKTİF OKUMA OTURUMU</small><b>${activeMinutes} dk · ${Math.abs(pageNo-(state.activeSession?.startPage||pageNo))} sayfa ilerleme</b><p>Oturumu bitirirken zorluk geri bildirimi, bugünkü Okuma/Öğrenme görevine gerçek kullanım verisi olarak bağlanır.</p></div><div><button data-reader-feedback="heavy">Zor</button><button data-reader-feedback="ideal" class="primary">Tam kıvamında</button><button data-reader-feedback="easy">Rahat</button></div></section>
    <div class="genericBookMarkupBar"><div><span>Vurgu rengi</span><div class="bookColorPalette">${palette}<input id="genericBookCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div><small>Vurgular ve notlar kaynak metne karıştırılmaz.</small></div>
+   ${qualityReview?`<aside class="readerQualityWarning"><strong>Kaynak kontrolü bekleyen sayfa</strong><p>Bu kaynak sayfada OCR/tarama bozulması tespit edildi. Okunabilir kısımlar tarihî taramadan aynen aktarılıyor; bozuk bölüm kaynak görüntüsüyle karşılaştırılmadan düzeltilmeyecek.</p></aside>`:''}
    <article class="genericBookPaper"><div class="genericBookPageMarker">OKUMA ${pageNo} · KAYNAK SAYFA ${page?.page||pageNo}</div>${content||'<div class="emptyState">Bu sayfada aktarılabilir metin bulunamadı.</div>'}</article>
    <section class="genericBookCompletion ${completed?'done':''}">
      <div><small>OKUMA DURUMU</small><b>${completed?'Bu kitabı tamamladın':completionEligible?'Kitabın son bölümündesin':'Okumaya devam et'}</b><p>${completed?'Bu işaret yalnız okuma yolundaki ilerlemeni gösterir; manevî değer veya başarı puanı değildir.':completionEligible?'Gerçekten bitirdiysen tamamlandı olarak işaretleyebilirsin.':'Tamamlama düğmesi kitabın son %15’lik bölümüne geldiğinde açılır.'}</p></div>
