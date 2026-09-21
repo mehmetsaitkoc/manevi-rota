@@ -872,7 +872,7 @@ async function renderGenericBookReader(){
      ${editing?`<div class="genericBookNoteEditor"><label for="genericBookNoteInput">Kişisel notun</label><textarea id="genericBookNoteInput" rows="4" maxlength="2400" placeholder="Bu alan eser metninden ayrıdır.">${esc(note)}</textarea><div><button class="btn ghost" id="genericBookNoteCancel">Vazgeç</button><button class="btn primary" id="genericBookNoteSave">Kaydet</button></div></div>`:''}
    </article>`;
  }).join('');
- app.innerHTML=`<section class="readerTop genericBookTop"><button class="readerBack" id="genericBookBack">←</button><div><small>BAŞLANGIÇ KÜTÜPHANESİ · ${book.order}/10</small><b>${esc(book.title)}</b></div><div class="readerTools"><button id="genericBookBookmark" class="${bookmarked?'active':''}" aria-label="Sayfa yer imi">${bookmarked?'★':'☆'}</button><button id="genericBookFocus" class="${state.focusMode?'active':''}">${state.focusMode?'Çık':'Odak'}</button><button id="genericBookFontDown">A−</button><button id="genericBookFontUp">A+</button></div></section>
+ app.innerHTML=`<section class="readerTop genericBookTop simpleReaderTop"><button class="readerBack" id="genericBookBack">←</button><div><small>OKUMA ${pageNo}/${total}</small><b>${esc(book.title)}</b></div><div class="readerTools"><button id="genericBookBookmark" class="${bookmarked?'active':''}" aria-label="Sayfa yer imi">${bookmarked?'★':'☆'}</button><button id="genericBookMore" aria-label="Okuma araçları">•••</button></div></section>
  <section class="genericBookReaderShell ${state.focusMode?'genericBookFocusMode':''}">
    <div class="genericBookNav">
      <button id="genericPrevPage" ${pageNo<=1?'disabled':''}>←</button>
@@ -880,9 +880,10 @@ async function renderGenericBookReader(){
      <button id="genericNextPage" ${pageNo>=total?'disabled':''}>→</button>
    </div>
    <div class="genericBookProgressBar"><i style="width:${progressPct}%"></i><span>%${progressPct}</span></div>
-   <details class="genericBookUtilityDrawer" ${state.searchQuery?'open':''}>
-     <summary><span>⌕</span><b>Kitapta ara / bölüme git</b><small>İkincil araçlar</small></summary>
+   <details class="genericBookUtilityDrawer simpleReaderTools" ${state.searchQuery?'open':''}>
+     <summary><span>•••</span><b>Okuma araçları</b><small>Ara · bölüm · yazı boyutu</small></summary>
      <div class="genericBookUtilityBody">
+       <div class="simpleReaderFont"><span>Yazı boyutu</span><div><button id="genericBookFontDown">A−</button><button id="genericBookFontUp">A+</button><button id="genericBookFocus">${state.focusMode?'Odaktan çık':'Odak modu'}</button></div></div>
        <form class="genericBookSearch" id="genericBookSearchForm"><span>⌕</span><input id="genericBookSearchInput" type="search" value="${esc(state.searchQuery||'')}" placeholder="Kitap içinde ara…" autocomplete="off"><button type="submit">Ara</button>${state.searchQuery?'<button type="button" id="genericBookSearchClear">Temizle</button>':''}</form>
        ${state.searchQuery?`<section class="genericBookSearchResults"><div><small>ARAMA SONUÇLARI</small><b>${searchResults.length?searchResults.length+' eşleşme':'Eşleşme bulunamadı'}</b></div>${searchResults.map(hit=>`<button data-search-page="${hit.page}"><span>Okuma ${hit.page}</span><p>${esc(hit.excerpt)}</p></button>`).join('')}</section>`:''}
        ${sectionOptions?`<div class="genericBookSectionJump"><select id="genericBookSectionSelect"><option value="">Bölüme git…</option>${sectionOptions}</select></div>`:''}
@@ -890,10 +891,10 @@ async function renderGenericBookReader(){
    </details>
    <header class="genericBookTitleCard">
      <div class="genericBookMonogram tone-${esc(book.tone||'forest')}">${esc(book.coverGlyph||'ك')}</div>
-     <div><div class="eyebrow">${esc(book.field)} · ${esc(book.level)}</div><h1>${esc(book.title)}</h1><p>${esc(book.author)} · Okuma ${pageNo}/${total}</p><small class="genericBookEdition">${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</small><div class="genericBookReaderStats"><span>${annotations.notes} not</span><span>${annotations.highlights} vurgu</span><span>${annotations.bookmarks} yer imi</span><span>${readingSummary.totalMinutes} dk kayıtlı okuma</span></div></div>
+     <div><div class="eyebrow">${esc(book.field)}</div><h1>${esc(book.title)}</h1><p>${esc(book.author)} · Okuma ${pageNo}/${total}</p><small class="genericBookEdition">${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</small></div>
    </header>
-   <section class="genericBookSessionCard"><div><small>AKTİF OKUMA OTURUMU</small><b>${activeMinutes} dk · ${Math.abs(pageNo-(state.activeSession?.startPage||pageNo))} sayfa ilerleme</b><p>Oturumu bitirirken zorluk geri bildirimi, bugünkü Okuma/Öğrenme görevine gerçek kullanım verisi olarak bağlanır.</p></div><div><button data-reader-feedback="heavy">Zor</button><button data-reader-feedback="ideal" class="primary">Tam kıvamında</button><button data-reader-feedback="easy">Rahat</button></div></section>
-   <div class="genericBookMarkupBar"><div><span>Vurgu rengi</span><div class="bookColorPalette">${palette}<input id="genericBookCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div><small>Vurgular ve notlar kaynak metne karıştırılmaz.</small></div>
+   <details class="genericBookSessionCard simpleReaderSession"><summary><span>Okuma oturumu</span><b>${activeMinutes} dk</b></summary><div><p>${Math.abs(pageNo-(state.activeSession?.startPage||pageNo))} sayfa ilerleme · Bitirirken nasıl geldiğini seç.</p><div><button data-reader-feedback="heavy">Zor</button><button data-reader-feedback="ideal" class="primary">Tam kıvamında</button><button data-reader-feedback="easy">Rahat</button></div></div></details>
+   <details class="genericBookMarkupBar simpleMarkup"><summary>Vurgu rengi</summary><div><span>Renk</span><div class="bookColorPalette">${palette}<input id="genericBookCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div></details>
    <article class="genericBookPaper"><div class="genericBookPageMarker">OKUMA ${pageNo} · KAYNAK SAYFA ${page?.page||pageNo}</div>${content||'<div class="emptyState">Bu sayfada aktarılabilir metin bulunamadı.</div>'}</article>
    <section class="genericBookCompletion ${completed?'done':''}">
      <div><small>OKUMA DURUMU</small><b>${completed?'Bu kitabı tamamladın':completionEligible?'Kitabın son bölümündesin':'Okumaya devam et'}</b><p>${completed?'Bu işaret yalnız okuma yolundaki ilerlemeni gösterir; manevî değer veya başarı puanı değildir.':completionEligible?'Gerçekten bitirdiysen tamamlandı olarak işaretleyebilirsin.':'Tamamlama düğmesi kitabın son %15’lik bölümüne geldiğinde açılır.'}</p></div>
@@ -933,6 +934,7 @@ async function renderGenericBookReader(){
  document.querySelector('#genericBookFontUp').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.min(1.5,scale+.08)});persist();renderGenericBookReader()};
  document.querySelector('#genericBookFocus').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,focusMode:!state.focusMode,noteFor:null});persist();renderGenericBookReader()};
  document.querySelector('#genericBookBookmark').onclick=()=>{S.library.books[bookId]=toggleBookPageBookmark(state,pageNo);persist();renderGenericBookReader()};
+ const more=document.querySelector('#genericBookMore');if(more)more.onclick=()=>{const tools=document.querySelector('.simpleReaderTools');if(tools){tools.open=true;tools.scrollIntoView({behavior:'smooth',block:'start'})}};
  document.querySelectorAll('[data-book-color]').forEach(btn=>btn.onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,highlightColor:btn.dataset.bookColor});persist();renderGenericBookReader()});
  document.querySelector('#genericBookCustomColor').onchange=e=>{S.library.books[bookId]=normalizeBookReaderState({...state,highlightColor:e.target.value});persist();renderGenericBookReader()};
  document.querySelectorAll('[data-book-highlight]').forEach(btn=>btn.onclick=()=>{S.library.books[bookId]=toggleBookHighlight(S.library.books[bookId],pageNo,Number(btn.dataset.bookHighlight),S.library.books[bookId].highlightColor);persist();renderGenericBookReader()});
