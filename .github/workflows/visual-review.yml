@@ -105,6 +105,10 @@ jobs:
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#app .premiumTodayHero',{timeout:10000});
             await page.waitForSelector('.readingRecommendationCard',{timeout:5000});
+            const editorialUi=await page.getAttribute('#productApp','data-ui');
+            if(editorialUi!=='editorial-v1')throw new Error('Premium editorial UI marker missing');
+            const navGlyphs=await page.locator('#nav .navGlyph').count();
+            if(navGlyphs!==6)throw new Error('Premium navigation must use six monochrome glyphs');
             await page.waitForFunction((k)=>Number(JSON.parse(localStorage.getItem(k)||'{}').library?.books?.['islam-dini']?.totalPages||0)>0,key,{timeout:10000});
             const hydratedTotal=await page.evaluate((k)=>Number(JSON.parse(localStorage.getItem(k)).library?.books?.['islam-dini']?.totalPages||0),key);
             if(hydratedTotal<=120)throw new Error('Legacy generic-book progress did not hydrate totalPages before recommendation ranking');
@@ -383,6 +387,15 @@ jobs:
             },key);
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#app .progressHero',{timeout:10000});
+            const progressContrast=await page.locator('.progressHero').evaluate(el=>{
+              const h1=el.querySelector('h1');
+              return {
+                background:getComputedStyle(el).backgroundImage,
+                heading:getComputedStyle(h1).color
+              };
+            });
+            const headingRgb=(progressContrast.heading.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(!progressContrast.background.includes('linear-gradient')||headingRgb.length<3||headingRgb.some(v=>v<220))throw new Error('Premium progress hero contrast regressed');
             await page.screenshot({path:'visual-review/07-progress.png',fullPage:true});
 
             await page.evaluate((k)=>{
