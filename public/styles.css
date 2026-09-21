@@ -2681,3 +2681,64 @@ nav button:hover{transform:translateY(-1px)}
     animation-iteration-count:1!important;
   }
 }
+
+
+/* Premium UI v3.1 — visual-review contrast corrections */
+#productApp[data-design="premium-night-v3"] .starterBookCard{
+  background:linear-gradient(150deg,rgba(18,35,50,.90),rgba(9,21,33,.92))!important;
+  border-color:rgba(216,181,109,.12)!important;
+  box-shadow:none!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.ready:hover{
+  background:linear-gradient(150deg,rgba(23,43,58,.98),rgba(11,26,39,.98))!important;
+  border-color:rgba(221,187,116,.34)!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.completed{
+  background:linear-gradient(150deg,rgba(22,39,49,.94),rgba(11,27,36,.94))!important;
+  border-color:rgba(129,176,151,.20)!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.pending{
+  background:rgba(255,255,255,.025)!important;
+  border-color:rgba(255,255,255,.05)!important;
+  opacity:.48;
+}
+#productApp[data-design="premium-night-v3"] .starterBookOrder{
+  background:#0b1b28!important;
+  color:#d8b86f!important;
+  border:1px solid rgba(216,181,109,.16);
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.completed .starterBookOrder{
+  background:#3b5f52!important;
+  color:#f5ecdc!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCover{
+  box-shadow:0 13px 28px rgba(0,0,0,.18)!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>b{color:#ece2d2!important}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>small{color:#9aa5a6!important}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>p{color:#879395!important}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>em{color:#d0b878!important}
+#productApp[data-design="premium-night-v3"] .starterBookAnnotations{color:#8f999a!important}
+
+#productApp[data-design="premium-night-v3"] .pilotHead h2{color:#eee3d2}
+#productApp[data-design="premium-night-v3"] .pilotCard .lead{color:#9ca7a8}
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid b{
+  color:#e9dfcf;
+}
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid small{
+  color:#9ca6a6;
+}
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid>div>span{
+  background:rgba(126,190,156,.13);
+  color:#b9dec9;
+}
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid>div:nth-child(2)>span{
+  background:rgba(203,132,103,.13);
+  color:#e3b39f;
+}
+#productApp[data-design="premium-night-v3"] .pilotStatusRow>div{
+  background:rgba(255,255,255,.045);
+  color:#e9dfd0;
+}
+#productApp[data-design="premium-night-v3"] .pilotStatusRow small{color:#829093}
+#productApp[data-design="premium-night-v3"] .pilotStatusRow b{color:#f0e5d4}
