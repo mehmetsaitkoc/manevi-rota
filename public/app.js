@@ -342,18 +342,18 @@ function renderToday(){
  const readingRec=readingCandidates[readingIndex]||null;
  const remainingCount=r.tasks.filter(x=>!done.has(x.id)).length;
  const todaySession=todayCompleted?(d.readingSessions||[]).find(x=>x.bookId===todayCompleted.bookId):null;
- const todayPages=Math.max(0,Number(todaySession?.pages||0));
+ const todayPages=Math.max(0,Number(todaySession?.pages||0)),todayVerses=Math.max(0,Number(todaySession?.verses||0));
  const completedBook=todayCompleted?starterBook(todayCompleted.bookId):null;
  const completedFeedback=todayCompleted?readingFeedbackLabel(todayCompleted.feedback):'';
  const yesterdayDetail=yesterdaySummary.hasActivity
-   ?[yesterdaySummary.minutes+' dk',yesterdaySummary.pages?yesterdaySummary.pages+' sayfa':'',yesterdaySummary.feedbackLabel].filter(Boolean).join(' · ')
+   ?[yesterdaySummary.minutes+' dk',yesterdaySummary.pages?yesterdaySummary.pages+' sayfa':'',yesterdaySummary.verses?yesterdaySummary.verses+' âyet':'',yesterdaySummary.feedbackLabel].filter(Boolean).join(' · ')
    :'Dün okuma kaydı oluşmadı. Bugün küçük bir adım yeter.';
  const taskHtml=x=>{const t=TASK_CATALOG[x.id],isDone=done.has(x.id),fb=d.taskFeedback?.[x.id],ilimLink=['learning','reading'].includes(x.id);return `<section class="task premiumTask ${isDone?'done':''}"><div class="taskTop"><div class="ico">${t.icon}</div><div class="taskMain"><div class="taskTitleLine"><h3>${t.title}</h3><span>${x.duration} dk</span></div><div class="reason">${esc(t.description)}</div><div class="method">${esc(x.method)}</div>${ilimLink?`<button class="taskDeepLink" data-open-ilim="1">Kitaplığı aç →</button>`:''}<details class="taskWhy"><summary>Neden bugün?</summary><p>${x.reasons.length?x.reasons.map(esc).join(' · '):'Genel denge için'}</p></details></div><button class="toggle" data-task="${x.id}" aria-label="Görevi tamamla">✓</button></div>${isDone?`<div class="taskFeedback"><button class="${fb==='hard'?'sel':''}" data-tf="${x.id}:hard">Zor</button><button class="${fb==='normal'?'sel':''}" data-tf="${x.id}:normal">Tam kıvamında</button><button class="${fb==='easy'?'sel':''}" data-tf="${x.id}:easy">Rahat</button></div>`:''}</section>`};
 
  const primaryCard=todayCompleted
    ?`<section class="card todayPrimaryCard completed" data-today-primary="completed">
       <div class="todayPrimaryTop"><div class="todayPrimaryCheck">✓</div><div><div class="eyebrow">BUGÜN TAMAMLANDI</div><h1>${esc(todayCompleted.title||completedBook?.title||'Bugünkü okuma')}</h1><p>Bugünün ana okuma kaydı tamamlandı. Bu yalnızca okuma düzenini gösterir; manevî bir puan değildir.</p></div></div>
-      <div class="todayCompletionStats"><span><b>${todayCompleted.actualMinutes||todayCompleted.recommendedMinutes||0} dk</b><small>gerçek okuma</small></span>${todayPages?`<span><b>${todayPages} sayfa</b><small>ilerleme</small></span>`:''}<span><b>${esc(completedFeedback)}</b><small>senin geri bildirimin</small></span>${completedBook?.level?`<span><b>${esc(completedBook.level)}</b><small>okuma yolu</small></span>`:''}</div>
+      <div class="todayCompletionStats"><span><b>${todayCompleted.actualMinutes||todayCompleted.recommendedMinutes||0} dk</b><small>gerçek okuma</small></span>${todayPages?`<span><b>${todayPages} sayfa</b><small>ilerleme</small></span>`:todayVerses?`<span><b>${todayVerses} âyet</b><small>ilerleme</small></span>`:''}<span><b>${esc(completedFeedback)}</b><small>senin geri bildirimin</small></span>${completedBook?.level?`<span><b>${esc(completedBook.level)}</b><small>okuma yolu</small></span>`:''}</div>
       <div class="todayPrimaryActions"><button class="btn primary" id="todayCompletionLibrary">Kütüphaneye git</button><button class="btn ghost" id="todayCompletionNotebook">İlim Defteri</button></div>
     </section>`
    :readingRec
