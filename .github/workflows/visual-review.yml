@@ -458,6 +458,29 @@ jobs:
             await page.waitForTimeout(500);
             await page.screenshot({path:'visual-review/06-hadis-reader.png',fullPage:true});
 
+            // Prayer Center first-use + private qada tracking should share the premium night material system.
+            await page.evaluate((k)=>{
+              const s=JSON.parse(localStorage.getItem(k));
+              s.view='prayer';
+              s.profile={...(s.profile||{}),prayerTracking:true};
+              s.prayer={location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null};
+              s.qada={...(s.qada||{}),enabled:false,balances:{fajr:0,dhuhr:0,asr:0,maghrib:0,isha:0},logs:[],dailyTarget:1};
+              localStorage.setItem(k,JSON.stringify(s));
+            },key);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('.prayerSetup',{timeout:10000});
+            const prayerInputColor=await page.locator('.formGrid input').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+            const prayerInputRgb=(prayerInputColor.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(prayerInputRgb.length<3||prayerInputRgb.some(v=>v>90))throw new Error('Prayer setup inputs regressed to a light material surface');
+            await page.screenshot({path:'visual-review/06a-prayer-setup.png',fullPage:true});
+            await page.click('#toggleQada');
+            await page.waitForSelector('.qadaInput',{timeout:5000});
+            if(await page.locator('.qadaInput').count()!==5)throw new Error('Prayer qada tracker did not render five prayer rows');
+            const qadaInputColor=await page.locator('.qadaInput').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+            const qadaInputRgb=(qadaInputColor.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(qadaInputRgb.length<3||qadaInputRgb.some(v=>v>90))throw new Error('Qada inputs regressed to a light material surface');
+            await page.screenshot({path:'visual-review/06b-prayer-qada.png',fullPage:true});
+
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));s.view='week';localStorage.setItem(k,JSON.stringify(s));
             },key);
