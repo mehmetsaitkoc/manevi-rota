@@ -714,6 +714,7 @@ function renderIlim(){
  if(ui.screen==='quran')return renderQuranReader();
  if(ui.screen==='islam')return renderIslamDiniReader();
  if(ui.screen==='book')return renderGenericBookReader();
+ if(ui.screen==='library')return renderSimpleLibrary();
  return renderIlimHome();
 }
 function ilimGo(screen,selectedId=null){S.ilim.ui={...(S.ilim.ui||{}),screen,...(selectedId?{selectedId:Number(selectedId)}:{})};save();window.scrollTo({top:0,left:0,behavior:'auto'});renderIlim()}
