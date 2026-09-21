@@ -49,9 +49,9 @@ assert.ok(ranked[0].reasons.some(x=>x.includes('çeşitlilik')),'variety recomme
 
 // F — final 10% increases continuation priority
 lib=library({lastBook:'islam-dini',books:{'islam-dini':{page:230,totalPages:250,sessions:[session('2026-09-20',8,'ideal',230)]}}});
-rec=buildReadingRecommendation({date,profile:baseProfile,checkin:baseCheckin,library:lib,ilim:emptyKirkHadisState(),records:[],bookTotals:{'islam-dini':250}});
+rec=buildReadingRecommendation({date,profile:baseProfile,checkin:baseCheckin,library:lib,ilim:emptyKirkHadisState(),records:[]});
 assert.equal(rec.bookId,'islam-dini');
-assert.ok(rec.reasons.some(x=>x.includes('son bölümüne')));
+assert.ok(rec.reasons.some(x=>x.includes('son bölümüne')),'persisted totalPages must drive completion priority even before the asset is cached');
 
 // G — lapsed reader gets a micro return
 lib=library({lastBook:'islam-dini',books:{'islam-dini':{page:44,totalPages:250,sessions:[session('2026-09-10',10,'ideal',44)]}}});
@@ -80,4 +80,4 @@ lib=library({lastBook:'islam-dini',books:{'islam-dini':{page:90,totalPages:250,s
 ranked=rankReadingRecommendations({date,profile:{...baseProfile,priorities:['reading','learning']},checkin:baseCheckin,library:lib,ilim:emptyKirkHadisState(),records:[]});
 assert.equal(ranked[0].priorWeight,.15,'ten real reading sessions should reduce onboarding priors to the minimum influence');
 
-console.log('reading-recommendation: scenarios A-G, prior decay and learned reading dose passed');
+console.log('reading-recommendation: scenarios A-G, persisted completion, prior decay and learned reading dose passed');
