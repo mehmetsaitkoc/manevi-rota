@@ -18,7 +18,7 @@ jobs:
           set -euo pipefail
           base="https://manevi-rota.onrender.com"
           ready=0
-          for i in {1..36}; do
+          for i in {1..3}; do
             health_code="$(curl -sS -L -H 'Cache-Control: no-cache' --connect-timeout 10 --max-time 25 -o /tmp/health.json -w '%{http_code}' "$base/healthz" || true)"
             curl -fsSL -H 'Cache-Control: no-cache' "$base/public/app.js?smoke=921f105-$i" -o /tmp/app.js 2>/dev/null || true
             curl -fsSL -H 'Cache-Control: no-cache' "$base/src/reading-recommendation-memory.mjs?smoke=921f105-$i" -o /tmp/memory.mjs 2>/dev/null || true
@@ -35,7 +35,7 @@ jobs:
               ready=1
               break
             fi
-            sleep 10
+            sleep 5
           done
 
           cat /tmp/health.json || true
