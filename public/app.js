@@ -302,9 +302,26 @@ function validCheck(c){return !!(c.minutes&&c.energy&&c.load&&c.mood&&c.context)
 function render(){if(!S.onboardDone){nav.classList.add('hidden');return renderOnboard()}nav.classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===S.view));if(S.view==='checkin')return renderCheckin();if(S.view==='prayer')return renderPrayer();if(S.view==='ilim')return renderIlim();if(S.view==='week')return renderWeek();if(S.view==='profile')return renderProfile();return renderToday()}
 
 function renderOnboard(){
- const x=onboarding[S.onboardStep],v=S.profile[x.k];
- const options=x.multi?`<div class="chips">${x.o.map(o=>`<button class="chip ${(v||[]).includes(o[0])?'sel':''}" data-m="${o[0]}">${o[1]}</button>`).join('')}</div>`:`<div class="grid">${x.o.map(o=>`<button class="opt ${v===o[0]?'sel':''}" data-o="${o[0]}"><b>${o[1]}</b><small>${o[2]}</small></button>`).join('')}</div>`;
- app.innerHTML=`<section class="card onboardingCard"><div class="eyebrow">Manevî Rota · ${S.onboardStep+1}/${onboarding.length}</div><div class="steps">${onboarding.map((_,i)=>`<i class="step ${i<=S.onboardStep?'on':''}"></i>`).join('')}</div><h1>${x.q}</h1><p class="lead">İlk profilin oluşacak. Motor ilk günlerde kesin hüküm vermeyecek; gerçek kullanım verisi geldikçe dozunu ayarlayacak.</p>${options}<div class="actions"><button class="btn ghost" id="back" ${S.onboardStep===0?'disabled':''}>Geri</button><button class="btn primary" id="next" ${validOnboard(x)?'':'disabled'}>${S.onboardStep===onboarding.length-1?'Bugüne geç':'Devam'}</button></div></section>`;
+ const x=onboarding[S.onboardStep],v=S.profile[x.k],step=S.onboardStep+1,total=onboarding.length;
+ const stageLabels=['Başlangıç ritmi','Günlük kapasite','Kur’ân düzeni','Okuma düzeni','Öncelikler','Namaz merkezi','En sık engel','Rota yaklaşımı'];
+ const guidance=S.onboardStep===0
+   ?'Doğru veya yanlış cevap yok. Bu seçim yalnız başlangıç dozunu belirler; gerçek kullanımın sonraki günlerde daha belirleyici olur.'
+   :'Bu cevap başlangıç ayarını inceltir. Rota zamanla gerçek okuma süren ve açık geri bildirimlerinle yeniden dengelenir.';
+ const options=x.multi
+   ?`<div class="chips onboardingChips">${x.o.map(o=>`<button class="chip ${(v||[]).includes(o[0])?'sel':''}" data-m="${o[0]}" aria-pressed="${(v||[]).includes(o[0])?'true':'false'}">${o[1]}</button>`).join('')}</div>`
+   :`<div class="grid onboardingChoices">${x.o.map(o=>`<button class="opt ${v===o[0]?'sel':''}" data-o="${o[0]}" aria-pressed="${v===o[0]?'true':'false'}"><span class="onboardingChoiceMark" aria-hidden="true"></span><span><b>${o[1]}</b><small>${o[2]}</small></span></button>`).join('')}</div>`;
+ app.innerHTML=`<section class="card onboardingCard" data-onboarding-step="${step}">
+   <div class="onboardingBrandRow">
+     <div class="onboardingMark" aria-hidden="true">☾</div>
+     <div><small>KİŞİSEL ROTA KURULUMU</small><b>${stageLabels[S.onboardStep]||'Başlangıç'}</b></div>
+     <span>${step} / ${total}</span>
+   </div>
+   <div class="steps" aria-label="Kurulum ilerlemesi">${onboarding.map((_,i)=>`<i class="step ${i<=S.onboardStep?'on':''}" aria-hidden="true"></i>`).join('')}</div>
+   <div class="onboardingPrompt"><div class="eyebrow">Sana göre başlasın</div><h1>${x.q}</h1><p class="lead">${guidance}</p></div>
+   ${options}
+   <div class="onboardingAssurance"><span>Maneviyat puanı yok</span><span>Sonradan değiştirilebilir</span></div>
+   <div class="actions onboardingActions"><button class="btn ghost" id="back" ${S.onboardStep===0?'disabled':''}>← Geri</button><button class="btn primary" id="next" ${validOnboard(x)?'':'disabled'}>${S.onboardStep===onboarding.length-1?'Bugüne geç →':'Devam →'}</button></div>
+ </section>`;
  document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{let raw=b.dataset.o;S.profile[x.k]=x.bool?raw==='true':x.num?Number(raw):raw;save();renderOnboard()});
  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const a=new Set(S.profile.priorities||[]),k=b.dataset.m;a.has(k)?a.delete(k):(a.size<4&&a.add(k));S.profile.priorities=[...a];save();renderOnboard()});
  document.querySelector('#back').onclick=()=>{if(S.onboardStep){S.onboardStep--;save();renderOnboard()}};
