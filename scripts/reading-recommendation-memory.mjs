@@ -23,7 +23,8 @@ state=skipReadingRecommendation(state,rec,{date:'2026-09-22',at:'2026-09-22T18:0
 assert.equal(state.history.filter(x=>x.status==='skipped'&&x.date==='2026-09-22').length,1,'same-day repeated alternate clicks must not multiply negative evidence');
 
 state=skipReadingRecommendation(state,rec,{date:'2026-09-23',at:'2026-09-23T18:00:00Z'});
-const negative=recommendationPreferenceSignal(state,'islam-dini','2026-09-24');
+state=skipReadingRecommendation(state,rec,{date:'2026-09-24',at:'2026-09-24T18:00:00Z'});
+const negative=recommendationPreferenceSignal(state,'islam-dini','2026-09-25');
 assert.ok(negative.adjustment<0,'repeated explicit skips should create a modest negative selection signal');
 assert.ok(negative.reason?.includes('başka öneri'));
 
