@@ -913,7 +913,7 @@ async function renderGenericBookReader(){
      const pages=Math.max(0,Math.abs(pageNo-(active.startPage||pageNo)));
      S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId,date:today(),minutes,pages,at:new Date().toISOString()});
    }
-   S.library.books[bookId]=normalizeBookReaderState({...current,activeSession:null});persist();ilimGo('home')
+   S.library.books[bookId]=normalizeBookReaderState({...current,activeSession:null});persist();ilimGo('library')
  };
  document.querySelector('#genericBookComplete').onclick=()=>{if(!completionEligible)return;S.library.path=setGenericBookCompleted(S.library.path,bookId,!completed);save();renderGenericBookReader()};
  document.querySelector('#genericPrevPage').onclick=()=>goPage(pageNo-1);document.querySelector('#genericNextPage').onclick=()=>goPage(pageNo+1);
