@@ -3004,3 +3004,106 @@ nav button:hover{transform:translateY(-1px)}
   background:rgba(216,181,109,.10)!important;
   color:#debd76!important;
 }
+
+
+/* Premium UI v3.4 — prayer center material consistency */
+#productApp[data-design="premium-night-v3"] .prayerSetup,
+#productApp[data-design="premium-night-v3"] .prayerTimesCard,
+#productApp[data-design="premium-night-v3"] .qadaCard,
+#productApp[data-design="premium-night-v3"] .sourceCard{
+  background:
+    radial-gradient(circle at 100% 0,rgba(216,181,109,.07),transparent 15rem),
+    linear-gradient(155deg,rgba(15,31,46,.96),rgba(8,20,32,.97))!important;
+  border-color:rgba(216,181,109,.11)!important;
+}
+#productApp[data-design="premium-night-v3"] .prayerSetup h1,
+#productApp[data-design="premium-night-v3"] .prayerTimesCard h2,
+#productApp[data-design="premium-night-v3"] .qadaCard h2{color:#f0e5d4}
+#productApp[data-design="premium-night-v3"] .prayerSetup .lead,
+#productApp[data-design="premium-night-v3"] .qadaCard>p{color:#96a2a4}
+#productApp[data-design="premium-night-v3"] .formGrid label span{
+  color:#b89d69;
+  font-size:9px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+#productApp[data-design="premium-night-v3"] .formGrid input,
+#productApp[data-design="premium-night-v3"] .qadaInput{
+  background:#102230;
+  border-color:rgba(255,255,255,.075);
+  color:#ece3d5;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#productApp[data-design="premium-night-v3"] .formGrid input::placeholder,
+#productApp[data-design="premium-night-v3"] .qadaInput::placeholder{color:#657378}
+#productApp[data-design="premium-night-v3"] .formGrid input:focus,
+#productApp[data-design="premium-night-v3"] .qadaInput:focus{
+  border-color:rgba(216,181,109,.34);
+  box-shadow:0 0 0 3px rgba(216,181,109,.07);
+}
+#productApp[data-design="premium-night-v3"] .sourceNote,
+#productApp[data-design="premium-night-v3"] .privacyNote{
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.045);
+  color:#849194;
+}
+#productApp[data-design="premium-night-v3"] .sourceNote b{color:#ccb173}
+#productApp[data-design="premium-night-v3"] .prayerTime{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .prayerTime>span{filter:saturate(.75)}
+#productApp[data-design="premium-night-v3"] .prayerTime small{color:#819093}
+#productApp[data-design="premium-night-v3"] .prayerTime b{color:#e7dfd1}
+#productApp[data-design="premium-night-v3"] .prayerTime.next{
+  background:linear-gradient(145deg,rgba(216,181,109,.13),rgba(216,181,109,.055));
+  border-color:rgba(216,181,109,.28);
+}
+#productApp[data-design="premium-night-v3"] .prayerTime.next b,
+#productApp[data-design="premium-night-v3"] .prayerTime.next i{color:#e1c27b}
+#productApp[data-design="premium-night-v3"] .sunriseLine{
+  border-color:rgba(255,255,255,.07);
+  color:#7d898c;
+}
+#productApp[data-design="premium-night-v3"] .sunriseLine b{color:#ddd4c7}
+#productApp[data-design="premium-night-v3"] .qadaSummary>div{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .qadaSummary span{color:#829093}
+#productApp[data-design="premium-night-v3"] .qadaSummary b{color:#e0c17b}
+#productApp[data-design="premium-night-v3"] .targetRow{
+  border-color:rgba(255,255,255,.06);
+}
+#productApp[data-design="premium-night-v3"] .chips.compact .chip{
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.07);
+  color:#9eaaaa;
+}
+#productApp[data-design="premium-night-v3"] .chips.compact .chip.sel{
+  background:rgba(216,181,109,.13);
+  border-color:rgba(216,181,109,.30);
+  color:#e3c77e;
+}
+#productApp[data-design="premium-night-v3"] .qadaRow{
+  border-color:rgba(255,255,255,.065);
+  background:rgba(255,255,255,.022);
+}
+#productApp[data-design="premium-night-v3"] .qadaRow b{color:#ddd5c8}
+#productApp[data-design="premium-night-v3"] .qadaRow small{color:#768487}
+#productApp[data-design="premium-night-v3"] .qadaDone{
+  background:linear-gradient(135deg,#d9b870,#b88a42);
+  color:#11191b;
+}
+#productApp[data-design="premium-night-v3"] .qadaDone:disabled{
+  background:#1c2c36;
+  color:#59686c;
+}
+#productApp[data-design="premium-night-v3"] .sourceCard details{color:#909c9e}
+#productApp[data-design="premium-night-v3"] .sourceCard summary{color:#d4b773}
+#productApp[data-design="premium-night-v3"] .sourceCard p{color:#879396}
+#productApp[data-design="premium-night-v3"] .errorBox{
+  background:rgba(158,77,54,.14);
+  border:1px solid rgba(194,107,81,.14);
+  color:#dfaa96;
+}
