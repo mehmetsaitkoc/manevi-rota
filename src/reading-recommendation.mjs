@@ -15,8 +15,6 @@ const daysBetween=(older,newer)=>{
   return Math.max(0,Math.round((b-a)/dayMs));
 };
 const levelOf=book=>Math.max(1,Math.min(5,Number(String(book?.stage||'level-1').match(/\d+/)?.[0]||1)));
-const feedbackPenalty=value=>value==='heavy'?-8:value==='easy'?4:0;
-const readerKind=book=>book?.readerType==='quran'?'quran':book?.readerType==='hadith'?'hadith':'book';
 const priorityBoost=(profile,book,weight=1)=>{
   const set=new Set(Array.isArray(profile?.priorities)?profile.priorities:[]);
   let raw=0;
@@ -26,7 +24,6 @@ const priorityBoost=(profile,book,weight=1)=>{
   return Math.round(raw*clamp(weight,.15,1));
 };
 const titleFor=book=>book?.title||'Okuma';
-const stageLabel=n=>`Seviye ${n}`;
 
 function genericSessions(library={}){
   const out=[];
