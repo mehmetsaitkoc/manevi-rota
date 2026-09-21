@@ -51,6 +51,11 @@ function normalizeHistoryRow(value){
   return row;
 }
 
+export function isMeaningfulRecommendationSession(session){
+  const row=object(session);
+  return Number(row.minutes||0)>=2||Number(row.pages||0)>=1;
+}
+
 export function emptyReadingRecommendationMemory(){
   return {active:null,history:[]};
 }
