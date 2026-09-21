@@ -386,6 +386,8 @@ jobs:
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));s.library=s.library||{};s.library.books=s.library.books||{};s.library.books['islam-dini']={...(s.library.books['islam-dini']||{}),page:1,activeSession:null};localStorage.setItem(k,JSON.stringify(s));
             },key);
+            await page.reload({waitUntil:'networkidle'});
+            await page.waitForSelector('[data-starter-book="islam-dini"]',{timeout:10000});
             await page.click('[data-starter-book="islam-dini"]');
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
             const islamDiniStart=await page.locator('.genericBookPaper').innerText();
