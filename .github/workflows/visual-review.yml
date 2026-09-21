@@ -145,8 +145,12 @@ jobs:
               sessionStorage.setItem('manevi-rota-intro-seen','1');
             },[key,state]);
             await page.reload({waitUntil:'networkidle'});
-            await page.waitForSelector('#app .premiumTodayHero',{timeout:10000});
+            await page.waitForSelector('#app .todayPlanBar',{timeout:10000});
             await page.waitForSelector('.readingRecommendationCard',{timeout:5000});
+            const todayPlanUi=await page.getAttribute('.todayPlanBar','data-ui');
+            if(todayPlanUi!=='today-plan-v2.2')throw new Error('V2.2 compact Today plan marker missing');
+            const todayPlanBox=await page.locator('.todayPlanBar').boundingBox();
+            if(todayPlanBox&&todayPlanBox.height>150)throw new Error('V2.2 Today plan summary became too tall on 390px mobile');
             const editorialUi=await page.getAttribute('#productApp','data-ui');
             if(editorialUi!=='editorial-v1')throw new Error('Premium editorial UI marker missing');
             const navGlyphs=await page.locator('#nav .navGlyph').count();
@@ -171,6 +175,11 @@ jobs:
             if(recommendedPage!=='120')throw new Error('Recommendation CTA did not open the exact persisted book location: '+recommendedPage);
             const activeRecommendation=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.recommendationMemory?.active,key);
             if(activeRecommendation?.bookId!=='islam-dini'||activeRecommendation?.kind!=='book')throw new Error('Recommendation CTA did not persist the active reading recommendation');
+            const utilityDrawer=page.locator('.genericBookUtilityDrawer');
+            if(await utilityDrawer.count()!==1)throw new Error('Generic reader secondary utility drawer missing');
+            if(await utilityDrawer.getAttribute('open')!==null)throw new Error('Generic reader secondary utility drawer must be collapsed by default');
+            const paperBox=await page.locator('.genericBookPaper').boundingBox();
+            if(paperBox&&paperBox.y>430)throw new Error('Generic reader content starts too low on 390x844 mobile');
             await page.screenshot({path:'visual-review/01aa-recommendation-reader.png',fullPage:true});
             await page.click('#genericBookBack');
             await page.waitForSelector('#ilimNotebook',{timeout:10000});
@@ -261,6 +270,9 @@ jobs:
             if(await yavrularButton.isDisabled())throw new Error('Yavrularımıza Din Dersleri should be readable');
             await yavrularButton.click();
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            await page.waitForTimeout(80);
+            const readerScrollY=await page.evaluate(()=>window.scrollY);
+            if(readerScrollY>4)throw new Error('Library-to-reader transition did not reset viewport to the top');
             const yavrularTitle=await page.locator('.genericBookTitleCard h1').innerText();
             if(!yavrularTitle.includes('Yavrularımıza Din Dersleri'))throw new Error('Yavrularımız reader title mismatch');
             const sourceEdition=await page.locator('.genericBookEdition').innerText();
