@@ -26,7 +26,8 @@ const expectedStarts={
 
 const frontMatterNoise=/GÜZEL SANATLAR MATBAASI|MATBAASI A\.?\s*Ş|DİYANET İŞLERİ BAŞKANLIĞI YAYIN|YAYIN YÖNETMENİ|Karton Kapak\.indd|Semih Ofset|ISBN\s*[:\d-]/i;
 const suspiciousExactLine=/^\d{6,}$/;
-const obviousGarbage=/\b(?:Cc|CC)\s*[—-]\s*[A-ZÇĞİÖŞÜ]{2,}\b|\bMüneala\b|\bKEK\b/i;
+const obviousGarbage=/\b(?:Cc|CC)\s*[—-]\s*[A-ZÇĞİÖŞÜ]{2,}\b|\bMüneala\b|\bKEK\b|\bS5\s*[—-]|\bC€\s*[—-]/i;
+const promoNoise=/Yazan ve Tertipleyen|mevzuunda tek eser|Yavrularınıza sevdirerek|SAHİH-İ MÜSLİM VE TERCEMESİ|her iki cildin tamamı\s+\d+\s*Lira/i;
 
 function auditGeneric(book){
   const full=path.join(root,book.asset||'');
@@ -59,8 +60,14 @@ function auditGeneric(book){
   const replacementChars=texts.reduce((n,x)=>n+(x.match(/�/g)||[]).length,0);
   const softHyphenMarks=texts.reduce((n,x)=>n+(x.match(/¬/g)||[]).length,0);
   const lineEndHyphens=texts.reduce((n,x)=>n+(x.match(/[A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû]-\n[A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû]/g)||[]).length,0);
-  const numericArtifacts=texts.reduce((n,x)=>n+x.split(/\r?\n/).filter(line=>suspiciousExactLine.test(line.trim())).length,0);
-  const obviousGarbageHits=texts.reduce((n,x)=>n+(obviousGarbage.test(x)?1:0),0);
+  const numericArtifactPages=pages.flatMap((p,i)=>{
+    const hits=String(p?.text||'').split(/\r?\n/).map(x=>x.trim()).filter(line=>suspiciousExactLine.test(line));
+    return hits.length?[{readerPage:i+1,sourcePage:p?.page??null,hits:hits.slice(0,5)}]:[];
+  });
+  const garbagePages=pages.flatMap((p,i)=>obviousGarbage.test(String(p?.text||''))?[{readerPage:i+1,sourcePage:p?.page??null,preview:preview(p.text)}]:[]);
+  const tailPromoPages=pages.flatMap((p,i)=>i>=Math.max(0,pages.length-12)&&promoNoise.test(String(p?.text||''))?[{readerPage:i+1,sourcePage:p?.page??null,preview:preview(p.text)}]:[]);
+  const numericArtifacts=numericArtifactPages.reduce((n,x)=>n+x.hits.length,0);
+  const obviousGarbageHits=garbagePages.length;
   const first=String(texts[0]||'');
   const firstThree=texts.slice(0,3).join('\n');
   const startOk=(expectedStarts[book.id]||/.+/).test(first);
@@ -75,6 +82,7 @@ function auditGeneric(book){
   if(replacementChars)warnings.push(`${book.id}: ${replacementChars} Unicode replacement characters`);
   if(numericArtifacts)warnings.push(`${book.id}: ${numericArtifacts} standalone 6+ digit OCR artifacts`);
   if(obviousGarbageHits)warnings.push(`${book.id}: ${obviousGarbageHits} pages contain known obvious OCR garbage patterns`);
+  if(tailPromoPages.length)warnings.push(`${book.id}: ${tailPromoPages.length} tail pages look like publisher/promotional material`);
   if(invalidSections)blockers.push(`${book.id}: ${invalidSections} section links point to missing reader pages`);
   if(!data.source?.sourceLabel)blockers.push(`${book.id}: sourceLabel missing`);
   if(!data.source?.textPolicy)blockers.push(`${book.id}: textPolicy missing`);
@@ -86,6 +94,7 @@ function auditGeneric(book){
     blankPages:blank,shortPages:short,shortPct:pct(short,pages.length),
     duplicatePageBodies:duplicateBodies,
     replacementChars,softHyphenMarks,lineEndHyphens,numericArtifacts,obviousGarbageHits,
+    numericArtifactPages,garbagePages,tailPromoPages,
     frontMatterNoise:frontNoise,startOk,sections:sections.length,invalidSections,
     firstPreview:preview(first),lastPreview:preview(texts.at(-1)),
     sourceLabel:data.source?.sourceLabel||null,
