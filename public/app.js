@@ -200,10 +200,43 @@ function finalizeGenericBookSession(bookId,page,feedback='ideal'){
  }
  return result.session;
 }
+function syncQuranReadingSession(session){
+ if(!session)return;
+ const date=today(),d=ensure(date);
+ const planned=(d.route?.tasks||[]).map(x=>x.id);
+ const target=planned.includes('quran')?'quran':planned.includes('reading')?'reading':planned.includes('learning')?'learning':null;
+ const row={...session,bookId:'quran',date,taskId:target};
+ d.readingSessions=[row,...(d.readingSessions||[])].slice(0,40);
+ if(target&&isMeaningfulRecommendationSession(session)){
+   const done=new Set(d.done||[]);done.add(target);d.done=[...done];
+   d.taskFeedback=d.taskFeedback||{};
+   d.taskFeedback[target]=session.feedback==='heavy'?'hard':session.feedback==='easy'?'easy':'normal';
+ }
+ save();
+}
+function finalizeQuranSession(feedback='ideal'){
+ const current=normalizeQuranReaderState(S.library.quran||{});
+ const result=finishQuranReadingSession(current,{surah:current.surah,ayah:current.ayah,at:new Date().toISOString(),feedback});
+ S.library.quran=result.state;
+ if(result.session){
+   syncQuranReadingSession(result.session);
+   if(isMeaningfulRecommendationSession(result.session)){
+     S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{
+       bookId:'quran',date:today(),minutes:result.session.minutes,feedback:result.session.feedback,at:result.session.endedAt
+     });
+   }
+   save();
+ }
+ return result.session;
+}
 function openStarterBook(id){
  const book=starterBook(id);if(!book||book.availability!=='ready')return;
  S.library.lastBook=id;save();
- if(book.readerType==='quran')return ilimGo('quran');
+ if(book.readerType==='quran'){
+   S.library.quran=beginQuranReadingSession(S.library.quran,{surah:S.library.quran.surah,ayah:S.library.quran.ayah,at:new Date().toISOString()});
+   S.ilim.ui={...(S.ilim.ui||{}),screen:'quran'};
+   save();return renderIlim();
+ }
  if(book.readerType==='hadith')return ilimGo('reader',S.ilim.currentId);
  if(book.readerType==='islam')return ilimGo('islam');
  if(book.readerType==='generic'){
@@ -806,7 +839,7 @@ async function renderGenericBookReader(){
  </section>`;
  const persist=()=>{S.library.books[bookId]=normalizeBookReaderState(S.library.books[bookId]);S.library.lastBook=bookId;save()};
  const goPage=value=>{const nextPage=Math.max(1,Math.min(total,Number(value)||pageNo));S.library.books[bookId]=touchBookReadingSession(normalizeBookReaderState({...S.library.books[bookId],page:nextPage,noteFor:null}),nextPage);persist();renderGenericBookReader()};
- document.querySelector('#genericBookBack').onclick=()=>{finalizeGenericBookSession(bookId,pageNo,'ideal');ilimGo('home')};
+ document.querySelector('#genericBookBack').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],activeSession:null});persist();ilimGo('home')};
  document.querySelector('#genericBookComplete').onclick=()=>{if(!completionEligible)return;S.library.path=setGenericBookCompleted(S.library.path,bookId,!completed);save();renderGenericBookReader()};
  document.querySelector('#genericPrevPage').onclick=()=>goPage(pageNo-1);document.querySelector('#genericNextPage').onclick=()=>goPage(pageNo+1);
  document.querySelector('#genericBookPageInput').onchange=e=>goPage(e.target.value);
@@ -814,7 +847,15 @@ async function renderGenericBookReader(){
  const searchForm=document.querySelector('#genericBookSearchForm');if(searchForm)searchForm.onsubmit=e=>{e.preventDefault();S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],searchQuery:document.querySelector('#genericBookSearchInput')?.value||''});persist();renderGenericBookReader()};
  const searchClear=document.querySelector('#genericBookSearchClear');if(searchClear)searchClear.onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],searchQuery:''});persist();renderGenericBookReader()};
  document.querySelectorAll('[data-search-page]').forEach(btn=>btn.onclick=()=>goPage(btn.dataset.searchPage));
- document.querySelectorAll('[data-reader-feedback]').forEach(btn=>btn.onclick=()=>{const result=btn.dataset.readerFeedback||'ideal';finalizeGenericBookSession(bookId,pageNo,result);S.library.books[bookId]=beginBookReadingSession(S.library.books[bookId],{page:pageNo,at:new Date().toISOString()});save();renderGenericBookReader()});
+ document.querySelectorAll('[data-reader-feedback]').forEach(btn=>btn.onclick=()=>{
+   const result=btn.dataset.readerFeedback||'ideal';
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId===bookId&&S.library.recommendationMemory?.active?.kind==='book';
+   const session=finalizeGenericBookSession(bookId,pageNo,result);
+   if(wasRecommended&&isMeaningfulRecommendationSession(session)){
+     S.view='today';S.ilim.ui={...(S.ilim.ui||{}),screen:'home'};save();return render();
+   }
+   S.library.books[bookId]=beginBookReadingSession(S.library.books[bookId],{page:pageNo,at:new Date().toISOString()});save();renderGenericBookReader()
+ });
  document.querySelector('#genericBookFontDown').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.max(.82,scale-.08)});persist();renderGenericBookReader()};
  document.querySelector('#genericBookFontUp').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.min(1.5,scale+.08)});persist();renderGenericBookReader()};
  document.querySelector('#genericBookFocus').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,focusMode:!state.focusMode,noteFor:null});persist();renderGenericBookReader()};
