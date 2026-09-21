@@ -129,7 +129,9 @@ async function handlePilotEvents(req,res){
 http.createServer(async(req,res)=>{
   const pathname=(req.url||'/').split('?')[0];
   if(pathname==='/healthz'){
-    return json(res,200,{ok:true,service:'manevi-rota',version,pilotCollectorConfigured});
+    const gitCommit=String(process.env.RENDER_GIT_COMMIT||'').trim()||null;
+    const gitBranch=String(process.env.RENDER_GIT_BRANCH||'').trim()||null;
+    return json(res,200,{ok:true,service:'manevi-rota',version,gitCommit,gitBranch,pilotCollectorConfigured});
   }
   if(pathname==='/api/pilot/status'&&req.method==='GET'){
     return json(res,200,{ok:true,schemaVersion:PILOT_SCHEMA_VERSION,collectorConfigured:pilotCollectorConfigured});
