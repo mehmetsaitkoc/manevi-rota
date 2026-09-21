@@ -261,6 +261,7 @@ function finalizeQuranSession(feedback='ideal'){
 }
 function openStarterBook(id){
  const book=starterBook(id);if(!book||book.availability!=='ready')return;
+ window.scrollTo({top:0,left:0,behavior:'auto'});
  S.library.lastBook=id;save();
  if(book.readerType==='quran'){
    S.library.quran=beginQuranReadingSession(S.library.quran,{surah:S.library.quran.surah,ayah:S.library.quran.ayah,at:new Date().toISOString()});
@@ -685,7 +686,7 @@ function renderIlim(){
  if(ui.screen==='book')return renderGenericBookReader();
  return renderIlimHome();
 }
-function ilimGo(screen,selectedId=null){S.ilim.ui={...(S.ilim.ui||{}),screen,...(selectedId?{selectedId:Number(selectedId)}:{})};save();renderIlim()}
+function ilimGo(screen,selectedId=null){S.ilim.ui={...(S.ilim.ui||{}),screen,...(selectedId?{selectedId:Number(selectedId)}:{})};save();window.scrollTo({top:0,left:0,behavior:'auto'});renderIlim()}
 function sentenceSplit(text){return String(text||'').match(/[^.!?]+[.!?]?/g)?.map(x=>x.trim()).filter(Boolean)||[String(text||'')]}
 function sectionHighlight(hadisId,sectionIndex,text){return S.ilim.highlights.find(x=>x.hadisId===Number(hadisId)&&x.sectionIndex===Number(sectionIndex)&&x.text===text)||null}
 function hexToRgba(hex,alpha=.45){let h=String(hex||'#e6c46f').replace('#','');if(h.length===3)h=h.split('').map(x=>x+x).join('');const n=parseInt(h,16);if(!Number.isFinite(n))return `rgba(230,196,111,${alpha})`;return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${alpha})`}
