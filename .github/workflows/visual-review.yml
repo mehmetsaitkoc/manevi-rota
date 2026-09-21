@@ -96,6 +96,20 @@ jobs:
             if(await page.locator('#nav:not(.hidden)').count())throw new Error('Navigation must remain hidden during onboarding');
             await page.screenshot({path:'visual-review/00b-onboarding-first-fold.png'});
 
+            // Walk the real first-run setup to guard the handoff into daily calibration.
+            await page.click('[data-o="steady"]'); await page.click('#next');
+            await page.click('[data-o="20"]'); await page.click('#next');
+            await page.click('[data-o="regular"]'); await page.click('#next');
+            await page.click('[data-o="regular"]'); await page.click('#next');
+            await page.click('[data-m="quran"]'); await page.click('[data-m="reading"]'); await page.click('#next');
+            await page.click('[data-o="false"]'); await page.click('#next');
+            await page.click('[data-o="variable"]'); await page.click('#next');
+            await page.click('[data-o="balanced"]'); await page.click('#next');
+            await page.waitForSelector('#app .card',{timeout:5000});
+            const firstRunText=await page.locator('#app').innerText();
+            if(!firstRunText.includes('Bugün sana göre.')||!firstRunText.includes('Bugün gerçekten kaç dakikan var?'))throw new Error('First-run handoff did not reach daily check-in');
+            await page.screenshot({path:'visual-review/00c-first-run-checkin.png',fullPage:true});
+
             const now=new Date();
             const iso=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);
             const state={
