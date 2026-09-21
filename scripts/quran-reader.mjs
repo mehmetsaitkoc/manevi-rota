@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseKey,quranVerseHighlight,quranVerseNote,quranVerseBookmarked,toggleQuranVerseHighlight,setQuranVerseNote,toggleQuranVerseBookmark} from '../src/quran-reader.mjs';
+import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseKey,quranVerseHighlight,quranVerseNote,quranVerseBookmarked,toggleQuranVerseHighlight,setQuranVerseNote,toggleQuranVerseBookmark,beginQuranReadingSession,touchQuranReadingSession,finishQuranReadingSession} from '../src/quran-reader.mjs';
 
 const base=emptyQuranReaderState();
 assert.deepEqual(base.highlights,{});
@@ -31,5 +31,14 @@ s=toggleQuranVerseBookmark(s,2,255);
 assert.equal(quranVerseBookmarked(s,2,255),true);
 s=toggleQuranVerseBookmark(s,2,255);
 assert.equal(quranVerseBookmarked(s,2,255),false);
+
+let sessionState=beginQuranReadingSession(base,{surah:2,ayah:1,at:'2026-09-21T18:00:00Z'});
+sessionState=touchQuranReadingSession(sessionState,{surah:2,ayah:5});
+const finished=finishQuranReadingSession(sessionState,{surah:2,ayah:5,at:'2026-09-21T18:06:00Z',feedback:'ideal'});
+assert.equal(finished.session.minutes,6);
+assert.equal(finished.session.verses,4);
+assert.equal(finished.session.feedback,'ideal');
+assert.equal(finished.state.activeSession,null);
+assert.equal(finished.state.sessions.length,1);
 
 console.log('quran-reader tests: ok');
