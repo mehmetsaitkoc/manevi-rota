@@ -11,7 +11,7 @@ import {genericNotebookRefs,quranNotebookRefs,filterNotebookEntries,groupNoteboo
 import {rankReadingRecommendations} from '../src/reading-recommendation.mjs';
 import {
   emptyReadingRecommendationMemory,normalizeReadingRecommendationMemory,isMeaningfulRecommendationSession,
-  startReadingRecommendation,skipReadingRecommendation,completeReadingRecommendation
+  startReadingRecommendation,skipReadingRecommendation,abandonReadingRecommendation,completeReadingRecommendation
 } from '../src/reading-recommendation-memory.mjs';
 import {todayExperienceSnapshot,readingFeedbackLabel} from '../src/today-experience.mjs';
 
@@ -123,6 +123,36 @@ async function loadGenericBook(id){
  const data=await r.json();
  if(!Array.isArray(data?.pages)||!data.pages.length)throw new Error('Kitap veri biçimi geçersiz.');
  genericBookCache.set(id,data);return data;
+}
+let genericBookTotalsHydration=null;
+function hasPersistedBookProgress(bookId,state){
+ const normalized=normalizeBookReaderState(state||{});
+ return normalized.page>1||normalized.sessions.length>0||normalized.bookmarks.length>0||
+   Object.keys(normalized.highlights||{}).length>0||Object.keys(normalized.notes||{}).length>0||
+   S.library.lastBook===bookId;
+}
+async function hydratePersistedBookTotals(){
+ if(genericBookTotalsHydration)return genericBookTotalsHydration;
+ const targets=STARTER_LIBRARY.filter(book=>book.readerType==='generic'&&book.availability==='ready'&&book.asset).filter(book=>{
+   const state=normalizeBookReaderState(S.library.books?.[book.id]||{});
+   return !state.totalPages&&hasPersistedBookProgress(book.id,state);
+ });
+ if(!targets.length)return false;
+ genericBookTotalsHydration=(async()=>{
+   let changed=false;
+   for(const book of targets){
+     try{
+       const data=await loadGenericBook(book.id),total=Number(data?.pages?.length||0);
+       if(total>0&&Number(S.library.books?.[book.id]?.totalPages||0)!==total){
+         S.library.books[book.id]=normalizeBookReaderState({...S.library.books?.[book.id],totalPages:total});
+         changed=true;
+       }
+     }catch{}
+   }
+   if(changed)save();
+   return changed;
+ })().finally(()=>{genericBookTotalsHydration=null});
+ return genericBookTotalsHydration;
 }
 function genericBookState(id){
  S.library.books=S.library.books||{};
@@ -332,7 +362,10 @@ function renderToday(){
  const hidden=new Set(d.dismissedTimeSuggestions||[]),suggestion=(r.timeSuggestions||[]).find(x=>!hidden.has(x.taskId));
  const grouped=Object.keys(TIME_SLOTS).map(slot=>({slot,tasks:r.tasks.filter(x=>x.slot===slot)})).filter(g=>g.tasks.length);
  const ps=prayerSummary(),qp=qadaTargetProgress(S.qada,today());
- const bookTotals=Object.fromEntries([...genericBookCache.entries()].map(([id,data])=>[id,Number(data?.pages?.length||0)]));
+ const bookTotals=Object.fromEntries(STARTER_LIBRARY.filter(book=>book.readerType==='generic'&&book.availability==='ready').map(book=>[
+   book.id,
+   Number(genericBookCache.get(book.id)?.pages?.length||S.library.books?.[book.id]?.totalPages||0)
+ ]));
  const experience=todayExperienceSnapshot({memory:S.library.recommendationMemory,records:records(),date:today()});
  const todayCompleted=experience.completed,yesterdaySummary=experience.yesterday;
  const readingCandidates=todayCompleted?[]:rankReadingRecommendations({date:today(),profile:S.profile,checkin:d.checkin,library:S.library,ilim:S.ilim,records:records(),bookTotals});
@@ -410,6 +443,7 @@ function renderToday(){
  };
 
  document.querySelector('#edit').onclick=()=>{S.view='checkin';save();render()};
+ void hydratePersistedBookTotals().then(changed=>{if(changed&&S.view==='today')renderToday()});
  document.querySelector('#light').onclick=()=>{d.lightDay=!d.lightDay;d.route=null;d.done=[];d.taskFeedback={};makeRoute(true);save();pilotRecordRoute(d.route,d.checkin,d.lightDay);pilotRecordDay('light-day',d);renderToday()};
  const accept=document.querySelector('#acceptTiming');if(accept)accept.onclick=()=>{const id=accept.dataset.id,slot=accept.dataset.slot;S.profile.slotOverrides[id]=slot;delete S.profile.slotSuggestionSnooze[id];d.route=null;makeRoute(true);save();renderToday()};
  const snooze=document.querySelector('#snoozeTiming');if(snooze)snooze.onclick=()=>{const id=snooze.dataset.id;S.profile.slotSuggestionSnooze[id]=dayAdd(today(),7);d.dismissedTimeSuggestions=[...new Set([...(d.dismissedTimeSuggestions||[]),id])];save();renderToday()};
@@ -839,7 +873,16 @@ async function renderGenericBookReader(){
  </section>`;
  const persist=()=>{S.library.books[bookId]=normalizeBookReaderState(S.library.books[bookId]);S.library.lastBook=bookId;save()};
  const goPage=value=>{const nextPage=Math.max(1,Math.min(total,Number(value)||pageNo));S.library.books[bookId]=touchBookReadingSession(normalizeBookReaderState({...S.library.books[bookId],page:nextPage,noteFor:null}),nextPage);persist();renderGenericBookReader()};
- document.querySelector('#genericBookBack').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],activeSession:null});persist();ilimGo('home')};
+ document.querySelector('#genericBookBack').onclick=()=>{
+   const current=normalizeBookReaderState(S.library.books[bookId]),active=current.activeSession;
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId===bookId&&S.library.recommendationMemory?.active?.kind==='book';
+   if(wasRecommended&&active){
+     const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+     const pages=Math.max(0,Math.abs(pageNo-(active.startPage||pageNo)));
+     S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId,date:today(),minutes,pages,at:new Date().toISOString()});
+   }
+   S.library.books[bookId]=normalizeBookReaderState({...current,activeSession:null});persist();ilimGo('home')
+ };
  document.querySelector('#genericBookComplete').onclick=()=>{if(!completionEligible)return;S.library.path=setGenericBookCompleted(S.library.path,bookId,!completed);save();renderGenericBookReader()};
  document.querySelector('#genericPrevPage').onclick=()=>goPage(pageNo-1);document.querySelector('#genericNextPage').onclick=()=>goPage(pageNo+1);
  document.querySelector('#genericBookPageInput').onchange=e=>goPage(e.target.value);
@@ -910,7 +953,15 @@ async function renderQuranReader(){
    S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,surah:nextSurah,ayah:1,noteFor:null}),{surah:nextSurah,ayah:1});
    S.library.lastBook='quran';save();renderQuranReader()
  };
- document.querySelector('#quranBack').onclick=()=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,activeSession:null});save();ilimGo('home')};
+ document.querySelector('#quranBack').onclick=()=>{
+   const current=normalizeQuranReaderState(S.library.quran),active=current.activeSession;
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId==='quran'&&S.library.recommendationMemory?.active?.kind==='quran';
+   if(wasRecommended&&active){
+     const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+     S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId:'quran',date:today(),minutes,verses:quranActiveVerses,at:new Date().toISOString()});
+   }
+   S.library.quran=normalizeQuranReaderState({...current,activeSession:null});save();ilimGo('home')
+ };
  document.querySelectorAll('[data-quran-session-feedback]').forEach(btn=>btn.onclick=()=>{
    const result=btn.dataset.quranSessionFeedback||'ideal';
    const wasRecommended=S.library.recommendationMemory?.active?.bookId==='quran'&&S.library.recommendationMemory?.active?.kind==='quran';
