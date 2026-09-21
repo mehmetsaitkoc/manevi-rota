@@ -260,7 +260,7 @@ jobs:
             await page.locator('#genericBookPageInput').dispatchEvent('change');
             await page.waitForSelector('.readerQualityWarning',{timeout:5000});
             const tanriQualityWarning=await page.locator('.readerQualityWarning').innerText();
-            if(!tanriQualityWarning.includes('Kaynak kontrolü bekleyen sayfa'))throw new Error('Tanri Buyrugu OCR verification disclosure missing');
+            if(!tanriQualityWarning.toLocaleUpperCase('tr-TR').includes('KAYNAK KONTROLÜ BEKLEYEN SAYFA'))throw new Error('Tanri Buyrugu OCR verification disclosure missing');
             await page.evaluate(()=>window.scrollTo(0,0));
             await page.waitForTimeout(120);
             await page.screenshot({path:'visual-review/03aaa-tanri-buyrugu-ocr-review.png',fullPage:true});
