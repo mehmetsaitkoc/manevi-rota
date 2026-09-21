@@ -330,14 +330,41 @@ function renderOnboard(){
 
 function renderCheckin(){
  const d=ensure(),c=d.checkin||{};
- const pick=(key,opts)=>opts.map(o=>`<button class="opt ${c[key]===o[0]?'sel':''}" data-c="${key}" data-v="${o[0]}"><b>${o[1]}</b><small>${o[2]}</small></button>`).join('');
- app.innerHTML=`<section class="card"><div class="eyebrow">Bugünkü durum</div><h1>Bugün sana göre.</h1><p class="lead">Profil tek başına yetmez. Motor bugünkü kapasiteni ve geçmiş davranışı birlikte okur.</p></section>
- <section class="card"><h3>Bugün gerçekten kaç dakikan var?</h3><div class="chips">${[5,10,15,20,30,45,60].map(n=>`<button class="chip ${c.minutes===n?'sel':''}" data-c="minutes" data-v="${n}">${n} dk</button>`).join('')}</div></section>
- <section class="card"><h3>Enerji</h3><p class="small">1 çok düşük · 5 çok yüksek</p><div class="range">${[1,2,3,4,5].map(n=>`<button class="${c.energy===n?'sel':''}" data-c="energy" data-v="${n}">${n}</button>`).join('')}</div></section>
- <section class="card"><h3>Zihinsel yük</h3><p class="small">1 sakin · 5 çok yoğun</p><div class="range">${[1,2,3,4,5].map(n=>`<button class="${c.load===n?'sel':''}" data-c="load" data-v="${n}">${n}</button>`).join('')}</div></section>
- <section class="card"><h3>Mod</h3><div class="grid">${pick('mood',[['low','Düşük','Başlamak zor'],['calm','Sakin','Sade gidebilirim'],['normal','Normal','Dengeli'],['motivated','İstekliyim','Biraz daha yapabilirim']])}</div></section>
- <section class="card"><h3>Günün yapısı</h3><div class="grid">${pick('context',[['busy','Yoğun gün','Kısa ve net'],['normal','Normal gün','Dengeli'],['travel','Yolculuk / dışarıda','Taşınabilir görevler'],['rest','Sakin gün','Derinleşmeye daha uygun']])}</div></section>
- <div class="actions"><button class="btn ghost" id="normalDay">Normal günümü kullan</button><button class="btn primary" id="go" ${validCheck(c)?'':'disabled'}>Rotayı analiz et</button></div>`;
+ const pick=(key,opts)=>opts.map(o=>`<button class="opt ${c[key]===o[0]?'sel':''}" data-c="${key}" data-v="${o[0]}" aria-pressed="${c[key]===o[0]?'true':'false'}"><b>${o[1]}</b><small>${o[2]}</small></button>`).join('');
+ const chosenCount=['minutes','energy','load','mood','context'].filter(k=>c[k]!==undefined&&c[k]!==null&&c[k]!=='').length;
+ app.innerHTML=`<section class="card checkinHeroCard">
+   <div class="checkinHeroTop"><div><div class="eyebrow">BUGÜNKÜ KAPASİTE</div><h1>Bugün sana göre.</h1><p class="lead">Profilin başlangıç noktası. Bugünkü süre, enerji ve yük sinyalleri rotayı bugüne göre inceltir.</p></div><span class="checkinProgressPill"><b>${chosenCount}/5</b><small>hazır</small></span></div>
+ </section>
+ <section class="card dailyCheckinCard">
+   <div class="checkinSection checkinMinutes">
+     <div class="checkinSectionHead"><div><small>01</small><h3>Bugün gerçekten kaç dakikan var?</h3></div><span>${c.minutes?c.minutes+' dk':'Seç'}</span></div>
+     <div class="chips checkinMinuteChips">${[5,10,15,20,30,45,60].map(n=>`<button class="chip ${c.minutes===n?'sel':''}" data-c="minutes" data-v="${n}" aria-pressed="${c.minutes===n?'true':'false'}">${n} dk</button>`).join('')}</div>
+   </div>
+   <div class="checkinSplit">
+     <div class="checkinSection">
+       <div class="checkinSectionHead"><div><small>02</small><h3>Enerji</h3></div><span>${c.energy||'—'}/5</span></div>
+       <p class="checkinHint">1 çok düşük · 5 çok yüksek</p>
+       <div class="range">${[1,2,3,4,5].map(n=>`<button class="${c.energy===n?'sel':''}" data-c="energy" data-v="${n}" aria-pressed="${c.energy===n?'true':'false'}">${n}</button>`).join('')}</div>
+     </div>
+     <div class="checkinSection">
+       <div class="checkinSectionHead"><div><small>03</small><h3>Zihinsel yük</h3></div><span>${c.load||'—'}/5</span></div>
+       <p class="checkinHint">1 sakin · 5 çok yoğun</p>
+       <div class="range">${[1,2,3,4,5].map(n=>`<button class="${c.load===n?'sel':''}" data-c="load" data-v="${n}" aria-pressed="${c.load===n?'true':'false'}">${n}</button>`).join('')}</div>
+     </div>
+   </div>
+   <div class="checkinSection">
+     <div class="checkinSectionHead"><div><small>04</small><h3>Bugünkü modun</h3></div><span>${c.mood?'Seçildi':'Seç'}</span></div>
+     <div class="grid checkinChoiceGrid">${pick('mood',[['low','Düşük','Başlamak zor'],['calm','Sakin','Sade gidebilirim'],['normal','Normal','Dengeli'],['motivated','İstekliyim','Biraz daha yapabilirim']])}</div>
+   </div>
+   <div class="checkinSection">
+     <div class="checkinSectionHead"><div><small>05</small><h3>Günün yapısı</h3></div><span>${c.context?'Seçildi':'Seç'}</span></div>
+     <div class="grid checkinChoiceGrid">${pick('context',[['busy','Yoğun gün','Kısa ve net'],['normal','Normal gün','Dengeli'],['travel','Yolculuk / dışarıda','Taşınabilir görevler'],['rest','Sakin gün','Derinleşmeye daha uygun']])}</div>
+   </div>
+   <div class="checkinFooter">
+     <div><small>ROTA MOTORU</small><p>Bu beş sinyal yalnız bugünkü görev dozunu ayarlar; manevî bir değerlendirme değildir.</p></div>
+     <div class="actions checkinActions"><button class="btn ghost" id="normalDay">Normal günümü kullan</button><button class="btn primary" id="go" ${validCheck(c)?'':'disabled'}>Rotayı analiz et →</button></div>
+   </div>
+ </section>`;
  document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const k=b.dataset.c,v=['minutes','energy','load'].includes(k)?Number(b.dataset.v):b.dataset.v;d.checkin={...d.checkin,[k]:v};d.route=null;save();renderCheckin()});
  document.querySelector('#normalDay').onclick=()=>{d.checkin={minutes:S.profile.baseMinutes||15,energy:3,load:3,mood:'normal',context:'normal'};d.route=null;save();renderCheckin()};
  document.querySelector('#go').onclick=()=>startRouteAnalysis();
