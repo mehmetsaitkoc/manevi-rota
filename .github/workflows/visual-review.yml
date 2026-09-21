@@ -94,6 +94,13 @@ jobs:
             const onboardActionsBox=await page.locator('.onboardingActions').boundingBox();
             if(!onboardActionsBox||onboardActionsBox.y+onboardActionsBox.height>844)throw new Error('Onboarding actions are below the 390x844 first fold');
             if(await page.locator('#nav:not(.hidden)').count())throw new Error('Navigation must remain hidden during onboarding');
+            const onboardingVisual=await page.locator('.onboardingCard .opt').first().evaluate(el=>({
+              background:getComputedStyle(el).backgroundImage,
+              color:getComputedStyle(el).color
+            }));
+            if(!onboardingVisual.background.includes('linear-gradient'))throw new Error('Premium onboarding option surface regressed to a flat/light card');
+            const onboardingColor=(onboardingVisual.color.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(onboardingColor.length<3||onboardingColor.some(v=>v<180))throw new Error('Premium onboarding option text contrast regressed');
             await page.screenshot({path:'visual-review/00b-onboarding-first-fold.png'});
 
             // Walk the real first-run setup to guard the handoff into daily calibration.
@@ -465,6 +472,12 @@ jobs:
             });
             const headingRgb=(progressContrast.heading.match(/\d+/g)||[]).slice(0,3).map(Number);
             if(!progressContrast.background.includes('linear-gradient')||headingRgb.length<3||headingRgb.some(v=>v<220))throw new Error('Premium progress hero contrast regressed');
+            const progressSurface=await page.evaluate(()=>({
+              chart:getComputedStyle(document.querySelector('.journeyChartCard')).backgroundImage,
+              metric:getComputedStyle(document.querySelector('.journeyMetric')).backgroundImage,
+              insight:getComputedStyle(document.querySelector('.periodInsight')).backgroundImage
+            }));
+            if(!progressSurface.chart.includes('linear-gradient')||!progressSurface.metric.includes('linear-gradient')||!progressSurface.insight.includes('linear-gradient'))throw new Error('Progress screen regressed to mixed light material cards');
             await page.screenshot({path:'visual-review/07-progress.png',fullPage:true});
 
             await page.evaluate((k)=>{
