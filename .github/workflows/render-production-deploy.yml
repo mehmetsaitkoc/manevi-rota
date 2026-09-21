@@ -1,0 +1,105 @@
+name: Render Production Deploy
+
+on:
+  workflow_run:
+    workflows: ["Manevi Rota CI"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-production-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      WORKFLOW_RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+      PRODUCTION_URL: https://manevi-rota.onrender.com
+    steps:
+      - name: Resolve target revision
+        id: target
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="${WORKFLOW_RUN_SHA:-$GITHUB_SHA}"
+          if ! [[ "$target" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Could not resolve a 40-character target SHA."
+            exit 1
+          fi
+          echo "sha=$target" >> "$GITHUB_OUTPUT"
+          echo "Deploy target: ${target:0:12}"
+
+      - name: Require Render deploy hook
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${RENDER_DEPLOY_HOOK_URL:-}" ]; then
+            echo "::error::Missing repository secret RENDER_DEPLOY_HOOK_URL. Copy the service Deploy Hook from Render Settings and store it as this GitHub Actions secret."
+            exit 1
+          fi
+
+      - name: Trigger exact Render revision
+        shell: bash
+        env:
+          TARGET_SHA: ${{ steps.target.outputs.sha }}
+        run: |
+          set -euo pipefail
+          case "$RENDER_DEPLOY_HOOK_URL" in
+            *?*) sep='&' ;;
+            *) sep='?' ;;
+          esac
+          curl -fsS -X POST "${RENDER_DEPLOY_HOOK_URL}${sep}ref=${TARGET_SHA}" -o /tmp/render-deploy-response.txt
+          echo "Render deploy requested for ${TARGET_SHA:0:12}."
+
+      - name: Wait for exact commit in production
+        shell: bash
+        env:
+          TARGET_SHA: ${{ steps.target.outputs.sha }}
+        run: |
+          set -euo pipefail
+          live_sha=""
+          for i in {1..48}; do
+            code="$(curl -sS -L -H 'Cache-Control: no-cache' --connect-timeout 10 --max-time 25               -o /tmp/health.json -w '%{http_code}' "$PRODUCTION_URL/healthz?deploy=${TARGET_SHA}-${i}" || true)"
+            if [ "$code" = "200" ]; then
+              live_sha="$(node -e "try{const x=JSON.parse(require('fs').readFileSync('/tmp/health.json','utf8'));process.stdout.write(String(x.gitCommit||''))}catch{}")"
+            fi
+            echo "attempt=$i http=$code live=${live_sha:0:12} target=${TARGET_SHA:0:12}"
+            if [ "$live_sha" = "$TARGET_SHA" ]; then
+              break
+            fi
+            sleep 10
+          done
+          if [ "$live_sha" != "$TARGET_SHA" ]; then
+            echo "::error::Render did not reach target commit $TARGET_SHA."
+            cat /tmp/health.json || true
+            exit 1
+          fi
+
+      - name: Verify production UI assets
+        shell: bash
+        env:
+          TARGET_SHA: ${{ steps.target.outputs.sha }}
+        run: |
+          set -euo pipefail
+          curl -fsSL -H 'Cache-Control: no-cache' "$PRODUCTION_URL/?deploy=${TARGET_SHA}" -o /tmp/index.html
+          curl -fsSL -H 'Cache-Control: no-cache' "$PRODUCTION_URL/public/styles.css?deploy=${TARGET_SHA}" -o /tmp/styles.css
+          curl -fsSL -H 'Cache-Control: no-cache' "$PRODUCTION_URL/public/app.js?deploy=${TARGET_SHA}" -o /tmp/app.js
+
+          grep -q 'data-first-impression="v2.1"' /tmp/index.html
+          [ "$(grep -o 'class="navGlyph"' /tmp/index.html | wc -l | tr -d ' ')" = "6" ]
+          grep -q 'Premium UX v2.1 — first-run setup' /tmp/styles.css
+          grep -q 'Premium UX v2.1 — daily calibration' /tmp/styles.css
+          grep -q 'dailyCheckinCard' /tmp/app.js
+          grep -q 'completeReadingRecommendation' /tmp/app.js
+          echo "render-production: exact commit and V2.1 assets verified"
