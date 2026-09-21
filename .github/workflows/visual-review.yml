@@ -19,6 +19,9 @@ on:
       - 'scripts/ilim-notebook.mjs'
       - 'src/reading-recommendation.mjs'
       - 'scripts/reading-recommendation.mjs'
+      - 'src/reading-recommendation-memory.mjs'
+      - 'scripts/reading-recommendation-memory.mjs'
+      - 'scripts/reading-recommendation-closed-loop.mjs'
       - 'src/library-path.mjs'
       - 'scripts/library-catalog.mjs'
       - 'scripts/book-reader.mjs'
@@ -104,6 +107,16 @@ jobs:
             if(recommendationBox&&navBox&&recommendationBox.y+recommendationBox.height>navBox.y)throw new Error('Primary reading recommendation is obscured by mobile navigation');
             await page.screenshot({path:'visual-review/01-today.png',fullPage:true});
             await page.screenshot({path:'visual-review/01a-reading-recommendation.png',fullPage:true});
+            const alternate=page.locator('#nextReadingRecommendation');
+            if(await alternate.count()){
+              const beforeTitle=await page.locator('.readingRecommendationCard h2').innerText();
+              await alternate.click();
+              await page.waitForTimeout(120);
+              const afterTitle=await page.locator('.readingRecommendationCard h2').innerText();
+              if(afterTitle===beforeTitle)throw new Error('Alternate reading recommendation did not rotate');
+              const memoryAfterSkip=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.recommendationMemory,key);
+              if(!memoryAfterSkip?.history?.some(x=>x.status==='skipped'))throw new Error('Alternate recommendation choice did not persist an explicit skip signal');
+            }
 
             await page.evaluate((k)=>{
               const s=JSON.parse(localStorage.getItem(k));s.view='ilim';localStorage.setItem(k,JSON.stringify(s));
