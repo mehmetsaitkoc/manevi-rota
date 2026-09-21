@@ -938,7 +938,7 @@ async function renderQuranReader(){
    S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,ayah}),{surah:meta.id,ayah});
    S.library.lastBook='quran';save();document.querySelectorAll('.quranAyah').forEach(x=>x.classList.toggle('savedAyah',x===el))
  });
- const saved=document.querySelector(`[data-quran-ayah="${Math.max(1,Number(state.ayah)||1)}"]`);if(saved)setTimeout(()=>saved.scrollIntoView({block:'center'}),40);
+ const saved=document.querySelector(`[data-quran-ayah="${Math.max(1,Number(state.ayah)||1)}"]`);if(saved)setTimeout(()=>saved.scrollIntoView({block:'nearest'}),40);
  if('IntersectionObserver'in window){
    quranProgressObserver=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting&&e.intersectionRatio>=.62).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];if(!visible)return;const n=Number(visible.target.dataset.quranAyah);if(n&&n!==S.library.quran.ayah){S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,ayah:n}),{surah:meta.id,ayah:n});S.library.lastBook='quran';save()}},{threshold:[.62]});
    document.querySelectorAll('[data-quran-ayah]').forEach(el=>quranProgressObserver.observe(el));
