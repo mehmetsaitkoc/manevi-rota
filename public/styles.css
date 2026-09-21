@@ -1611,3 +1611,141 @@ nav button:hover{transform:translateY(-1px)}
   .onboardingChips{gap:6px}
   .onboardingChips .chip{min-height:40px;font-size:10px}
 }
+
+
+/* Premium UX v2.1 — daily calibration */
+.checkinHeroCard{
+  background:
+    radial-gradient(circle at 92% 0,rgba(176,138,80,.12),transparent 15rem),
+    linear-gradient(145deg,#191e1b,#242b27);
+  color:#fff;
+  border-color:rgba(255,255,255,.06);
+  box-shadow:0 22px 58px rgba(19,23,21,.14);
+}
+.checkinHeroTop{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
+.checkinHeroCard .eyebrow{color:#d4ad69}
+.checkinHeroCard h1{color:#fff;margin:5px 0 7px}
+.checkinHeroCard .lead{max-width:610px;margin:0;color:#ccd2ce}
+.checkinProgressPill{
+  width:66px;height:66px;flex:0 0 66px;
+  display:grid;place-items:center;
+  text-align:center;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.025);
+}
+.checkinProgressPill b,.checkinProgressPill small{display:block}
+.checkinProgressPill b{font-size:17px;color:#fff;line-height:1}
+.checkinProgressPill small{margin-top:2px;font-size:7px;text-transform:uppercase;letter-spacing:.08em;color:#aeb7b1}
+.dailyCheckinCard{
+  padding:0;
+  overflow:hidden;
+  background:rgba(251,250,247,.98);
+  border-color:rgba(52,56,53,.10);
+  box-shadow:0 16px 46px rgba(28,31,29,.055);
+}
+.checkinSection{padding:17px 19px;border-bottom:1px solid rgba(52,56,53,.09)}
+.checkinSectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.checkinSectionHead>div{display:flex;align-items:center;gap:9px;min-width:0}
+.checkinSectionHead small{
+  width:25px;height:25px;flex:0 0 25px;
+  display:grid;place-items:center;
+  border-radius:8px;
+  background:#eeece6;
+  color:#8a7044;
+  font-size:8px;
+  font-weight:900;
+}
+.checkinSectionHead h3{margin:0;font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;font-size:17px;color:#252a27}
+.checkinSectionHead>span{
+  padding:5px 7px;
+  border-radius:999px;
+  background:#eeece7;
+  font-size:8px;
+  font-weight:850;
+  color:#6b706c;
+  white-space:nowrap;
+}
+.checkinMinuteChips{gap:6px}
+.checkinMinuteChips .chip{
+  min-width:54px;
+  flex:1;
+  text-align:center;
+  padding:9px 8px;
+  border-radius:12px;
+  background:#fff;
+}
+.dailyCheckinCard .chip.sel,
+.dailyCheckinCard .range button.sel,
+.dailyCheckinCard .opt.sel{
+  background:#1a1f1c;
+  border-color:#1a1f1c;
+  color:#fff;
+}
+.checkinSplit{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid rgba(52,56,53,.09)}
+.checkinSplit .checkinSection{border-bottom:0}
+.checkinSplit .checkinSection+ .checkinSection{border-left:1px solid rgba(52,56,53,.09)}
+.checkinHint{margin:-3px 0 8px;font-size:8px;color:#92958f}
+.dailyCheckinCard .range{gap:5px}
+.dailyCheckinCard .range button{padding:9px 4px;border-radius:10px;font-size:10px}
+.checkinChoiceGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.dailyCheckinCard .opt{
+  min-height:60px;
+  padding:10px 11px;
+  border-radius:13px;
+  background:#fff;
+  box-shadow:none;
+}
+.dailyCheckinCard .opt b{font-size:11px}
+.dailyCheckinCard .opt small{font-size:8.5px;line-height:1.3;margin-top:3px}
+.checkinFooter{
+  padding:14px 19px 17px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:16px;
+  align-items:end;
+  background:#f1efe9;
+}
+.checkinFooter>div:first-child>small{
+  display:block;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.12em;
+  color:var(--gold);
+}
+.checkinFooter p{margin:4px 0 0;font-size:9px;line-height:1.4;color:#797d78}
+.checkinActions{margin:0;justify-content:flex-end}
+.checkinActions .btn{padding:10px 12px;border-radius:12px;font-size:10px;white-space:nowrap}
+.checkinActions .btn.primary{background:var(--ink-deep);border-color:var(--ink-deep)}
+
+@media(max-width:640px){
+  .checkinHeroCard{padding:16px;border-radius:22px}
+  .checkinHeroTop{gap:10px}
+  .checkinHeroCard h1{font-size:31px}
+  .checkinHeroCard .lead{font-size:10px;line-height:1.42}
+  .checkinProgressPill{width:54px;height:54px;flex-basis:54px}
+  .checkinProgressPill b{font-size:15px}
+  .dailyCheckinCard{border-radius:22px}
+  .checkinSection{padding:13px 14px}
+  .checkinSectionHead{margin-bottom:8px}
+  .checkinSectionHead small{width:22px;height:22px;flex-basis:22px;border-radius:7px;font-size:7px}
+  .checkinSectionHead h3{font-size:14px}
+  .checkinMinuteChips{display:grid;grid-template-columns:repeat(4,1fr)}
+  .checkinMinuteChips .chip{min-width:0;width:100%;padding:8px 4px;font-size:9px}
+  .checkinSplit{grid-template-columns:1fr 1fr}
+  .checkinSplit .checkinSection{padding:13px 10px}
+  .checkinSplit .checkinSectionHead{display:block}
+  .checkinSplit .checkinSectionHead>div{gap:6px}
+  .checkinSplit .checkinSectionHead>span{display:inline-flex;margin-top:5px}
+  .checkinHint{font-size:7px}
+  .dailyCheckinCard .range{gap:3px}
+  .dailyCheckinCard .range button{padding:8px 2px;font-size:9px}
+  .checkinChoiceGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .dailyCheckinCard .opt{min-height:54px;padding:8px 9px}
+  .dailyCheckinCard .opt b{font-size:10px}.dailyCheckinCard .opt small{font-size:7.5px}
+  .checkinFooter{grid-template-columns:1fr;padding:12px 14px 14px;gap:9px}
+  .checkinFooter p{font-size:8px}
+  .checkinActions{display:grid;grid-template-columns:1fr 1.15fr;gap:7px}
+  .checkinActions .btn{width:100%;font-size:9px;padding:9px 7px}
+}
