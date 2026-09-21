@@ -32,17 +32,18 @@ export function yesterdayReadingSummary({memory={},records=[],date}={}){
   if(!completed&&!matched){
     return {
       date:yesterday,hasActivity:false,title:'Dün kayıtlı okuma yok',
-      minutes:0,pages:0,feedback:null,feedbackLabel:null,bookId:null,kind:null
+      minutes:0,pages:0,verses:0,feedback:null,feedbackLabel:null,bookId:null,kind:null
     };
   }
 
   const minutes=Math.max(1,Number(completed?.actualMinutes||matched?.minutes||completed?.recommendedMinutes||1));
   const pages=Math.max(0,Number(matched?.pages||0));
+  const verses=Math.max(0,Number(matched?.verses||0));
   const feedback=completed?.feedback||matched?.feedback||null;
   return {
     date:yesterday,hasActivity:true,
     title:String(completed?.title||'Okuma'),
-    minutes,pages,feedback,feedbackLabel:readingFeedbackLabel(feedback),
+    minutes,pages,verses,feedback,feedbackLabel:readingFeedbackLabel(feedback),
     bookId:completed?.bookId||matched?.bookId||null,
     kind:completed?.kind||'book'
   };
