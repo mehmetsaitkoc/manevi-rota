@@ -4,10 +4,11 @@ services:
     runtime: node
     plan: free
     region: frankfurt
+    branch: main
     buildCommand: npm ci && npm test
     startCommand: npm start
     healthCheckPath: /healthz
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     envVars:
       - key: PILOT_SUPABASE_URL
         value: https://ysrrfepvqvlcbejkbuwn.supabase.co
