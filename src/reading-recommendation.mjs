@@ -122,7 +122,8 @@ function bookCandidates({date,profile,checkin,library,ilim,records,bookTotals,pa
 
     const pBoost=priorityBoost(profile,book,priorWeight);score+=pBoost;
     if(pBoost&&priorWeight>=.4)scoreReasons.push('başlangıç önceliklerinle uyumlu');
-    const preference=recommendationPreferenceSignal(library?.recommendationMemory,book.id,date);
+    const preferenceKind=book.readerType==='quran'?'quran':'book';
+    const preference=recommendationPreferenceSignal(library?.recommendationMemory,book.id,date,preferenceKind);
     score+=preference.adjustment;
     if(preference.reason)scoreReasons.unshift(preference.reason);
 
@@ -189,7 +190,8 @@ function hadithCandidates({date,profile,checkin,ilim,library,events,routeTypical
   const due=dueReviews(state,date,6);
   const plan=todayHadisPlan(state,date);
   const stats=perBookStats(events,'kirk-hadis',date);
-  const preference=recommendationPreferenceSignal(library?.recommendationMemory,'kirk-hadis',date);
+  const reviewPreference=recommendationPreferenceSignal(library?.recommendationMemory,'kirk-hadis',date,'hadith-review');
+  const readingPreference=recommendationPreferenceSignal(library?.recommendationMemory,'kirk-hadis',date,'hadith');
   const out=[];
   if(due.length){
     const oldest=due[0],overdue=Math.max(0,daysBetween(oldest.dueDate,date));
@@ -197,22 +199,22 @@ function hadithCandidates({date,profile,checkin,ilim,library,events,routeTypical
     out.push({
       kind:'hadith-review',bookId:'kirk-hadis',title:due.length===1?'1 kısa hadis tekrarı':`${Math.min(2,due.length)} kısa hadis tekrarı`,
       minutes:Math.min(clamp(checkin?.minutes||10,5,60),due.length>=2?6:4),
-      score:(urgent?160:96)+preference.adjustment,
+      score:(urgent?160:96)+reviewPreference.adjustment,
       locator:oldest?.hadisId?`Hadis ${oldest.hadisId}`:'Kırk Hadis',
       reasons:[
-        ...(preference.reason?[preference.reason]:[]),
+        ...(reviewPreference.reason?[reviewPreference.reason]:[]),
         due.length>=2?`${due.length} tekrar bekliyor`:'bekleyen tekrar var',
         overdue>=1?`en eski tekrar ${overdue} gün gecikmiş`:'tekrar tarihi bugün',
         'yeni okumadan önce kısa geri çağırma'
-      ].slice(0,4),preferenceAdjustment:preference.adjustment,
+      ].slice(0,4),preferenceAdjustment:reviewPreference.adjustment,
       action:{type:'open-reviews'}
     });
   }
 
   const h=plan.hadis||getHadis(state.currentId);
   if(h){
-    let score=48+priorityBoost(profile,starterBook('kirk-hadis'),priorWeight)+preference.adjustment;
-    const reasons=preference.reason?[preference.reason]:[];
+    let score=48+priorityBoost(profile,starterBook('kirk-hadis'),priorWeight)+readingPreference.adjustment;
+    const reasons=readingPreference.reason?[readingPreference.reason]:[];
     if(path.currentLevel===3){score+=30;reasons.push('aktif seviyene uygun');}
     if(state.completed.length){score+=6;reasons.push('Kırk Hadis rotan devam ediyor');}
     if(stats.heavyLastTwo){score-=7;reasons.push('son iki hadis oturumu ağır geldi');}
@@ -220,7 +222,7 @@ function hadithCandidates({date,profile,checkin,ilim,library,events,routeTypical
     const minutes=recommendationMinutes({book:starterBook('kirk-hadis'),stats,checkin,routeTypical,returning:false});
     out.push({
       kind:'hadith',bookId:'kirk-hadis',title:h.title,minutes:Math.min(minutes,plan.minutes||minutes),score,
-      locator:`Hadis ${h.id}`,reasons:[plan.why,...reasons].filter(Boolean).slice(0,4),preferenceAdjustment:preference.adjustment,
+      locator:`Hadis ${h.id}`,reasons:[plan.why,...reasons].filter(Boolean).slice(0,4),preferenceAdjustment:readingPreference.adjustment,
       action:{type:'open-book',bookId:'kirk-hadis'}
     });
   }
