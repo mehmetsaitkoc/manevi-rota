@@ -189,9 +189,12 @@ function finalizeGenericBookSession(bookId,page,feedback='ideal'){
  S.library.books[bookId]=result.state;
  if(result.session){
    syncGenericReadingSession(bookId,result.session);
-   S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{
-     bookId,date:today(),minutes:result.session.minutes,feedback:result.session.feedback,at:result.session.endedAt
-   });
+   const meaningful=result.session.minutes>=2||result.session.pages>=1;
+   if(meaningful){
+     S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{
+       bookId,date:today(),minutes:result.session.minutes,feedback:result.session.feedback,at:result.session.endedAt
+     });
+   }
    save();
  }
  return result.session;
