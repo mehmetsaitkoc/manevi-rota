@@ -1,0 +1,45 @@
+name: Production Smoke — Premium UI
+
+on:
+  push:
+    branches: ['gpt/production-smoke-*']
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Probe Manevi Rota production premium build
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://manevi-rota.onrender.com"
+          ready=0
+
+          for i in {1..6}; do
+            health_code="$(curl -sS -L -H 'Cache-Control: no-cache' --connect-timeout 10 --max-time 25 -o /tmp/health.json -w '%{http_code}' "$base/healthz" || true)"
+            curl -fsSL -H 'Cache-Control: no-cache' "$base/?smoke=295f42c-$i" -o /tmp/index.html 2>/dev/null || true
+            curl -fsSL -H 'Cache-Control: no-cache' "$base/public/styles.css?smoke=295f42c-$i" -o /tmp/styles.css 2>/dev/null || true
+            curl -fsSL -H 'Cache-Control: no-cache' "$base/public/app.js?smoke=295f42c-$i" -o /tmp/app.js 2>/dev/null || true
+
+            health_ok=0; editorial_ok=0; nav_ok=0; styles_ok=0; today_ok=0
+            [ "$health_code" = "200" ] && grep -q '"service":"manevi-rota"' /tmp/health.json && health_ok=1 || true
+            grep -q 'data-ui="editorial-v1"' /tmp/index.html 2>/dev/null && editorial_ok=1 || true
+            [ "$(grep -o 'class="navGlyph"' /tmp/index.html 2>/dev/null | wc -l | tr -d ' ')" = "6" ] && nav_ok=1 || true
+            grep -q 'Premium UX v1' /tmp/styles.css 2>/dev/null && grep -q 'progressHero.premiumProgressHero' /tmp/styles.css 2>/dev/null && styles_ok=1 || true
+            grep -q 'BUGÜN SANA ÖNERİM' /tmp/app.js 2>/dev/null && today_ok=1 || true
+
+            echo "attempt=$i health=$health_ok editorial=$editorial_ok nav=$nav_ok styles=$styles_ok today=$today_ok"
+            if [ "$health_ok$editorial_ok$nav_ok$styles_ok$today_ok" = "11111" ]; then
+              ready=1
+              break
+            fi
+            sleep 5
+          done
+
+          cat /tmp/health.json || true
+          test "$ready" = "1"
+          echo "production-smoke: premium editorial UI v1 is live"
