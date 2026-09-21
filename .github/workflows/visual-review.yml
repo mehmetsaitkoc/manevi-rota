@@ -270,6 +270,9 @@ jobs:
             if(await yavrularButton.isDisabled())throw new Error('Yavrularımıza Din Dersleri should be readable');
             await yavrularButton.click();
             await page.waitForSelector('.genericBookPaper',{timeout:10000});
+            await page.waitForTimeout(80);
+            const readerScrollY=await page.evaluate(()=>window.scrollY);
+            if(readerScrollY>4)throw new Error('Library-to-reader transition did not reset viewport to the top');
             const yavrularTitle=await page.locator('.genericBookTitleCard h1').innerText();
             if(!yavrularTitle.includes('Yavrularımıza Din Dersleri'))throw new Error('Yavrularımız reader title mismatch');
             const sourceEdition=await page.locator('.genericBookEdition').innerText();
