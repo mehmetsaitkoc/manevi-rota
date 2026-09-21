@@ -2,12 +2,15 @@ import assert from 'node:assert/strict';
 import {
   emptyReadingRecommendationMemory,normalizeReadingRecommendationMemory,
   startReadingRecommendation,skipReadingRecommendation,completeReadingRecommendation,
-  recommendationPreferenceSignal
+  recommendationPreferenceSignal,isMeaningfulRecommendationSession
 } from '../src/reading-recommendation-memory.mjs';
 
 const rec={bookId:'islam-dini',kind:'book',title:'İslâm Dini',minutes:8,rank:1};
 let state=emptyReadingRecommendationMemory();
 assert.deepEqual(state,{active:null,history:[]});
+assert.equal(isMeaningfulRecommendationSession({minutes:1,pages:0}),false);
+assert.equal(isMeaningfulRecommendationSession({minutes:2,pages:0}),true);
+assert.equal(isMeaningfulRecommendationSession({minutes:1,pages:1}),true);
 
 state=startReadingRecommendation(state,rec,{date:'2026-09-21',at:'2026-09-21T18:00:00Z'});
 assert.equal(state.active.bookId,'islam-dini');
