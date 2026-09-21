@@ -2742,3 +2742,49 @@ nav button:hover{transform:translateY(-1px)}
 }
 #productApp[data-design="premium-night-v3"] .pilotStatusRow small{color:#829093}
 #productApp[data-design="premium-night-v3"] .pilotStatusRow b{color:#f0e5d4}
+
+
+/* Premium UI v3.2 — navigation and learning-card polish */
+#productApp[data-design="premium-night-v3"] nav{
+  grid-template-columns:repeat(5,minmax(0,1fr));
+}
+#productApp[data-design="premium-night-v3"] nav button small{
+  font-size:8.4px;
+}
+#productApp[data-design="premium-night-v3"] .starterStageGoals{
+  background:rgba(255,255,255,.035)!important;
+  border-color:rgba(216,181,109,.10)!important;
+}
+#productApp[data-design="premium-night-v3"] .starterStageGoals summary{
+  color:#d8c08a!important;
+}
+#productApp[data-design="premium-night-v3"] .starterStageGoals[open] summary{
+  background:rgba(216,181,109,.055)!important;
+  border-color:rgba(216,181,109,.09)!important;
+}
+#productApp[data-design="premium-night-v3"] .starterStageGoals li{
+  color:#aeb7b6!important;
+}
+#productApp[data-design="premium-night-v3"] .starterStageGoals p{
+  color:#7f8b8d!important;
+}
+#productApp[data-design="premium-night-v3"] .libraryAwarenessGoals{
+  background:rgba(255,255,255,.04)!important;
+  border-color:rgba(216,181,109,.10)!important;
+}
+#productApp[data-design="premium-night-v3"] .libraryAwarenessGoals>small{
+  color:#dfbf77!important;
+}
+#productApp[data-design="premium-night-v3"] .libraryAwarenessGoals li{
+  color:#c3cbca!important;
+}
+#productApp[data-design="premium-night-v3"] .libraryAwarenessGoals li:before{
+  background:rgba(216,181,109,.10)!important;
+  color:#e3c67f!important;
+}
+@media(max-width:640px){
+  #productApp[data-design="premium-night-v3"] nav button small{font-size:7.8px}
+}
+@media(max-width:374px){
+  #productApp[data-design="premium-night-v3"] nav button small{font-size:7.2px}
+}
