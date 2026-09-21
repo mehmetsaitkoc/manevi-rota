@@ -1236,3 +1236,36 @@ nav button:hover{transform:translateY(-1px)}
 @media(prefers-reduced-motion:reduce){
   *,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation-duration:.001ms!important;animation-iteration-count:1!important}
 }
+
+
+/* Premium UX v1.1 — progress contrast repair */
+.progressHero.premiumProgressHero{
+  background:
+    radial-gradient(circle at 90% 4%,rgba(176,138,80,.18),transparent 16rem),
+    linear-gradient(145deg,#171d1a 0%,#223029 100%);
+  color:#fff;
+  border-color:rgba(255,255,255,.07);
+  box-shadow:0 22px 60px rgba(20,26,23,.16);
+}
+.progressHero.premiumProgressHero .eyebrow{color:#c7a362}
+.progressHero.premiumProgressHero h1{color:#fff}
+.progressHero.premiumProgressHero .lead{color:#c8d0cc}
+.progressHero.premiumProgressHero .progressConfidence{
+  background:rgba(255,255,255,.07);
+  border-color:rgba(255,255,255,.10);
+  color:#e9ece9;
+}
+.progressHero.premiumProgressHero .progressTabs{background:rgba(255,255,255,.065)}
+.progressHero.premiumProgressHero .progressTabs button{color:#bdc5c1}
+.progressHero.premiumProgressHero .progressTabs button.active{
+  background:#f7f3ea;
+  color:#171b19;
+  box-shadow:none;
+}
+.progressHero.premiumProgressHero .journeyChartCard{
+  background:#f8f6ef!important;
+  color:#202522;
+  border-color:rgba(255,255,255,.08)!important;
+}
+.progressHero.premiumProgressHero .journeyChartHead b{color:#202522}
+.progressHero.premiumProgressHero .journeyChartHead>span{color:#777a75}
