@@ -197,11 +197,11 @@ jobs:
             if(paperBox&&paperBox.y>430)throw new Error('Generic reader content starts too low on 390x844 mobile');
             await page.screenshot({path:'visual-review/01aa-recommendation-reader.png',fullPage:true});
             await page.click('#genericBookBack');
-            await page.waitForSelector('#ilimNotebook',{timeout:10000});
+            await page.waitForSelector('#openSimpleNotebook',{timeout:10000});
             const memoryAfterExit=await page.evaluate((k)=>JSON.parse(localStorage.getItem(k)).library?.recommendationMemory,key);
             if(memoryAfterExit?.active)throw new Error('Early reader exit left a stale active recommendation');
             if(!memoryAfterExit?.history?.some(x=>x.bookId==='islam-dini'&&x.status==='abandoned'))throw new Error('Early reader exit was not persisted as abandoned');
-            await page.click('#ilimNotebook');
+            await page.click('#openSimpleNotebook');
             await page.waitForSelector('.notebookToolbar',{timeout:10000});
             await page.screenshot({path:'visual-review/01ab-recommendation-to-notebook.png',fullPage:true});
             await page.evaluate((k)=>{
@@ -423,9 +423,9 @@ jobs:
               const s=JSON.parse(localStorage.getItem(k));s.view='ilim';s.ilim.ui={...(s.ilim.ui||{}),screen:'home'};localStorage.setItem(k,JSON.stringify(s));
             },key);
             await page.reload({waitUntil:'networkidle'});
-            await page.waitForSelector('#ilimNotebook',{timeout:10000});
+            await page.waitForSelector('#openSimpleNotebook',{timeout:10000});
 
-            await page.click('#ilimNotebook');
+            await page.click('#openSimpleNotebook');
             await page.waitForSelector('.notebookToolbar',{timeout:15000});
             const notebookSummary=await page.locator('.notebookSummaryGrid').innerText();
             if(!notebookSummary.includes('not')||!notebookSummary.includes('vurgu')||!notebookSummary.includes('yer imi'))throw new Error('Ilim Defteri v2 summary missing');
