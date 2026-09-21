@@ -9,15 +9,19 @@ import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,
 import {emptyPilotState,normalizePilotState,createPilotId,createPilotEvent,pilotRoutePayload,pilotDayPayload} from '../src/pilot-telemetry.mjs';
 import {genericNotebookRefs,quranNotebookRefs,filterNotebookEntries,groupNotebookEntries,notebookSummary} from '../src/ilim-notebook.mjs';
 import {rankReadingRecommendations} from '../src/reading-recommendation.mjs';
+import {
+  emptyReadingRecommendationMemory,normalizeReadingRecommendationMemory,isMeaningfulRecommendationSession,
+  startReadingRecommendation,skipReadingRecommendation,completeReadingRecommendation
+} from '../src/reading-recommendation-memory.mjs';
 
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
 const app=document.querySelector('#app'),nav=document.querySelector('#nav');
-const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:emptyQuranReaderState(),islam:{page:2,fontScale:1},books:{},path:emptyLibraryPathState(),lastBook:'hadith'},pilot:emptyPilotState()});
+const fresh=()=>({onboardStep:0,onboardDone:false,profile:{priorities:[],slotOverrides:{},slotSuggestionSnooze:{}},daily:{},view:'today',prayer:{location:{city:'',country:'Turkey',lat:null,lng:null,label:''},today:null,tomorrow:null,lastFetched:null,error:null},qada:emptyQada(),ilim:emptyKirkHadisState(),library:{quran:emptyQuranReaderState(),islam:{page:2,fontScale:1},books:{},path:emptyLibraryPathState(),lastBook:'hadith',recommendationMemory:emptyReadingRecommendationMemory()},pilot:emptyPilotState()});
 function load(){try{const own=localStorage.getItem(KEY);if(own)return JSON.parse(own);for(const k of LEGACY_KEYS){const v=localStorage.getItem(k);if(v)return {...fresh(),...JSON.parse(v)}}}catch{}return fresh()}
 let S=load();
 S.profile=S.profile||{priorities:[]};S.profile.slotOverrides=S.profile.slotOverrides||{};S.profile.slotSuggestionSnooze=S.profile.slotSuggestionSnooze||{};
-S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:normalizeQuranReaderState({...libraryBase.quran,...(S.library?.quran||{})}),islam:{...libraryBase.islam,...(S.library?.islam||{})},books:{...(S.library?.books||{})}};
+S.daily=S.daily||{};S.prayer=S.prayer||fresh().prayer;S.prayer.location=S.prayer.location||fresh().prayer.location;S.qada={...emptyQada(),...(S.qada||{}),balances:{...emptyQada().balances,...(S.qada?.balances||{})}};S.ilim=normalizeKirkHadisState(S.ilim||{});const libraryBase=fresh().library;S.library={...libraryBase,...(S.library||{}),quran:normalizeQuranReaderState({...libraryBase.quran,...(S.library?.quran||{})}),islam:{...libraryBase.islam,...(S.library?.islam||{})},books:{...(S.library?.books||{})},recommendationMemory:normalizeReadingRecommendationMemory(S.library?.recommendationMemory||{})};
 S.library.books=Object.fromEntries(Object.entries(S.library.books||{}).map(([id,state])=>[id,normalizeBookReaderState(state)]));
 S.library.path=normalizeLibraryPathState(S.library.path||{});
 if(!S.library.books['islam-dini'])S.library.books['islam-dini']=normalizeBookReaderState({page:S.library.lastBook==='islam'?(S.library.islam?.page||2):2,fontScale:S.library.islam?.fontScale||1});
@@ -183,7 +187,16 @@ function syncGenericReadingSession(bookId,session){
 function finalizeGenericBookSession(bookId,page,feedback='ideal'){
  const current=genericBookState(bookId),result=finishBookReadingSession(current,{page,at:new Date().toISOString(),feedback});
  S.library.books[bookId]=result.state;
- if(result.session)syncGenericReadingSession(bookId,result.session);
+ if(result.session){
+   syncGenericReadingSession(bookId,result.session);
+   const meaningful=isMeaningfulRecommendationSession(result.session);
+   if(meaningful){
+     S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{
+       bookId,date:today(),minutes:result.session.minutes,feedback:result.session.feedback,at:result.session.endedAt
+     });
+   }
+   save();
+ }
  return result.session;
 }
 function openStarterBook(id){
@@ -315,6 +328,7 @@ function renderToday(){
    S.view='ilim';
    S.library.recommendationDay=today();
    S.library.recommendationIndex=readingIndex;
+   S.library.recommendationMemory=startReadingRecommendation(S.library.recommendationMemory,readingRec,{date:today(),at:new Date().toISOString()});
    if(readingRec.action?.type==='open-reviews'){
      S.ilim.ui={...(S.ilim.ui||{}),screen:'reviews'};save();return render();
    }
@@ -322,6 +336,7 @@ function renderToday(){
  };
  const nextReading=document.querySelector('#nextReadingRecommendation');
  if(nextReading&&candidateCount>1)nextReading.onclick=()=>{
+   S.library.recommendationMemory=skipReadingRecommendation(S.library.recommendationMemory,readingRec,{date:today(),at:new Date().toISOString()});
    S.library.recommendationDay=today();
    S.library.recommendationIndex=(readingIndex+1)%candidateCount;
    save();renderToday();
@@ -887,7 +902,17 @@ function renderIlimReader(id){
  document.querySelector('#bookmarkHadis').onclick=()=>{toggleHadisBookmark(S.ilim,h.id);save();renderIlimReader(h.id)};document.querySelector('#scheduleHadis').onclick=()=>{scheduleHadisReviews(S.ilim,h.id,today());save();renderIlimReader(h.id)};
  document.querySelectorAll('[data-ilim-feedback]').forEach(b=>b.onclick=()=>{S.ilim.ui.feedback=b.dataset.ilimFeedback;save();renderIlimReader(h.id)});
  document.querySelectorAll('[data-understanding]').forEach(b=>b.onclick=()=>{S.ilim.ui.understanding=Number(b.dataset.understanding);save();renderIlimReader(h.id)});
- document.querySelector('#finishHadis').onclick=()=>{const fb=S.ilim.ui.feedback;if(!fb)return;recordHadisSession(S.ilim,{hadisId:h.id,date:today(),minutes:isCurrent?plan.minutes:8,feedback:fb,completed:true,understanding:S.ilim.ui?.understanding??null});const d=ensure(),routeTasks=d.route?.tasks||[];const linked=routeTasks.find(x=>x.id==='learning')||routeTasks.find(x=>x.id==='reading');if(linked){d.done=[...new Set([...(d.done||[]),linked.id])];d.taskFeedback=d.taskFeedback||{};d.taskFeedback[linked.id]=fb==='heavy'?'hard':fb==='easy'?'easy':'normal'}S.ilim.ui={...S.ilim.ui,screen:'home',feedback:null,understanding:null,noteFor:null};save();renderIlimHome()};
+ document.querySelector('#finishHadis').onclick=()=>{
+   const fb=S.ilim.ui.feedback;if(!fb)return;
+   const minutes=isCurrent?plan.minutes:8;
+   recordHadisSession(S.ilim,{hadisId:h.id,date:today(),minutes,feedback:fb,completed:true,understanding:S.ilim.ui?.understanding??null});
+   if(S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith'){
+     S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,feedback:fb,at:new Date().toISOString()});
+   }
+   const d=ensure(),routeTasks=d.route?.tasks||[];const linked=routeTasks.find(x=>x.id==='learning')||routeTasks.find(x=>x.id==='reading');
+   if(linked){d.done=[...new Set([...(d.done||[]),linked.id])];d.taskFeedback=d.taskFeedback||{};d.taskFeedback[linked.id]=fb==='heavy'?'hard':fb==='easy'?'easy':'normal'}
+   S.ilim.ui={...S.ilim.ui,screen:'home',feedback:null,understanding:null,noteFor:null};save();renderIlimHome()
+ };
 }
 function renderIlimReviews(){
  const due=dueHadisReviews(S.ilim,today(),20),upcoming=S.ilim.reviews.filter(r=>!r.done&&r.dueDate>today()).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).slice(0,8),openId=S.ilim.ui?.reviewOpenId;
@@ -898,7 +923,16 @@ function renderIlimReviews(){
    <section class="card activeRecall"><div class="sourcePill">Hadis ${h.id} · ${esc(h.title)}</div><h2>${esc(recallPromptFor(h.id))}</h2>${!reveal?`<textarea id="recallDraft" rows="5" placeholder="Hatırladığın kadarıyla yaz…">${esc(draft)}</textarea><div class="actions"><button class="btn ghost" id="cantRecall">Hatırlayamıyorum</button><button class="btn primary" id="revealRecall">Cevabımı karşılaştır →</button></div>`:`<div class="yourRecall"><small>SENİN HATIRLADIĞIN</small><p>${draft?esc(draft):'<i>Bir cevap yazılmadı.</i>'}</p></div><div class="recallReveal"><small>KAYNAĞA DÖN</small><h3>${esc(h.meaning)}</h3><p>${esc(h.why)}</p><div class="sourcePill">${esc(h.source)}</div></div><p class="small">Şimdi kendini değerlendir. Bu değerlendirme “ilim puanı” değildir; yalnızca bir sonraki tekrar dozunu ayarlar.</p><div class="reviewButtons triple"><button data-recall-result="forgot">Hatırlayamadım</button><button data-recall-result="hard">Zor hatırladım</button><button data-recall-result="remembered">Hatırladım</button></div>`}</section>`;
    document.querySelector('#backReviews').onclick=()=>{S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()};
    if(!reveal){const ta=document.querySelector('#recallDraft');document.querySelector('#revealRecall').onclick=()=>{S.ilim.ui.recallDraft=ta.value.trim();S.ilim.ui.reviewReveal=true;save();renderIlimReviews()};document.querySelector('#cantRecall').onclick=()=>{S.ilim.ui.recallDraft='';S.ilim.ui.reviewReveal=true;save();renderIlimReviews()}}
-   else document.querySelectorAll('[data-recall-result]').forEach(b=>b.onclick=()=>{recordRecallAttempt(S.ilim,{reviewId:selected.id,today:today(),text:S.ilim.ui.recallDraft||'',result:b.dataset.recallResult});S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()});
+   else document.querySelectorAll('[data-recall-result]').forEach(b=>b.onclick=()=>{
+     const result=b.dataset.recallResult;
+     recordRecallAttempt(S.ilim,{reviewId:selected.id,today:today(),text:S.ilim.ui.recallDraft||'',result});
+     if(S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith-review'){
+       const minutes=S.library.recommendationMemory.active.recommendedMinutes||4;
+       const feedback=result==='remembered'?'easy':result==='forgot'?'heavy':'ideal';
+       S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,feedback,at:new Date().toISOString()});
+     }
+     S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()
+   });
    return;
  }
  const card=r=>{const h=getHadis(r.hadisId),k=knowledgeSignal(S.ilim,r.hadisId,today()),wave=r.kind==='recovery'?'Kısa geri çağırma':`${r.wave}. gün`;return `<button class="reviewStartCard" data-open-review="${r.id}"><div><small>${wave} · ${esc(r.dueDate)}</small><b>${esc(h?.title||'Hadis')}</b><p>${esc(recallPromptFor(r.hadisId))}</p></div><span class="knowledgeChip ${k.key}">${esc(k.label)}</span><i>›</i></button>`};
