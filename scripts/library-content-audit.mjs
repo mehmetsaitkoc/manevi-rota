@@ -26,7 +26,7 @@ const expectedStarts={
 
 const frontMatterNoise=/GÜZEL SANATLAR MATBAASI|MATBAASI A\.?\s*Ş|DİYANET İŞLERİ BAŞKANLIĞI YAYIN|YAYIN YÖNETMENİ|Karton Kapak\.indd|Semih Ofset|ISBN\s*[:\d-]/i;
 const suspiciousExactLine=/^\d{6,}$/;
-const obviousGarbage=/\b(?:Cc|CC)\s*[—-]\s*[A-ZÇĞİÖŞÜ]{2,}\b|\bMüneala\b|\bKEK\b|\bS5\s*[—-]|\bC€\s*[—-]/i;
+const obviousGarbage=/(?:^|\n)\s*(?:Cc|CC|C€|S5)\s*[—-]|\bMüneala\b|(?:^|\n)\s*KEK\s*(?:\n|$)/im;
 const promoNoise=/Yazan ve Tertipleyen|mevzuunda tek eser|Yavrularınıza sevdirerek|SAHİH-İ MÜSLİM VE TERCEMESİ|her iki cildin tamamı\s+\d+\s*Lira/i;
 
 function auditGeneric(book){
@@ -66,6 +66,8 @@ function auditGeneric(book){
   });
   const garbagePages=pages.flatMap((p,i)=>obviousGarbage.test(String(p?.text||''))?[{readerPage:i+1,sourcePage:p?.page??null,preview:preview(p.text)}]:[]);
   const tailPromoPages=pages.flatMap((p,i)=>i>=Math.max(0,pages.length-12)&&promoNoise.test(String(p?.text||''))?[{readerPage:i+1,sourcePage:p?.page??null,preview:preview(p.text)}]:[]);
+  const qualityReviewPages=Array.isArray(data.qualityReviewPages)?data.qualityReviewPages:[];
+  const invalidQualityReviewPages=qualityReviewPages.filter(row=>!pages.some(p=>Number(p.page)===Number(row?.page)));
   const numericArtifacts=numericArtifactPages.reduce((n,x)=>n+x.hits.length,0);
   const obviousGarbageHits=garbagePages.length;
   const first=String(texts[0]||'');
@@ -83,6 +85,8 @@ function auditGeneric(book){
   if(numericArtifacts)warnings.push(`${book.id}: ${numericArtifacts} standalone 6+ digit OCR artifacts`);
   if(obviousGarbageHits)warnings.push(`${book.id}: ${obviousGarbageHits} pages contain known obvious OCR garbage patterns`);
   if(tailPromoPages.length)warnings.push(`${book.id}: ${tailPromoPages.length} tail pages look like publisher/promotional material`);
+  if(qualityReviewPages.length)warnings.push(`${book.id}: ${qualityReviewPages.length} source pages are explicitly flagged for scan/OCR verification`);
+  if(invalidQualityReviewPages.length)blockers.push(`${book.id}: qualityReviewPages contains missing source pages`);
   if(invalidSections)blockers.push(`${book.id}: ${invalidSections} section links point to missing reader pages`);
   if(!data.source?.sourceLabel)blockers.push(`${book.id}: sourceLabel missing`);
   if(!data.source?.textPolicy)blockers.push(`${book.id}: textPolicy missing`);
@@ -94,7 +98,7 @@ function auditGeneric(book){
     blankPages:blank,shortPages:short,shortPct:pct(short,pages.length),
     duplicatePageBodies:duplicateBodies,
     replacementChars,softHyphenMarks,lineEndHyphens,numericArtifacts,obviousGarbageHits,
-    numericArtifactPages,garbagePages,tailPromoPages,
+    numericArtifactPages,garbagePages,tailPromoPages,qualityReviewPages,
     frontMatterNoise:frontNoise,startOk,sections:sections.length,invalidSections,
     firstPreview:preview(first),lastPreview:preview(texts.at(-1)),
     sourceLabel:data.source?.sourceLabel||null,
