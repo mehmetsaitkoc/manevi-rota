@@ -62,7 +62,15 @@ for(const date of ['2026-09-20','2026-09-21']){
 assert.ok(recommendationPreferenceSignal(kindMemory,'kirk-hadis','2026-09-22','hadith-review').adjustment>0);
 assert.equal(recommendationPreferenceSignal(kindMemory,'kirk-hadis','2026-09-22','hadith').adjustment,0,'review completion must not leak into new-hadith selection preference');
 
+let abandonedReview=emptyReadingRecommendationMemory();
+for(const date of ['2026-09-20','2026-09-21','2026-09-22']){
+  abandonedReview=startReadingRecommendation(abandonedReview,review,{date,at:date+'T18:00:00Z'});
+  abandonedReview=abandonReadingRecommendation(abandonedReview,{bookId:'kirk-hadis',date,minutes:1,at:date+'T18:01:00Z'});
+}
+assert.ok(recommendationPreferenceSignal(abandonedReview,'kirk-hadis','2026-09-23','hadith-review').adjustment<0);
+assert.equal(recommendationPreferenceSignal(abandonedReview,'kirk-hadis','2026-09-23','hadith').adjustment,0,'abandoned review preference must not leak into new-hadith reading');
+
 const normalized=normalizeReadingRecommendationMemory({active:{bad:true},history:[{status:'nonsense'}]});
 assert.deepEqual(normalized,{active:null,history:[]});
 
-console.log('reading-recommendation-memory: start, skip, abandon, completion, kind isolation and preference learning passed');
+console.log('reading-recommendation-memory: start, skip, abandon, completion, abandonment kind isolation and preference learning passed');
