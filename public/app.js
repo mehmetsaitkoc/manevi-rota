@@ -1005,13 +1005,16 @@ function renderIlimReader(id){
  document.querySelector('#finishHadis').onclick=()=>{
    const fb=S.ilim.ui.feedback;if(!fb)return;
    const minutes=isCurrent?plan.minutes:8;
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith';
    recordHadisSession(S.ilim,{hadisId:h.id,date:today(),minutes,feedback:fb,completed:true,understanding:S.ilim.ui?.understanding??null});
-   if(S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith'){
+   if(wasRecommended){
      S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,feedback:fb,at:new Date().toISOString()});
    }
    const d=ensure(),routeTasks=d.route?.tasks||[];const linked=routeTasks.find(x=>x.id==='learning')||routeTasks.find(x=>x.id==='reading');
    if(linked){d.done=[...new Set([...(d.done||[]),linked.id])];d.taskFeedback=d.taskFeedback||{};d.taskFeedback[linked.id]=fb==='heavy'?'hard':fb==='easy'?'easy':'normal'}
-   S.ilim.ui={...S.ilim.ui,screen:'home',feedback:null,understanding:null,noteFor:null};save();renderIlimHome()
+   S.ilim.ui={...S.ilim.ui,screen:'home',feedback:null,understanding:null,noteFor:null};
+   if(wasRecommended){S.view='today';save();return render()}
+   save();renderIlimHome()
  };
 }
 function renderIlimReviews(){
@@ -1025,13 +1028,16 @@ function renderIlimReviews(){
    if(!reveal){const ta=document.querySelector('#recallDraft');document.querySelector('#revealRecall').onclick=()=>{S.ilim.ui.recallDraft=ta.value.trim();S.ilim.ui.reviewReveal=true;save();renderIlimReviews()};document.querySelector('#cantRecall').onclick=()=>{S.ilim.ui.recallDraft='';S.ilim.ui.reviewReveal=true;save();renderIlimReviews()}}
    else document.querySelectorAll('[data-recall-result]').forEach(b=>b.onclick=()=>{
      const result=b.dataset.recallResult;
+     const wasRecommended=S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith-review';
      recordRecallAttempt(S.ilim,{reviewId:selected.id,today:today(),text:S.ilim.ui.recallDraft||'',result});
-     if(S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith-review'){
+     if(wasRecommended){
        const minutes=S.library.recommendationMemory.active.recommendedMinutes||4;
        const feedback=result==='remembered'?'easy':result==='forgot'?'heavy':'ideal';
        S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,feedback,at:new Date().toISOString()});
      }
-     S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()
+     S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';
+     if(wasRecommended){S.view='today';S.ilim.ui.screen='home';save();return render()}
+     save();renderIlimReviews()
    });
    return;
  }
