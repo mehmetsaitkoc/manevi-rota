@@ -1,0 +1,43 @@
+name: Production Smoke — Render
+
+on:
+  push:
+    branches: ['gpt/production-smoke-*']
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Probe Manevi Rota production
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://manevi-rota.onrender.com"
+          health_code=""
+          for i in {1..36}; do
+            health_code="$(curl -sS -L -H 'Cache-Control: no-cache' --connect-timeout 10 --max-time 25 -o /tmp/health.json -w '%{http_code}' "$base/healthz" || true)"
+            if [ "$health_code" = "200" ]; then
+              break
+            fi
+            sleep 10
+          done
+          echo "health_http=$health_code"
+          cat /tmp/health.json || true
+          test "$health_code" = "200"
+          grep -q '"service":"manevi-rota"' /tmp/health.json
+
+          curl -fsSL -H 'Cache-Control: no-cache' "$base/public/app.js?smoke=921f105" -o /tmp/app.js
+          grep -q 'BUGÜN SANA ÖNERİM' /tmp/app.js
+          grep -q 'abandonReadingRecommendation' /tmp/app.js
+
+          curl -fsSL -H 'Cache-Control: no-cache' "$base/src/reading-recommendation-memory.mjs?smoke=921f105" -o /tmp/memory.mjs
+          grep -q "statuses=new Set(\['skipped','abandoned','completed'\])" /tmp/memory.mjs
+
+          curl -fsSL -H 'Cache-Control: no-cache' "$base/src/today-experience.mjs?smoke=921f105" -o /tmp/today.mjs
+          grep -q 'todayExperienceSnapshot' /tmp/today.mjs
+
+          echo "production-smoke: health + Today v2 + abandonment memory passed"
