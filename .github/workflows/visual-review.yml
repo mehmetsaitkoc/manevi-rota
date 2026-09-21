@@ -160,7 +160,9 @@ jobs:
             const homeHeroText=await homeHero.innerText();
             if(!homeHeroText.includes('Manevî Rotan')||!homeHeroText.includes('Her güzel yolculuk'))throw new Error('Premium home hero copy regressed');
             const navGlyphs=await page.locator('#nav .navGlyph').count();
-            if(navGlyphs!==6)throw new Error('Premium navigation must use six monochrome glyphs');
+            if(navGlyphs!==5)throw new Error('Premium navigation must use five primary destinations');
+            if(await page.locator('#nav [data-view="checkin"]').count()!==0)throw new Error('Daily calibration should be reachable from Today, not consume a primary nav slot');
+            if(await page.locator('#edit').count()!==1)throw new Error('Today must retain the direct daily-calibration action');
             await page.waitForFunction((k)=>Number(JSON.parse(localStorage.getItem(k)||'{}').library?.books?.['islam-dini']?.totalPages||0)>0,key,{timeout:10000});
             const hydratedTotal=await page.evaluate((k)=>Number(JSON.parse(localStorage.getItem(k)).library?.books?.['islam-dini']?.totalPages||0),key);
             if(hydratedTotal<=120)throw new Error('Legacy generic-book progress did not hydrate totalPages before recommendation ranking');
@@ -474,6 +476,9 @@ jobs:
             if(await profileHero.count()!==1)throw new Error('Premium profile journey hero missing');
             const profileHeroText=await profileHero.innerText();
             if(!profileHeroText.includes('YOLCULUĞUN')||!profileHeroText.includes('kayıtlı gün'))throw new Error('Premium profile journey summary regressed');
+            const profileSettingsText=await page.locator('.profileSettingsCard').innerText();
+            if(!profileSettingsText.includes('Dengeli')||!profileSettingsText.includes('Değişken günler'))throw new Error('Profile must render reader-facing Turkish labels for engine codes');
+            if(profileSettingsText.includes('balanced')||profileSettingsText.includes('variable'))throw new Error('Raw engine codes leaked into Profile');
             await page.screenshot({path:'visual-review/08-profile-pilot-off.png',fullPage:true});
             page.once('dialog',dialog=>dialog.accept());
             await page.click('#pilotToggle');
