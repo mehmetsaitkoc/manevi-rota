@@ -75,7 +75,26 @@ jobs:
             const url='http://127.0.0.1:4173/';
             const key='manevi-rota-v2.7';
             await page.goto(url,{waitUntil:'networkidle'});
+            const firstImpression=await page.getAttribute('#mrIntro','data-first-impression');
+            if(firstImpression!=='v2.1')throw new Error('Premium first-impression marker missing');
+            const introPrimary=page.locator('.mr-ctaRow .mr-cta:not(.secondary)');
+            const proofRows=await page.locator('.mr-proofRow>span').count();
+            if(proofRows!==3)throw new Error('First fold must show exactly three product proof points');
+            const introCtaBox=await introPrimary.boundingBox();
+            if(!introCtaBox||introCtaBox.y+introCtaBox.height>844)throw new Error('Primary first-impression CTA is below the 390x844 first fold');
             await page.screenshot({path:'visual-review/00-intro.png',fullPage:true});
+            await page.screenshot({path:'visual-review/00a-intro-first-fold.png'});
+
+            await introPrimary.click();
+            await page.waitForSelector('.onboardingCard[data-onboarding-step="1"]',{timeout:5000});
+            const onboardingSteps=await page.locator('.onboardingCard .step').count();
+            if(onboardingSteps!==8)throw new Error('Onboarding must preserve eight setup steps');
+            const firstQuestion=await page.locator('.onboardingPrompt h1').innerText();
+            if(!firstQuestion.includes('Manevî düzenin'))throw new Error('Onboarding first question changed unexpectedly');
+            const onboardActionsBox=await page.locator('.onboardingActions').boundingBox();
+            if(!onboardActionsBox||onboardActionsBox.y+onboardActionsBox.height>844)throw new Error('Onboarding actions are below the 390x844 first fold');
+            if(await page.locator('#nav:not(.hidden)').count())throw new Error('Navigation must remain hidden during onboarding');
+            await page.screenshot({path:'visual-review/00b-onboarding-first-fold.png'});
 
             const now=new Date();
             const iso=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);
