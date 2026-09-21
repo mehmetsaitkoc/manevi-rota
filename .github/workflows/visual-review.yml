@@ -475,9 +475,12 @@ jobs:
             const progressSurface=await page.evaluate(()=>({
               chart:getComputedStyle(document.querySelector('.journeyChartCard')).backgroundImage,
               metric:getComputedStyle(document.querySelector('.journeyMetric')).backgroundImage,
-              insight:getComputedStyle(document.querySelector('.periodInsight')).backgroundImage
+              insight:getComputedStyle(document.querySelector('.periodInsight')).backgroundImage,
+              track:getComputedStyle(document.querySelector('.journeyBarTrack')).backgroundColor
             }));
             if(!progressSurface.chart.includes('linear-gradient')||!progressSurface.metric.includes('linear-gradient')||!progressSurface.insight.includes('linear-gradient'))throw new Error('Progress screen regressed to mixed light material cards');
+            const trackRgb=(progressSurface.track.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(trackRgb.length<3||trackRgb.some(v=>v>90))throw new Error('Progress chart tracks regressed to the legacy light material');
             await page.screenshot({path:'visual-review/07-progress.png',fullPage:true});
 
             await page.evaluate((k)=>{
