@@ -445,10 +445,13 @@ function renderToday(){
  app.innerHTML=`${primaryCard}
  <section class="card todayYesterdayCard"><div class="todayYesterdayIcon">↶</div><div><div class="eyebrow">DÜN NE OLDU?</div><b>${esc(yesterdaySummary.title)}</b><p>${esc(yesterdayDetail)}</p></div></section>
 
- <section class="card hero premiumTodayHero todayRouteOverview">
-   <div class="premiumHeroTop"><div><div class="eyebrow">BUGÜNÜN DİĞER ADIMLARI</div><h2>${remainingCount?remainingCount+' küçük adım kaldı':'Bugünün rotası tamamlandı'}</h2><p>Ana okumanın dışında kalan görevleri istediğin sırayla tamamlayabilirsin.</p></div><div class="heroProgress"><b>${progress}%</b><span>rota</span></div></div>
-   <div class="todayRouteStats"><span><b>${r.totalMinutes} dk</b><small>toplam plan</small></span><span><b>${r.tasks.length}</b><small>küçük görev</small></span><span><b>${done.size}</b><small>tamamlanan</small></span></div>
-   <div class="todayRouteActions"><button class="btn ghost" id="edit">Bugünkü durumu değiştir</button><button class="btn ${d.lightDay?'primary':'ghost'}" id="light">${d.lightDay?'Hafif gün açık':'Bugünü hafiflet'}</button></div>
+ <section class="card todayRouteOverview todayPlanBar" data-ui="today-plan-v2.2">
+   <div class="todayPlanMain">
+     <div class="eyebrow">BUGÜNÜN DİĞER ADIMLARI</div>
+     <div class="todayPlanLine"><h2>${remainingCount?remainingCount+' küçük adım':'Rota tamamlandı'}</h2><span>${r.totalMinutes} dk · ${done.size}/${r.tasks.length} tamamlandı</span></div>
+     <div class="todayPlanProgress" aria-label="Bugünkü rota ilerlemesi"><i style="width:${progress}%"></i></div>
+   </div>
+   <div class="todayPlanActions"><button class="btn ghost" id="edit">Durumu değiştir</button><button class="btn ${d.lightDay?'primary':'ghost'}" id="light">${d.lightDay?'Hafif gün açık':'Hafiflet'}</button></div>
  </section>
 
  ${S.profile.prayerTracking?`<section class="prayerStrip" data-view="prayer"><div><span class="prayerStripIcon">🕌</span><div><small>NAMAZ MERKEZİ</small><b>${ps?`${ps.next.label} · ${ps.next.time}`:'Vakitlerini bağla'}</b><span>${ps?`${formatDuration(ps.minutesUntil)} kaldı · ${esc(ps.label)}`:'Konum veya şehir seçerek bugünün vakitlerini getir.'}</span></div></div><div class="qadaMini">${S.qada.enabled?`Kaza hedefi <b>${qp.done}/${qp.target}</b>`:'Aç →'}</div></section>`:''}
@@ -899,9 +902,14 @@ async function renderGenericBookReader(){
      <button id="genericNextPage" ${pageNo>=total?'disabled':''}>→</button>
    </div>
    <div class="genericBookProgressBar"><i style="width:${progressPct}%"></i><span>%${progressPct}</span></div>
-   <form class="genericBookSearch" id="genericBookSearchForm"><span>⌕</span><input id="genericBookSearchInput" type="search" value="${esc(state.searchQuery||'')}" placeholder="Kitap içinde ara…" autocomplete="off"><button type="submit">Ara</button>${state.searchQuery?'<button type="button" id="genericBookSearchClear">Temizle</button>':''}</form>
-   ${state.searchQuery?`<section class="genericBookSearchResults"><div><small>ARAMA SONUÇLARI</small><b>${searchResults.length?searchResults.length+' eşleşme':'Eşleşme bulunamadı'}</b></div>${searchResults.map(hit=>`<button data-search-page="${hit.page}"><span>Okuma ${hit.page}</span><p>${esc(hit.excerpt)}</p></button>`).join('')}</section>`:''}
-   ${sectionOptions?`<div class="genericBookSectionJump"><select id="genericBookSectionSelect"><option value="">Bölüme git…</option>${sectionOptions}</select></div>`:''}
+   <details class="genericBookUtilityDrawer" ${state.searchQuery?'open':''}>
+     <summary><span>⌕</span><b>Kitapta ara / bölüme git</b><small>İkincil araçlar</small></summary>
+     <div class="genericBookUtilityBody">
+       <form class="genericBookSearch" id="genericBookSearchForm"><span>⌕</span><input id="genericBookSearchInput" type="search" value="${esc(state.searchQuery||'')}" placeholder="Kitap içinde ara…" autocomplete="off"><button type="submit">Ara</button>${state.searchQuery?'<button type="button" id="genericBookSearchClear">Temizle</button>':''}</form>
+       ${state.searchQuery?`<section class="genericBookSearchResults"><div><small>ARAMA SONUÇLARI</small><b>${searchResults.length?searchResults.length+' eşleşme':'Eşleşme bulunamadı'}</b></div>${searchResults.map(hit=>`<button data-search-page="${hit.page}"><span>Okuma ${hit.page}</span><p>${esc(hit.excerpt)}</p></button>`).join('')}</section>`:''}
+       ${sectionOptions?`<div class="genericBookSectionJump"><select id="genericBookSectionSelect"><option value="">Bölüme git…</option>${sectionOptions}</select></div>`:''}
+     </div>
+   </details>
    <header class="genericBookTitleCard">
      <div class="genericBookMonogram tone-${esc(book.tone||'forest')}">${esc(book.coverGlyph||'ك')}</div>
      <div><div class="eyebrow">${esc(book.field)} · ${esc(book.level)}</div><h1>${esc(book.title)}</h1><p>${esc(book.author)} · Okuma ${pageNo}/${total}</p><small class="genericBookEdition">${esc(data.source?.sourceLabel||book.sourceLabel||'Kaynak nüsha')}</small><div class="genericBookReaderStats"><span>${annotations.notes} not</span><span>${annotations.highlights} vurgu</span><span>${annotations.bookmarks} yer imi</span><span>${readingSummary.totalMinutes} dk kayıtlı okuma</span></div></div>
