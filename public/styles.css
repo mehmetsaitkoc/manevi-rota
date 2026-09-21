@@ -2982,3 +2982,25 @@ nav button:hover{transform:translateY(-1px)}
     min-height:86px;
   }
 }
+
+
+/* Premium UI v3.3.1 — defeat legacy light-material !important rules */
+#productApp[data-design="premium-night-v3"] .journeyBarTrack{
+  background:#132433!important;
+  border-color:rgba(255,255,255,.035)!important;
+}
+#productApp[data-design="premium-night-v3"] .journeyBarTrack i{
+  background:linear-gradient(180deg,#d9bf7d,#567c70)!important;
+}
+#productApp[data-design="premium-night-v3"] .journeyMetricGrid>div{
+  background:linear-gradient(150deg,rgba(17,34,49,.96),rgba(9,22,34,.97))!important;
+  border-color:rgba(216,181,109,.10)!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.14)!important;
+}
+#productApp[data-design="premium-night-v3"] .periodInsightRow{
+  background:rgba(255,255,255,.035)!important;
+}
+#productApp[data-design="premium-night-v3"] .periodInsightRow>span{
+  background:rgba(216,181,109,.10)!important;
+  color:#debd76!important;
+}
