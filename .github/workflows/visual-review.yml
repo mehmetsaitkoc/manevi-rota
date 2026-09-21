@@ -484,6 +484,29 @@ jobs:
             if(pilotStatus.schemaVersion!==1)throw new Error('Pilot status schema mismatch');
             await page.screenshot({path:'visual-review/08b-profile-pilot-on.png',fullPage:true});
 
+            // Premium v3 responsive guardrails: primary Android/iPhone width band.
+            for(const vp of [{width:360,height:800,name:'360'},{width:430,height:932,name:'430'}]){
+              await page.setViewportSize({width:vp.width,height:vp.height});
+              await page.evaluate((k)=>{
+                const s=JSON.parse(localStorage.getItem(k));s.view='today';localStorage.setItem(k,JSON.stringify(s));
+              },key);
+              await page.reload({waitUntil:'networkidle'});
+              await page.waitForSelector('.homeNightHero[data-ui="premium-home-v3"]',{timeout:10000});
+              const geometry=await page.evaluate(()=>{
+                const nav=document.querySelector('#nav');
+                const navBox=nav?.getBoundingClientRect();
+                return {
+                  viewport:window.innerWidth,
+                  pageWidth:document.documentElement.scrollWidth,
+                  navLeft:navBox?.left??0,
+                  navRight:navBox?.right??0
+                };
+              });
+              if(geometry.pageWidth>geometry.viewport+1)throw new Error('Premium v3 horizontal overflow at '+vp.width+'px: '+geometry.pageWidth+' > '+geometry.viewport);
+              if(geometry.navLeft<0||geometry.navRight>geometry.viewport+1)throw new Error('Premium v3 navigation escapes viewport at '+vp.width+'px');
+              await page.screenshot({path:'visual-review/09-responsive-'+vp.name+'.png',fullPage:false});
+            }
+
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
