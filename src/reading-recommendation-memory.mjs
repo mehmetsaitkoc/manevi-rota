@@ -115,9 +115,9 @@ export function completeReadingRecommendation(memory,{bookId,date,minutes,feedba
   return next;
 }
 
-export function recommendationPreferenceSignal(memory,bookId,today){
+export function recommendationPreferenceSignal(memory,bookId,today,kind=null){
   const state=normalizeReadingRecommendationMemory(memory);
-  const rows=state.history.filter(x=>x.bookId===bookId&&daysBetween(x.date,today)<=30);
+  const rows=state.history.filter(x=>x.bookId===bookId&&(!kind||x.kind===kind)&&daysBetween(x.date,today)<=30);
   let completedWeight=0,skippedWeight=0,heavyWeight=0,easyWeight=0;
   for(const row of rows){
     const freshness=Math.max(.20,1-daysBetween(row.date,today)/30);
