@@ -55,11 +55,43 @@ linear-gradient(180deg,#efede7 0%,#f8f6f1 52%,#ebe8df 100%);color:var(--intro-in
 .mr-book-title,.mr-stat b{color:#202623}.mr-bottom{background:rgba(250,248,243,.72);border-color:rgba(165,123,62,.20)}
 .mr-bottom h2{color:#202522}
 
+/* Premium UX v2.1 — first-impression clarity */
+.mr-intro[data-first-impression="v2.1"] .mr-hero{max-width:900px;margin:auto;padding-top:42px}
+.mr-intro[data-first-impression="v2.1"] .mr-kicker{color:#956e36;letter-spacing:.19em}
+.mr-intro[data-first-impression="v2.1"] .mr-hero h1{margin-top:13px;margin-bottom:15px}
+.mr-intro[data-first-impression="v2.1"] .mr-hero .sub{max-width:760px;font-size:clamp(21px,3.2vw,31px);line-height:1.18;color:#2d322f}
+.mr-intro[data-first-impression="v2.1"] .mr-hero .desc{max-width:720px;font-size:14px;line-height:1.65;color:#696d68}
+.mr-proofRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:650px;margin:22px auto 0}
+.mr-proofRow>span{padding:11px 12px;border:1px solid rgba(37,42,39,.10);border-radius:15px;background:rgba(250,248,243,.78);box-shadow:0 8px 22px rgba(26,29,27,.035)}
+.mr-proofRow b,.mr-proofRow small{display:block}.mr-proofRow b{font:700 14px Georgia,serif;color:#202522}.mr-proofRow small{margin-top:3px;font-size:9px;color:#777a75;letter-spacing:.01em}
+.mr-trustLine{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:13px;font-size:9px;font-weight:750;color:#777a75;letter-spacing:.02em}
+.mr-trustLine i{font-style:normal;color:#b08a50}
+.mr-intro[data-first-impression="v2.1"] .mr-stage{margin-top:28px}
+@media(max-width:480px){
+  .mr-intro[data-first-impression="v2.1"] .mr-intro-inner{width:min(100% - 18px,1180px);padding-top:10px}
+  .mr-intro[data-first-impression="v2.1"] .mr-top{padding-bottom:8px}
+  .mr-intro[data-first-impression="v2.1"] .mr-brand span{font-size:18px}
+  .mr-intro[data-first-impression="v2.1"] .mr-mark{width:40px;height:40px;border-radius:13px;font-size:20px}
+  .mr-intro[data-first-impression="v2.1"] .mr-top .mr-cta{padding:9px 12px;font-size:10px}
+  .mr-intro[data-first-impression="v2.1"] .mr-hero{padding:22px 2px 10px}
+  .mr-intro[data-first-impression="v2.1"] .mr-kicker{font-size:9px}
+  .mr-intro[data-first-impression="v2.1"] .mr-hero h1{font-size:50px;line-height:.93;margin:11px 0 12px}
+  .mr-intro[data-first-impression="v2.1"] .mr-hero .sub{font-size:20px;line-height:1.2}
+  .mr-intro[data-first-impression="v2.1"] .mr-hero .desc{font-size:11px;line-height:1.5;margin-top:11px}
+  .mr-proofRow{gap:5px;margin-top:15px}
+  .mr-proofRow>span{padding:8px 5px;border-radius:12px}
+  .mr-proofRow b{font-size:11px}.mr-proofRow small{font-size:7px}
+  .mr-intro[data-first-impression="v2.1"] .mr-ctaRow{margin-top:14px;display:grid;grid-template-columns:1.25fr .9fr}
+  .mr-intro[data-first-impression="v2.1"] .mr-ctaRow .mr-cta{width:100%;padding:12px 10px;font-size:11px}
+  .mr-trustLine{margin-top:9px;font-size:7.5px;gap:5px}
+  .mr-intro[data-first-impression="v2.1"] .mr-stage{margin-top:23px}
+}
+
 </style>
 </head>
 <body>
 
-<section id="mrIntro" class="mr-intro" aria-label="Manevî Rota tanıtım">
+<section id="mrIntro" class="mr-intro" data-first-impression="v2.1" aria-label="Manevî Rota tanıtım">
   <div class="mr-intro-inner">
     <header class="mr-top">
       <div class="mr-brand"><div class="mr-mark">☾</div><span>Manevî Rota</span></div>
@@ -72,15 +104,20 @@ linear-gradient(180deg,#efede7 0%,#f8f6f1 52%,#ebe8df 100%);color:var(--intro-in
     </header>
 
     <div class="mr-hero">
-      <div class="mr-kicker">Sade · Derin · Sana göre</div>
+      <div class="mr-kicker">Kişisel ilim ve okuma rotası</div>
       <h1>Manevî Rota</h1>
-      <div class="sub">Sana özel manevî düzen ve ilim yolculuğu.</div>
-      <p class="desc">Herkese aynı listeyi veren bir takip uygulaması değil. Hafif başlar, okuma ritmini öğrenir; görev, tekrar ve ilim yükünü zamanla sana göre dengeler.</p>
-      <div class="mr-mantra"><b>Oku</b><span class="mr-dot">•</span><b>Çiz</b><span class="mr-dot">•</span><b>Not Al</b><span class="mr-dot">•</span><b>Hatırla</b></div>
-      <div class="mr-ctaRow">
-        <button class="mr-cta" type="button" onclick="enterManeviRota()">Yolculuğuma Başla →</button>
-        <button class="mr-cta secondary" type="button" onclick="document.querySelector('#mrPreview').scrollIntoView({behavior:'smooth'})">Önce gör</button>
+      <div class="sub">Her gün ne yapacağını sadeleştir. Okuma ritmini zamanla sana göre ayarla.</div>
+      <p class="desc">Kur’ân, hadis ve temel eserleri tek akışta buluşturur. Kaldığın yeri, gerçek okuma süreni ve geri bildirimini kullanarak yükü dengeler; maneviyatını puanlamaz.</p>
+      <div class="mr-proofRow" aria-label="Manevî Rota öne çıkanları">
+        <span><b>10 eser</b><small>başlangıç yolu</small></span>
+        <span><b>Kaldığın yer</b><small>tek dokunuşla devam</small></span>
+        <span><b>Gerçek ritim</b><small>kullanıma göre ayar</small></span>
       </div>
+      <div class="mr-ctaRow">
+        <button class="mr-cta" type="button" onclick="enterManeviRota()">Rotamı Oluştur →</button>
+        <button class="mr-cta secondary" type="button" onclick="document.querySelector('#mrPreview').scrollIntoView({behavior:'smooth'})">Nasıl çalışır?</button>
+      </div>
+      <div class="mr-trustLine"><span>Maneviyat puanı yok</span><i>·</i><span>Gerçek kullanım sinyalleri</span><i>·</i><span>Kontrol sende</span></div>
     </div>
 
     <div id="mrPreview" class="mr-stage">
@@ -119,10 +156,10 @@ linear-gradient(180deg,#efede7 0%,#f8f6f1 52%,#ebe8df 100%);color:var(--intro-in
             </div>
           </div>
           <div class="mr-statgrid">
-            <div class="mr-stat"><b>İstikrar</b><span>Düzen güçleniyor</span></div>
-            <div class="mr-stat"><b>Anlama</b><span>Ritim dengeli</span></div>
-            <div class="mr-stat"><b>Hatırlama</b><span>Tekrar planlanıyor</span></div>
-            <div class="mr-stat"><b>Yük toleransı</b><span>Sürdürülebilir</span></div>
+            <div class="mr-stat"><b>Rota tamamlama</b><span>Gerçek görev verisi</span></div>
+            <div class="mr-stat"><b>Anlama kaydı</b><span>Doğrudan geri bildirim</span></div>
+            <div class="mr-stat"><b>Geri çağırma</b><span>Tekrar sonucu</span></div>
+            <div class="mr-stat"><b>Yük uyumu</b><span>Zor / normal / rahat</span></div>
           </div>
           <div class="mr-note"><b>Neden bu rota?</b><br>Motor maneviyatı puanlamaz; yalnız öğrenme yükünü ve devamlılığı kişiselleştirir.</div>
         </div>

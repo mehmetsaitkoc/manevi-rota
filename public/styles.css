@@ -1423,3 +1423,329 @@ nav button:hover{transform:translateY(-1px)}
   .periodInsight{border-radius:22px}
   .periodInsight h2{font-size:23px}
 }
+
+
+/* Premium UX v2.1 — first-run setup */
+.onboardingCard{
+  max-width:720px;
+  margin:0 auto 14px;
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 100% 0,rgba(176,138,80,.12),transparent 18rem),
+    linear-gradient(180deg,rgba(251,250,247,.99),rgba(246,243,236,.99));
+  border-color:rgba(48,52,49,.11);
+  box-shadow:0 24px 70px rgba(27,31,29,.08);
+}
+.onboardingCard:after{
+  content:"";
+  position:absolute;
+  width:180px;height:180px;
+  right:-118px;bottom:-124px;
+  border:1px solid rgba(176,138,80,.13);
+  border-radius:50%;
+  pointer-events:none;
+}
+.onboardingBrandRow{
+  position:relative;z-index:1;
+  display:grid;
+  grid-template-columns:44px 1fr auto;
+  gap:11px;
+  align-items:center;
+}
+.onboardingMark{
+  width:44px;height:44px;
+  display:grid;place-items:center;
+  border-radius:14px;
+  background:var(--ink-deep);
+  color:#d1ac6d;
+  border:1px solid rgba(176,138,80,.38);
+  box-shadow:0 10px 24px rgba(21,25,23,.10);
+  font-size:21px;
+}
+.onboardingBrandRow small{
+  display:block;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.14em;
+  color:var(--gold);
+}
+.onboardingBrandRow b{
+  display:block;
+  margin-top:2px;
+  font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;
+  font-size:16px;
+  color:#242925;
+}
+.onboardingBrandRow>span{
+  padding:6px 8px;
+  border-radius:999px;
+  background:#eeece7;
+  border:1px solid rgba(49,54,50,.08);
+  font-size:9px;
+  font-weight:850;
+  color:#666b66;
+}
+.onboardingCard .steps{gap:4px;margin:15px 0 18px}
+.onboardingCard .step{height:3px;background:#dfddd6}
+.onboardingCard .step.on{background:linear-gradient(90deg,var(--ink-deep),var(--bronze))}
+.onboardingPrompt{position:relative;z-index:1}
+.onboardingPrompt .eyebrow{font-size:9px}
+.onboardingPrompt h1{
+  max-width:610px;
+  margin:5px 0 8px;
+  font-size:clamp(31px,6vw,46px);
+  line-height:1.02;
+  color:#1c211e;
+}
+.onboardingPrompt .lead{
+  max-width:610px;
+  margin:0 0 15px;
+  font-size:11.5px;
+  line-height:1.52;
+  color:#747772;
+}
+.onboardingChoices{gap:8px;position:relative;z-index:1}
+.onboardingCard .opt{
+  min-height:68px;
+  display:grid;
+  grid-template-columns:18px 1fr;
+  gap:10px;
+  align-items:center;
+  padding:12px 13px;
+  border-radius:15px;
+  background:#fffdf9;
+  border-color:rgba(52,56,53,.11);
+  box-shadow:none;
+}
+.onboardingCard .opt:hover{border-color:rgba(176,138,80,.45);transform:translateY(-1px)}
+.onboardingCard .opt.sel{
+  background:#1a1f1c;
+  border-color:#1a1f1c;
+  color:#fff;
+  box-shadow:0 10px 24px rgba(21,25,23,.10);
+}
+.onboardingChoiceMark{
+  width:16px;height:16px;
+  border-radius:50%;
+  border:1.5px solid #aaa89f;
+  background:#fff;
+  box-shadow:inset 0 0 0 4px #fff;
+}
+.onboardingCard .opt.sel .onboardingChoiceMark{
+  border-color:#d2ae70;
+  background:#d2ae70;
+  box-shadow:inset 0 0 0 4px #1a1f1c;
+}
+.onboardingCard .opt b{font-size:13px;line-height:1.2}
+.onboardingCard .opt small{margin-top:3px;font-size:9.5px;line-height:1.35;color:#858780;opacity:1}
+.onboardingCard .opt.sel small{color:#c9ccc7}
+.onboardingChips{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+  position:relative;z-index:1;
+}
+.onboardingChips .chip{
+  width:100%;
+  min-height:44px;
+  padding:10px 9px;
+  text-align:center;
+  border-radius:13px;
+  background:#fffdf9;
+}
+.onboardingChips .chip.sel{
+  background:#1a1f1c;
+  border-color:#1a1f1c;
+  color:#fff;
+}
+.onboardingAssurance{
+  position:relative;z-index:1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:12px;
+}
+.onboardingAssurance span{
+  padding:5px 7px;
+  border-radius:999px;
+  background:#efede8;
+  font-size:8px;
+  font-weight:800;
+  color:#6c706b;
+}
+.onboardingActions{
+  position:relative;z-index:1;
+  margin-top:13px;
+  padding-top:12px;
+  border-top:1px solid rgba(52,56,53,.09);
+}
+.onboardingActions .btn{
+  min-height:44px;
+  padding:10px 15px;
+  border-radius:13px;
+}
+.onboardingActions .btn.primary{
+  min-width:132px;
+  background:var(--ink-deep);
+  border-color:var(--ink-deep);
+}
+.onboardingActions .btn.ghost{background:#eeece7;color:#535853}
+
+@media(max-width:640px){
+  .onboardingCard{padding:15px;border-radius:22px}
+  .onboardingBrandRow{grid-template-columns:38px 1fr auto;gap:9px}
+  .onboardingMark{width:38px;height:38px;border-radius:12px;font-size:18px}
+  .onboardingBrandRow b{font-size:14px}
+  .onboardingCard .steps{margin:11px 0 13px}
+  .onboardingPrompt h1{font-size:29px;line-height:1.02;margin:4px 0 7px}
+  .onboardingPrompt .lead{font-size:10px;line-height:1.4;margin-bottom:11px}
+  .onboardingChoices{gap:6px}
+  .onboardingCard .opt{min-height:57px;padding:9px 10px;border-radius:13px}
+  .onboardingCard .opt b{font-size:12px}
+  .onboardingCard .opt small{font-size:8.5px;margin-top:2px}
+  .onboardingAssurance{margin-top:9px;gap:5px}
+  .onboardingAssurance span{font-size:7.5px;padding:4px 6px}
+  .onboardingActions{margin-top:10px;padding-top:9px}
+  .onboardingActions .btn{min-height:40px;padding:8px 12px;font-size:10px}
+  .onboardingChips{gap:6px}
+  .onboardingChips .chip{min-height:40px;font-size:10px}
+}
+
+
+/* Premium UX v2.1 — daily calibration */
+.checkinHeroCard{
+  background:
+    radial-gradient(circle at 92% 0,rgba(176,138,80,.12),transparent 15rem),
+    linear-gradient(145deg,#191e1b,#242b27);
+  color:#fff;
+  border-color:rgba(255,255,255,.06);
+  box-shadow:0 22px 58px rgba(19,23,21,.14);
+}
+.checkinHeroTop{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
+.checkinHeroCard .eyebrow{color:#d4ad69}
+.checkinHeroCard h1{color:#fff;margin:5px 0 7px}
+.checkinHeroCard .lead{max-width:610px;margin:0;color:#ccd2ce}
+.checkinProgressPill{
+  width:66px;height:66px;flex:0 0 66px;
+  display:grid;place-items:center;
+  text-align:center;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.025);
+}
+.checkinProgressPill b,.checkinProgressPill small{display:block}
+.checkinProgressPill b{font-size:17px;color:#fff;line-height:1}
+.checkinProgressPill small{margin-top:2px;font-size:7px;text-transform:uppercase;letter-spacing:.08em;color:#aeb7b1}
+.dailyCheckinCard{
+  padding:0;
+  overflow:hidden;
+  background:rgba(251,250,247,.98);
+  border-color:rgba(52,56,53,.10);
+  box-shadow:0 16px 46px rgba(28,31,29,.055);
+}
+.checkinSection{padding:17px 19px;border-bottom:1px solid rgba(52,56,53,.09)}
+.checkinSectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.checkinSectionHead>div{display:flex;align-items:center;gap:9px;min-width:0}
+.checkinSectionHead small{
+  width:25px;height:25px;flex:0 0 25px;
+  display:grid;place-items:center;
+  border-radius:8px;
+  background:#eeece6;
+  color:#8a7044;
+  font-size:8px;
+  font-weight:900;
+}
+.checkinSectionHead h3{margin:0;font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;font-size:17px;color:#252a27}
+.checkinSectionHead>span{
+  padding:5px 7px;
+  border-radius:999px;
+  background:#eeece7;
+  font-size:8px;
+  font-weight:850;
+  color:#6b706c;
+  white-space:nowrap;
+}
+.checkinMinuteChips{gap:6px}
+.checkinMinuteChips .chip{
+  min-width:54px;
+  flex:1;
+  text-align:center;
+  padding:9px 8px;
+  border-radius:12px;
+  background:#fff;
+}
+.dailyCheckinCard .chip.sel,
+.dailyCheckinCard .range button.sel,
+.dailyCheckinCard .opt.sel{
+  background:#1a1f1c;
+  border-color:#1a1f1c;
+  color:#fff;
+}
+.checkinSplit{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid rgba(52,56,53,.09)}
+.checkinSplit .checkinSection{border-bottom:0}
+.checkinSplit .checkinSection+ .checkinSection{border-left:1px solid rgba(52,56,53,.09)}
+.checkinHint{margin:-3px 0 8px;font-size:8px;color:#92958f}
+.dailyCheckinCard .range{gap:5px}
+.dailyCheckinCard .range button{padding:9px 4px;border-radius:10px;font-size:10px}
+.checkinChoiceGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.dailyCheckinCard .opt{
+  min-height:60px;
+  padding:10px 11px;
+  border-radius:13px;
+  background:#fff;
+  box-shadow:none;
+}
+.dailyCheckinCard .opt b{font-size:11px}
+.dailyCheckinCard .opt small{font-size:8.5px;line-height:1.3;margin-top:3px}
+.checkinFooter{
+  padding:14px 19px 17px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:16px;
+  align-items:end;
+  background:#f1efe9;
+}
+.checkinFooter>div:first-child>small{
+  display:block;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.12em;
+  color:var(--gold);
+}
+.checkinFooter p{margin:4px 0 0;font-size:9px;line-height:1.4;color:#797d78}
+.checkinActions{margin:0;justify-content:flex-end}
+.checkinActions .btn{padding:10px 12px;border-radius:12px;font-size:10px;white-space:nowrap}
+.checkinActions .btn.primary{background:var(--ink-deep);border-color:var(--ink-deep)}
+
+@media(max-width:640px){
+  .checkinHeroCard{padding:16px;border-radius:22px}
+  .checkinHeroTop{gap:10px}
+  .checkinHeroCard h1{font-size:31px}
+  .checkinHeroCard .lead{font-size:10px;line-height:1.42}
+  .checkinProgressPill{width:54px;height:54px;flex-basis:54px}
+  .checkinProgressPill b{font-size:15px}
+  .dailyCheckinCard{border-radius:22px}
+  .checkinSection{padding:13px 14px}
+  .checkinSectionHead{margin-bottom:8px}
+  .checkinSectionHead small{width:22px;height:22px;flex-basis:22px;border-radius:7px;font-size:7px}
+  .checkinSectionHead h3{font-size:14px}
+  .checkinMinuteChips{display:grid;grid-template-columns:repeat(4,1fr)}
+  .checkinMinuteChips .chip{min-width:0;width:100%;padding:8px 4px;font-size:9px}
+  .checkinSplit{grid-template-columns:1fr 1fr}
+  .checkinSplit .checkinSection{padding:13px 10px}
+  .checkinSplit .checkinSectionHead{display:block}
+  .checkinSplit .checkinSectionHead>div{gap:6px}
+  .checkinSplit .checkinSectionHead>span{display:inline-flex;margin-top:5px}
+  .checkinHint{font-size:7px}
+  .dailyCheckinCard .range{gap:3px}
+  .dailyCheckinCard .range button{padding:8px 2px;font-size:9px}
+  .checkinChoiceGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .dailyCheckinCard .opt{min-height:54px;padding:8px 9px}
+  .dailyCheckinCard .opt b{font-size:10px}.dailyCheckinCard .opt small{font-size:7.5px}
+  .checkinFooter{grid-template-columns:1fr;padding:12px 14px 14px;gap:9px}
+  .checkinFooter p{font-size:8px}
+  .checkinActions{display:grid;grid-template-columns:1fr 1.15fr;gap:7px}
+  .checkinActions .btn{width:100%;font-size:9px;padding:9px 7px}
+}
