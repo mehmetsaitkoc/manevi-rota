@@ -1,0 +1,46 @@
+name: Production Smoke — Premium UX V2
+
+on:
+  push:
+    branches: ['gpt/production-smoke-f14515c']
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Probe Manevi Rota production V2 build
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://manevi-rota.onrender.com"
+          ready=0
+
+          for i in {1..8}; do
+            health_code="$(curl -sS -L -H 'Cache-Control: no-cache' --connect-timeout 10 --max-time 25 -o /tmp/health.json -w '%{http_code}' "$base/healthz" || true)"
+            curl -fsSL -H 'Cache-Control: no-cache' "$base/?smoke=f14515c-$i" -o /tmp/index.html 2>/dev/null || true
+            curl -fsSL -H 'Cache-Control: no-cache' "$base/public/styles.css?smoke=f14515c-$i" -o /tmp/styles.css 2>/dev/null || true
+            curl -fsSL -H 'Cache-Control: no-cache' "$base/public/app.js?smoke=f14515c-$i" -o /tmp/app.js 2>/dev/null || true
+
+            health_ok=0; editorial_ok=0; nav_ok=0; v2_css_ok=0; v2_app_ok=0; closed_loop_ok=0
+            [ "$health_code" = "200" ] && grep -q '"service":"manevi-rota"' /tmp/health.json && health_ok=1 || true
+            grep -q 'data-ui="editorial-v1"' /tmp/index.html 2>/dev/null && editorial_ok=1 || true
+            [ "$(grep -o 'class="navGlyph"' /tmp/index.html 2>/dev/null | wc -l | tr -d ' ')" = "6" ] && nav_ok=1 || true
+            grep -q 'Premium UX v2 — content-first mobile refinement' /tmp/styles.css 2>/dev/null && v2_css_ok=1 || true
+            grep -q 'DAVRANIŞ RİTMİ' /tmp/app.js 2>/dev/null &&               grep -q 'ROTA TAMAMLAMA' /tmp/app.js 2>/dev/null &&               grep -q 'premiumStarterShelf' /tmp/app.js 2>/dev/null && v2_app_ok=1 || true
+            grep -q 'completeReadingRecommendation' /tmp/app.js 2>/dev/null &&               grep -q 'skipReadingRecommendation' /tmp/app.js 2>/dev/null &&               grep -q 'abandonReadingRecommendation' /tmp/app.js 2>/dev/null &&               grep -q 'isMeaningfulRecommendationSession' /tmp/app.js 2>/dev/null && closed_loop_ok=1 || true
+
+            echo "attempt=$i health=$health_ok editorial=$editorial_ok nav=$nav_ok v2_css=$v2_css_ok v2_app=$v2_app_ok closed_loop=$closed_loop_ok"
+            if [ "$health_ok$editorial_ok$nav_ok$v2_css_ok$v2_app_ok$closed_loop_ok" = "111111" ]; then
+              ready=1
+              break
+            fi
+            sleep 8
+          done
+
+          cat /tmp/health.json || true
+          test "$ready" = "1"
+          echo "production-smoke: Premium UX v2 is live"
