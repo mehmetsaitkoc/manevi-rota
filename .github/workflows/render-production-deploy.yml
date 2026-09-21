@@ -97,9 +97,11 @@ jobs:
           curl -fsSL -H 'Cache-Control: no-cache' "$PRODUCTION_URL/public/app.js?deploy=${TARGET_SHA}" -o /tmp/app.js
 
           grep -q 'data-first-impression="v2.1"' /tmp/index.html
-          [ "$(grep -o 'class="navGlyph"' /tmp/index.html | wc -l | tr -d ' ')" = "6" ]
-          grep -q 'Premium UX v2.1 — first-run setup' /tmp/styles.css
-          grep -q 'Premium UX v2.1 — daily calibration' /tmp/styles.css
+          grep -q 'data-design="premium-night-v3"' /tmp/index.html
+          [ "$(grep -o 'class="navGlyph"' /tmp/index.html | wc -l | tr -d ' ')" = "5" ]
+          grep -q 'Premium UI v3 — midnight / warm gold' /tmp/styles.css
+          grep -q 'Premium UI v3.2 — navigation and learning-card polish' /tmp/styles.css
           grep -q 'dailyCheckinCard' /tmp/app.js
+          grep -q 'premium-home-v3' /tmp/app.js
           grep -q 'completeReadingRecommendation' /tmp/app.js
-          echo "render-production: exact commit and V2.1 assets verified"
+          echo "render-production: exact commit and Premium UI v3.2 assets verified"
