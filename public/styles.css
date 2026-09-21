@@ -1845,3 +1845,900 @@ nav button:hover{transform:translateY(-1px)}
   .genericBookUtilityDrawer .genericBookSectionJump{margin-top:6px}
   .genericBookUtilityDrawer .genericBookSearchResults{max-height:260px}
 }
+
+
+/* ==========================================================================
+   Premium UI v3 — midnight / warm gold
+   Scoped to the product shell so the public intro can evolve independently.
+   ========================================================================== */
+#productApp[data-design="premium-night-v3"]{
+  --bg:#07111f;
+  --paper:#0d1928;
+  --ink:#f4ead7;
+  --muted:#a8adad;
+  --brand:#d7b56d;
+  --brand2:#e8cc8b;
+  --soft:rgba(255,255,255,.055);
+  --line:rgba(221,190,126,.16);
+  --gold:#d7b56d;
+  --night-0:#050b14;
+  --night-1:#081523;
+  --night-2:#0d2030;
+  --night-3:#122a38;
+  --cream:#f7eedf;
+  --cream-2:#d9d0c2;
+  --gold-soft:#e6c987;
+  --gold-deep:#a97c38;
+  --glass:rgba(15,29,43,.78);
+  --glass-strong:rgba(11,23,36,.94);
+  --shadow:0 24px 70px rgba(0,0,0,.30);
+  min-height:100dvh;
+  color:var(--cream);
+  background:
+    radial-gradient(circle at 78% -8%,rgba(213,171,94,.15),transparent 26rem),
+    radial-gradient(circle at 5% 26%,rgba(42,84,103,.20),transparent 28rem),
+    linear-gradient(180deg,var(--night-0) 0%,var(--night-1) 46%,#09131f 100%);
+}
+#productApp[data-design="premium-night-v3"] .shell{
+  width:min(980px,100%);
+  min-height:100dvh;
+  padding:22px 16px 132px;
+  background:transparent;
+}
+#productApp[data-design="premium-night-v3"] #app{position:relative;z-index:1}
+#productApp[data-design="premium-night-v3"] .notice{
+  color:#78838a;
+  text-align:center;
+  max-width:720px;
+  margin:6px auto 0;
+  font-size:10px;
+  line-height:1.5;
+}
+#productApp[data-design="premium-night-v3"] .card{
+  color:var(--cream);
+  background:
+    linear-gradient(160deg,rgba(18,35,50,.92),rgba(9,22,35,.92));
+  border:1px solid rgba(216,181,109,.14);
+  box-shadow:0 18px 48px rgba(0,0,0,.20);
+}
+#productApp[data-design="premium-night-v3"] .eyebrow{
+  color:var(--gold-soft);
+  font-size:10px;
+  letter-spacing:.16em;
+}
+#productApp[data-design="premium-night-v3"] h1,
+#productApp[data-design="premium-night-v3"] h2,
+#productApp[data-design="premium-night-v3"] h3{
+  color:var(--cream);
+  font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;
+}
+#productApp[data-design="premium-night-v3"] p,
+#productApp[data-design="premium-night-v3"] .lead,
+#productApp[data-design="premium-night-v3"] .small{color:#aeb6b8}
+#productApp[data-design="premium-night-v3"] .btn{
+  border-color:rgba(216,181,109,.18);
+  background:rgba(255,255,255,.055);
+  color:var(--cream);
+  box-shadow:none;
+}
+#productApp[data-design="premium-night-v3"] .btn.primary{
+  background:linear-gradient(135deg,#e2c37e,#bd9147);
+  border-color:#d2aa60;
+  color:#111a1d;
+  box-shadow:0 10px 28px rgba(174,127,52,.17);
+}
+#productApp[data-design="premium-night-v3"] .btn.ghost{
+  background:rgba(255,255,255,.055);
+  color:#d9dedc;
+}
+#productApp[data-design="premium-night-v3"] .btn.warn{
+  background:rgba(164,77,45,.15);
+  color:#e7b79f;
+  border-color:rgba(199,112,76,.22);
+}
+#productApp[data-design="premium-night-v3"] .divider{
+  background:rgba(255,255,255,.08);
+}
+#productApp[data-design="premium-night-v3"] .explain{
+  color:#b7c3c2;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.055);
+}
+
+/* Shared atmospheric journey hero */
+#productApp[data-design="premium-night-v3"] .mrNightHero{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:22px;
+  align-items:center;
+  min-height:286px;
+  margin:0 0 14px;
+  padding:34px 34px 30px;
+  border:1px solid rgba(220,185,113,.24);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 80% 18%,rgba(234,190,101,.19),transparent 8rem),
+    radial-gradient(circle at 20% 0,rgba(54,101,122,.21),transparent 19rem),
+    linear-gradient(145deg,#07121f 0%,#0b1d2c 55%,#102838 100%);
+  box-shadow:0 30px 76px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.04);
+}
+#productApp[data-design="premium-night-v3"] .mrNightHero:before{
+  content:"";
+  position:absolute;
+  z-index:-2;
+  width:210px;height:210px;
+  right:34px;top:-86px;
+  border:1px solid rgba(226,191,116,.17);
+  border-radius:50%;
+  box-shadow:
+    0 0 0 23px rgba(226,191,116,.025),
+    0 0 0 46px rgba(226,191,116,.015);
+}
+#productApp[data-design="premium-night-v3"] .mrNightHero:after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:-5%;right:-5%;bottom:-2px;height:42%;
+  opacity:.82;
+  background:
+    linear-gradient(180deg,rgba(6,14,23,.05),rgba(3,9,15,.94)),
+    linear-gradient(90deg,#09151e,#071019);
+  clip-path:polygon(0 72%,10% 50%,17% 61%,29% 30%,38% 63%,48% 42%,58% 69%,68% 38%,77% 57%,86% 28%,100% 64%,100% 100%,0 100%);
+}
+#productApp[data-design="premium-night-v3"] .mrNightHeroContent{
+  position:relative;
+  z-index:2;
+  align-self:start;
+  max-width:610px;
+}
+#productApp[data-design="premium-night-v3"] .mrNightHero h1{
+  max-width:620px;
+  margin:7px 0 9px;
+  font-size:clamp(40px,7vw,64px);
+  line-height:.98;
+  letter-spacing:-.035em;
+  text-shadow:0 3px 26px rgba(0,0,0,.34);
+}
+#productApp[data-design="premium-night-v3"] .mrNightHero p{
+  max-width:520px;
+  margin:0;
+  color:#c7cdcc;
+  font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;
+  font-size:14px;
+  line-height:1.55;
+}
+#productApp[data-design="premium-night-v3"] .mrNightAura{
+  position:absolute;
+  z-index:0;
+  top:31px;right:49px;
+  width:92px;height:92px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(225,183,97,.14),transparent 66%);
+}
+#productApp[data-design="premium-night-v3"] .mrNightCrescent{
+  font-family:Georgia,serif;
+  font-size:34px;
+  color:#e8c980;
+  filter:drop-shadow(0 0 14px rgba(226,190,110,.25));
+}
+#productApp[data-design="premium-night-v3"] .mrNightStage{
+  display:inline-flex;
+  flex-direction:column;
+  gap:3px;
+  max-width:100%;
+  margin-top:19px;
+  padding:9px 12px;
+  border:1px solid rgba(224,190,118,.17);
+  border-radius:13px;
+  background:rgba(5,13,21,.42);
+  backdrop-filter:blur(8px);
+}
+#productApp[data-design="premium-night-v3"] .mrNightStage small{
+  color:#8f9a9d;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.13em;
+}
+#productApp[data-design="premium-night-v3"] .mrNightStage b{
+  color:#ead8b5;
+  font-size:11px;
+  line-height:1.3;
+}
+#productApp[data-design="premium-night-v3"] .mrNightProgress{
+  --p:0;
+  position:relative;
+  z-index:2;
+  width:108px;height:108px;
+  flex:0 0 108px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  background:conic-gradient(#dcb96f calc(var(--p)*1%),rgba(255,255,255,.09) 0);
+  box-shadow:0 0 40px rgba(209,165,83,.08);
+}
+#productApp[data-design="premium-night-v3"] .mrNightProgress:before{
+  content:"";
+  position:absolute;inset:7px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#091622,#0d202d);
+  border:1px solid rgba(255,255,255,.04);
+}
+#productApp[data-design="premium-night-v3"] .mrNightProgress>div{
+  position:relative;z-index:1;text-align:center
+}
+#productApp[data-design="premium-night-v3"] .mrNightProgress b,
+#productApp[data-design="premium-night-v3"] .mrNightProgress span{display:block}
+#productApp[data-design="premium-night-v3"] .mrNightProgress b{
+  color:#f3e3c2;font-size:25px;line-height:1
+}
+#productApp[data-design="premium-night-v3"] .mrNightProgress span{
+  max-width:70px;margin-top:5px;color:#8f9a9d;font-size:7px;text-transform:uppercase;letter-spacing:.08em
+}
+#productApp[data-design="premium-night-v3"] .mrNightStats{
+  position:relative;z-index:2;
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  max-width:520px;
+  margin-top:9px;
+}
+#productApp[data-design="premium-night-v3"] .mrNightStats>span,
+#productApp[data-design="premium-night-v3"] .profileJourneyStats>span{
+  padding:10px 12px;
+  border:1px solid rgba(224,190,118,.12);
+  border-radius:14px;
+  background:rgba(4,12,20,.42);
+  backdrop-filter:blur(8px);
+}
+#productApp[data-design="premium-night-v3"] .mrNightStats b,
+#productApp[data-design="premium-night-v3"] .mrNightStats small,
+#productApp[data-design="premium-night-v3"] .profileJourneyStats b,
+#productApp[data-design="premium-night-v3"] .profileJourneyStats small{display:block}
+#productApp[data-design="premium-night-v3"] .mrNightStats b,
+#productApp[data-design="premium-night-v3"] .profileJourneyStats b{
+  color:#f2dfb8;font-family:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;font-size:18px
+}
+#productApp[data-design="premium-night-v3"] .mrNightStats small,
+#productApp[data-design="premium-night-v3"] .profileJourneyStats small{
+  margin-top:2px;color:#879397;font-size:8px
+}
+
+/* Today */
+#productApp[data-design="premium-night-v3"] .todayPrimaryCard,
+#productApp[data-design="premium-night-v3"] .readingRecommendationCard{
+  background:
+    radial-gradient(circle at 98% 0,rgba(209,169,91,.12),transparent 13rem),
+    linear-gradient(150deg,rgba(17,35,50,.98),rgba(10,23,36,.98));
+  border-color:rgba(217,181,108,.20);
+}
+#productApp[data-design="premium-night-v3"] .todayPrimaryCard h1,
+#productApp[data-design="premium-night-v3"] .readingRecommendationCard h1{
+  color:#f7ecda;
+}
+#productApp[data-design="premium-night-v3"] .readingRecommendationLevel,
+#productApp[data-design="premium-night-v3"] .readingRecommendationLocation,
+#productApp[data-design="premium-night-v3"] .readingRecommendationWhy{
+  background:rgba(255,255,255,.045);
+  color:#d4d9d7;
+  border-color:rgba(255,255,255,.07);
+}
+#productApp[data-design="premium-night-v3"] .readingRecommendationLocation small,
+#productApp[data-design="premium-night-v3"] .readingRecommendationWhy summary{color:#dcbc79}
+#productApp[data-design="premium-night-v3"] .readingRecommendationLocation b{color:#f0e5d2}
+#productApp[data-design="premium-night-v3"] .readingRecommendationWhy li{color:#aeb8b8}
+#productApp[data-design="premium-night-v3"] .readingRecommendationAlt{
+  border-color:rgba(214,180,108,.17);
+  background:rgba(255,255,255,.05);
+  color:#d8ddda;
+}
+#productApp[data-design="premium-night-v3"] .todayYesterdayCard{
+  background:rgba(14,28,42,.74);
+  border-color:rgba(255,255,255,.06);
+  box-shadow:none;
+}
+#productApp[data-design="premium-night-v3"] .todayYesterdayCard b{color:#e8dfd0}
+#productApp[data-design="premium-night-v3"] .todayYesterdayIcon{
+  background:rgba(216,181,109,.10);
+  color:#d9b96f;
+}
+#productApp[data-design="premium-night-v3"] .todayPlanBar{
+  background:linear-gradient(150deg,rgba(14,28,42,.92),rgba(10,21,33,.92));
+  border-color:rgba(216,181,109,.13);
+  box-shadow:none;
+}
+#productApp[data-design="premium-night-v3"] .todayPlanLine h2{color:#f2e7d5}
+#productApp[data-design="premium-night-v3"] .todayPlanLine>span{color:#879194}
+#productApp[data-design="premium-night-v3"] .todayPlanProgress{background:rgba(255,255,255,.075)}
+#productApp[data-design="premium-night-v3"] .todayPlanProgress i{
+  background:linear-gradient(90deg,#9e783d,#e2c17a)
+}
+#productApp[data-design="premium-night-v3"] .slotHead{color:#d4b369}
+#productApp[data-design="premium-night-v3"] .slotHead b{color:#e9dfcf}
+#productApp[data-design="premium-night-v3"] .slotHead small{color:#798588}
+#productApp[data-design="premium-night-v3"] .task{
+  background:linear-gradient(150deg,rgba(16,31,46,.88),rgba(10,22,35,.88));
+  border-color:rgba(216,181,109,.11);
+  box-shadow:0 12px 32px rgba(0,0,0,.14);
+}
+#productApp[data-design="premium-night-v3"] .task h3{color:#ece3d4}
+#productApp[data-design="premium-night-v3"] .task .reason{color:#9ca6a7}
+#productApp[data-design="premium-night-v3"] .task .method{color:#d2b272}
+#productApp[data-design="premium-night-v3"] .task .ico{
+  background:linear-gradient(145deg,#182d3e,#0c1e2d);
+  color:#dfbf78;
+  border:1px solid rgba(218,181,108,.15);
+}
+#productApp[data-design="premium-night-v3"] .toggle{
+  border-color:rgba(221,190,124,.28);
+  color:#0b1722;
+}
+#productApp[data-design="premium-night-v3"] .task.done .toggle{
+  background:#c9a75f;border-color:#c9a75f;color:#10191c
+}
+#productApp[data-design="premium-night-v3"] .taskDeepLink{
+  background:rgba(216,181,109,.08);color:#dabb75
+}
+#productApp[data-design="premium-night-v3"] .taskWhy{
+  color:#899496;border-color:rgba(255,255,255,.06)
+}
+#productApp[data-design="premium-night-v3"] .taskWhy p{color:#9ea8a9}
+#productApp[data-design="premium-night-v3"] .taskFeedback{border-color:rgba(255,255,255,.08)}
+#productApp[data-design="premium-night-v3"] .taskFeedback button,
+#productApp[data-design="premium-night-v3"] .dayFeedback .rating{
+  background:rgba(255,255,255,.045);
+  border-color:rgba(255,255,255,.075);
+  color:#b8c0bf;
+}
+#productApp[data-design="premium-night-v3"] .taskFeedback button.sel,
+#productApp[data-design="premium-night-v3"] .dayFeedback .rating.sel{
+  background:rgba(217,181,109,.14);color:#ead8b4;border-color:rgba(217,181,109,.30)
+}
+#productApp[data-design="premium-night-v3"] .engineAnalysis summary,
+#productApp[data-design="premium-night-v3"] .sourceCard summary{color:#d8ba78}
+#productApp[data-design="premium-night-v3"] .engineAnalysis summary b{
+  background:rgba(255,255,255,.06);color:#949fa0
+}
+#productApp[data-design="premium-night-v3"] .engineGrid>div{background:rgba(255,255,255,.045)}
+#productApp[data-design="premium-night-v3"] .engineGrid small{color:#7f898b}
+#productApp[data-design="premium-night-v3"] .engineGrid b{color:#dfcfad}
+
+/* Prayer / status / analysis surfaces */
+#productApp[data-design="premium-night-v3"] .prayerStrip,
+#productApp[data-design="premium-night-v3"] .timingSuggestion{
+  background:linear-gradient(145deg,rgba(18,36,49,.88),rgba(10,23,35,.90));
+  border-color:rgba(215,181,109,.14);
+  color:#e9dfce;
+}
+#productApp[data-design="premium-night-v3"] .prayerStrip b{color:#eee4d3}
+#productApp[data-design="premium-night-v3"] .prayerStrip div div span,
+#productApp[data-design="premium-night-v3"] .qadaMini{color:#8d9899}
+#productApp[data-design="premium-night-v3"] .prayerStripIcon{
+  background:#0a1d2b;color:#d9b86f;border:1px solid rgba(215,181,109,.16)
+}
+#productApp[data-design="premium-night-v3"] .prayerHero,
+#productApp[data-design="premium-night-v3"] .progressHero,
+#productApp[data-design="premium-night-v3"] .checkinHeroCard{
+  background:
+    radial-gradient(circle at 92% 0,rgba(218,179,98,.14),transparent 16rem),
+    linear-gradient(145deg,#081724,#0d2736);
+  border-color:rgba(215,181,109,.18);
+  box-shadow:0 24px 62px rgba(0,0,0,.28);
+}
+#productApp[data-design="premium-night-v3"] .prayerHero h1,
+#productApp[data-design="premium-night-v3"] .progressHero h1,
+#productApp[data-design="premium-night-v3"] .checkinHeroCard h1{color:#f6ecdc}
+#productApp[data-design="premium-night-v3"] .prayerSetup,
+#productApp[data-design="premium-night-v3"] .qadaCard,
+#productApp[data-design="premium-night-v3"] .dailyCheckinCard{
+  background:linear-gradient(155deg,rgba(16,31,46,.94),rgba(9,21,33,.96));
+}
+#productApp[data-design="premium-night-v3"] .formGrid input,
+#productApp[data-design="premium-night-v3"] .qadaInput,
+#productApp[data-design="premium-night-v3"] .dailyCheckinCard .opt,
+#productApp[data-design="premium-night-v3"] .dailyCheckinCard .chip,
+#productApp[data-design="premium-night-v3"] .dailyCheckinCard .range button{
+  background:rgba(255,255,255,.05);
+  color:#d8dedb;
+  border-color:rgba(255,255,255,.08);
+}
+#productApp[data-design="premium-night-v3"] .dailyCheckinCard .opt.sel,
+#productApp[data-design="premium-night-v3"] .dailyCheckinCard .chip.sel,
+#productApp[data-design="premium-night-v3"] .dailyCheckinCard .range button.sel{
+  background:#c9a760;border-color:#c9a760;color:#11191b
+}
+#productApp[data-design="premium-night-v3"] .checkinSection,
+#productApp[data-design="premium-night-v3"] .checkinSplit{
+  border-color:rgba(255,255,255,.07)
+}
+#productApp[data-design="premium-night-v3"] .checkinSectionHead h3{color:#e9dfcf}
+#productApp[data-design="premium-night-v3"] .checkinSectionHead span,
+#productApp[data-design="premium-night-v3"] .checkinHint{color:#889395}
+#productApp[data-design="premium-night-v3"] .checkinSectionHead small{
+  background:rgba(215,181,109,.09);color:#d4b56f
+}
+#productApp[data-design="premium-night-v3"] .checkinFooter{background:rgba(255,255,255,.035)}
+#productApp[data-design="premium-night-v3"] .day{
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.07);
+}
+#productApp[data-design="premium-night-v3"] .day.today{border-color:rgba(215,181,109,.35)}
+#productApp[data-design="premium-night-v3"] .bar{background:rgba(255,255,255,.07)}
+#productApp[data-design="premium-night-v3"] .bar>i{background:linear-gradient(90deg,#a37a3c,#dfbd73)}
+
+/* İlim Rotası */
+#productApp[data-design="premium-night-v3"] .premiumLibraryHero{
+  position:relative;
+  overflow:hidden;
+  padding:30px;
+  background:
+    radial-gradient(circle at 90% 8%,rgba(221,181,99,.16),transparent 14rem),
+    linear-gradient(145deg,#071622,#0c2836)!important;
+  border-color:rgba(217,181,108,.21)!important;
+  box-shadow:0 28px 70px rgba(0,0,0,.28)!important;
+}
+#productApp[data-design="premium-night-v3"] .premiumLibraryHero:after{
+  content:"";
+  position:absolute;
+  right:-80px;bottom:-130px;
+  width:260px;height:260px;
+  border:1px solid rgba(219,183,108,.13);
+  border-radius:50%;
+  box-shadow:0 0 0 26px rgba(219,183,108,.018),0 0 0 52px rgba(219,183,108,.012);
+}
+#productApp[data-design="premium-night-v3"] .premiumLibraryHero h1{
+  max-width:620px;
+  color:#f6ecda;
+  font-size:clamp(37px,6vw,56px);
+  line-height:1.01;
+}
+#productApp[data-design="premium-night-v3"] .premiumLibraryHero .lead{
+  max-width:620px;color:#adb9ba
+}
+#productApp[data-design="premium-night-v3"] .libraryHeroPills{
+  display:flex;gap:7px;flex-wrap:wrap;margin-top:15px
+}
+#productApp[data-design="premium-night-v3"] .libraryHeroPills span{
+  padding:6px 9px;border:1px solid rgba(215,181,109,.14);border-radius:999px;
+  background:rgba(255,255,255,.045);color:#cdbb99;font-size:8px;font-weight:800
+}
+#productApp[data-design="premium-night-v3"] .ilimProgressRing{
+  background:conic-gradient(#d9b970 calc(var(--p)*1%),rgba(255,255,255,.08) 0);
+}
+#productApp[data-design="premium-night-v3"] .ilimProgressRing:before{
+  background:#0a1c29;border:1px solid rgba(255,255,255,.035)
+}
+#productApp[data-design="premium-night-v3"] .ilimProgressRing b{color:#f0dfba}
+#productApp[data-design="premium-night-v3"] .ilimProgressRing span{color:#899598}
+#productApp[data-design="premium-night-v3"] .continueReadingCard{
+  border:1px solid rgba(216,181,109,.16);
+  background:linear-gradient(145deg,rgba(15,31,46,.96),rgba(9,21,33,.96));
+  box-shadow:0 18px 48px rgba(0,0,0,.20);
+}
+#productApp[data-design="premium-night-v3"] .continueCover{
+  background:
+    radial-gradient(circle at 50% 10%,rgba(229,191,109,.16),transparent 7rem),
+    linear-gradient(145deg,#0b1d2b,#122c3c);
+  border-right-color:rgba(216,181,109,.12);
+}
+#productApp[data-design="premium-night-v3"] .continueCover span{color:#e2c27c}
+#productApp[data-design="premium-night-v3"] .continueCover small{color:#8f9b9d}
+#productApp[data-design="premium-night-v3"] .continueBody h2{color:#f1e7d6}
+#productApp[data-design="premium-night-v3"] .continueBody p{color:#9da8a9}
+#productApp[data-design="premium-night-v3"] .continueMeta span{
+  background:rgba(255,255,255,.05);color:#aeb6b5;border-color:rgba(255,255,255,.06)
+}
+#productApp[data-design="premium-night-v3"] .premiumStarterShelf{
+  background:
+    radial-gradient(circle at 100% 0,rgba(204,157,74,.08),transparent 20rem),
+    linear-gradient(160deg,rgba(14,28,42,.96),rgba(8,19,31,.96));
+}
+#productApp[data-design="premium-night-v3"] .starterShelfHead h2{color:#eee4d3}
+#productApp[data-design="premium-night-v3"] .starterShelfHead p{color:#909b9d}
+#productApp[data-design="premium-night-v3"] .sourcePill{
+  background:rgba(216,181,109,.09);
+  color:#d4b875;
+  border:1px solid rgba(216,181,109,.12);
+}
+#productApp[data-design="premium-night-v3"] .starterStage{
+  background:rgba(255,255,255,.025);
+  border-color:rgba(255,255,255,.055);
+}
+#productApp[data-design="premium-night-v3"] .starterStage.current{
+  border-color:rgba(216,181,109,.24);
+  box-shadow:inset 0 0 0 1px rgba(216,181,109,.04)
+}
+#productApp[data-design="premium-night-v3"] .starterStageHead b,
+#productApp[data-design="premium-night-v3"] .starterStageHead h3{color:#e7ddcd}
+#productApp[data-design="premium-night-v3"] .starterStageHead p,
+#productApp[data-design="premium-night-v3"] .starterStageHead small{color:#899496}
+#productApp[data-design="premium-night-v3"] .starterStageNumber{
+  background:rgba(216,181,109,.09);
+  color:#ddb96e;
+  border-color:rgba(216,181,109,.16)
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard{
+  background:linear-gradient(150deg,rgba(18,35,50,.88),rgba(9,21,33,.90));
+  border-color:rgba(255,255,255,.065);
+  box-shadow:none;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.ready{
+  border-color:rgba(216,181,109,.12);
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.ready:hover{
+  transform:translateY(-2px);
+  border-color:rgba(221,187,116,.34);
+  background:linear-gradient(150deg,rgba(21,41,56,.96),rgba(10,24,36,.96));
+}
+#productApp[data-design="premium-night-v3"] .starterBookCover{
+  color:#e5c882;
+  background:
+    radial-gradient(circle at 50% 0,rgba(229,193,117,.14),transparent 5rem),
+    linear-gradient(155deg,#10283a,#091b29);
+  border:1px solid rgba(216,181,109,.16);
+  box-shadow:0 13px 28px rgba(0,0,0,.18);
+}
+#productApp[data-design="premium-night-v3"] .starterBookCover small{color:#9d947f}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>b{color:#ece2d2}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>small,
+#productApp[data-design="premium-night-v3"] .starterBookInfo>p{color:#8f9a9c}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>em{color:#ccb477}
+#productApp[data-design="premium-night-v3"] .starterBookBadges span{
+  background:rgba(255,255,255,.05);
+  color:#aab3b2;
+  border-color:rgba(255,255,255,.06)
+}
+#productApp[data-design="premium-night-v3"] .starterBookBadges span.available,
+#productApp[data-design="premium-night-v3"] .starterBookBadges span.done{
+  background:rgba(215,181,109,.10);
+  color:#d9bd7f
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.pending{
+  opacity:.54;
+  background:rgba(255,255,255,.025)
+}
+#productApp[data-design="premium-night-v3"] .libraryMiniCard,
+#productApp[data-design="premium-night-v3"] .libraryV2Rail,
+#productApp[data-design="premium-night-v3"] .libraryLevelCard,
+#productApp[data-design="premium-night-v3"] .memorySummary{
+  background:linear-gradient(155deg,rgba(15,31,46,.90),rgba(9,21,33,.92));
+  border-color:rgba(216,181,109,.10);
+  color:#e5dccd;
+}
+#productApp[data-design="premium-night-v3"] .libraryMiniCard b,
+#productApp[data-design="premium-night-v3"] .libraryRailHeader b,
+#productApp[data-design="premium-night-v3"] .libraryLevelCard h2{color:#e9dfcf}
+#productApp[data-design="premium-night-v3"] .libraryMiniCard p,
+#productApp[data-design="premium-night-v3"] .libraryLevelCard p,
+#productApp[data-design="premium-night-v3"] .libraryLevelMeta{color:#8f9a9c}
+#productApp[data-design="premium-night-v3"] .libraryMiniCard button{
+  color:#d9bb78;background:rgba(215,181,109,.07)
+}
+#productApp[data-design="premium-night-v3"] .libraryIcon{
+  background:rgba(215,181,109,.09);color:#dab971
+}
+#productApp[data-design="premium-night-v3"] .libraryRailStep{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(255,255,255,.055);
+  color:#aab3b3;
+}
+#productApp[data-design="premium-night-v3"] .libraryRailStep.current{
+  background:rgba(216,181,109,.09);
+  border-color:rgba(216,181,109,.22)
+}
+#productApp[data-design="premium-night-v3"] .libraryRailStep b{color:#dcd4c7}
+#productApp[data-design="premium-night-v3"] .libraryRailStep>span{
+  background:#0b1c2a;color:#d4b36b;border-color:rgba(216,181,109,.13)
+}
+#productApp[data-design="premium-night-v3"] .libraryLevelBadge,
+#productApp[data-design="premium-night-v3"] .libraryAwarenessGoals,
+#productApp[data-design="premium-night-v3"] .memoryGrid>div{
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.055)
+}
+#productApp[data-design="premium-night-v3"] .libraryLevelProgress{background:rgba(255,255,255,.07)}
+#productApp[data-design="premium-night-v3"] .libraryLevelProgress i{
+  background:linear-gradient(90deg,#a67b3b,#e0bf75)
+}
+#productApp[data-design="premium-night-v3"] .memoryGrid b{color:#dcc17f}
+#productApp[data-design="premium-night-v3"] .memoryGrid span{color:#829092}
+
+/* Profile */
+#productApp[data-design="premium-night-v3"] .profileJourneyHero{
+  grid-template-columns:1fr;
+  min-height:250px;
+}
+#productApp[data-design="premium-night-v3"] .profileJourneyHero h1{
+  max-width:660px;font-size:clamp(37px,6vw,56px)
+}
+#productApp[data-design="premium-night-v3"] .profileJourneyStats{
+  position:relative;z-index:2;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  max-width:660px;
+}
+#productApp[data-design="premium-night-v3"] .profileSettingsCard{
+  background:linear-gradient(155deg,rgba(15,30,44,.94),rgba(8,20,32,.95));
+}
+#productApp[data-design="premium-night-v3"] .toggleLine{
+  border-color:rgba(255,255,255,.075)
+}
+#productApp[data-design="premium-night-v3"] .preferenceList>div,
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid>div,
+#productApp[data-design="premium-night-v3"] .pilotStatusRow>div{
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.06)
+}
+#productApp[data-design="premium-night-v3"] .switch{background:#26343c}
+#productApp[data-design="premium-night-v3"] .switch.on{background:#b9914c}
+
+/* Keep long-form reading deliberately paper-like for eye comfort. */
+#productApp[data-design="premium-night-v3"] .readerTop{
+  background:rgba(8,19,30,.92);
+  border-color:rgba(216,181,109,.12);
+  color:#e8dfd0;
+}
+#productApp[data-design="premium-night-v3"] .readerTop small{color:#899598}
+#productApp[data-design="premium-night-v3"] .readerBack,
+#productApp[data-design="premium-night-v3"] .readerTools button{
+  background:rgba(255,255,255,.055);
+  border-color:rgba(255,255,255,.07);
+  color:#dec17f;
+}
+#productApp[data-design="premium-night-v3"] .genericBookNav,
+#productApp[data-design="premium-night-v3"] .quranNavBar{
+  background:rgba(10,23,35,.94);
+  border-color:rgba(216,181,109,.10);
+}
+#productApp[data-design="premium-night-v3"] .genericBookNav button,
+#productApp[data-design="premium-night-v3"] .quranNavBar button,
+#productApp[data-design="premium-night-v3"] .genericBookNav input,
+#productApp[data-design="premium-night-v3"] .quranNavBar select{
+  background:rgba(255,255,255,.055);
+  border-color:rgba(255,255,255,.07);
+  color:#ded6c9;
+}
+#productApp[data-design="premium-night-v3"] .genericBookProgressBar{
+  background:rgba(255,255,255,.07)
+}
+#productApp[data-design="premium-night-v3"] .genericBookProgressBar i{
+  background:linear-gradient(90deg,#a47a3c,#dfbd73)
+}
+#productApp[data-design="premium-night-v3"] .genericBookUtilityDrawer{
+  background:rgba(11,24,36,.88);
+  border-color:rgba(216,181,109,.10)
+}
+#productApp[data-design="premium-night-v3"] .genericBookUtilityDrawer>summary{
+  color:#9ca7a7
+}
+#productApp[data-design="premium-night-v3"] .genericBookUtilityDrawer>summary b{color:#d6cec1}
+#productApp[data-design="premium-night-v3"] .genericBookUtilityDrawer>summary>span{
+  background:rgba(215,181,109,.08);color:#d9b970
+}
+#productApp[data-design="premium-night-v3"] .genericBookUtilityDrawer[open]>summary{
+  background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.06)
+}
+#productApp[data-design="premium-night-v3"] .genericBookTitleCard,
+#productApp[data-design="premium-night-v3"] .genericBookPaper,
+#productApp[data-design="premium-night-v3"] .hadisReader,
+#productApp[data-design="premium-night-v3"] .quranSurahHead,
+#productApp[data-design="premium-night-v3"] .quranAyah{
+  color:#1f2b26;
+  background:linear-gradient(180deg,#fffdf7,#f9f3e8);
+  border-color:#e7dcc7;
+  box-shadow:0 16px 42px rgba(0,0,0,.14);
+}
+#productApp[data-design="premium-night-v3"] .genericBookTitleCard h1,
+#productApp[data-design="premium-night-v3"] .hadisReader h1,
+#productApp[data-design="premium-night-v3"] .quranSurahHead h1{color:#1b342c}
+#productApp[data-design="premium-night-v3"] .genericBookTitleCard p,
+#productApp[data-design="premium-night-v3"] .genericBookPaper p,
+#productApp[data-design="premium-night-v3"] .hadisReader p,
+#productApp[data-design="premium-night-v3"] .quranSurahHead p{color:#646c67}
+#productApp[data-design="premium-night-v3"] .genericBookPaper,
+#productApp[data-design="premium-night-v3"] .hadisReader{font-size:inherit}
+#productApp[data-design="premium-night-v3"] .genericBookSessionCard,
+#productApp[data-design="premium-night-v3"] .quranSessionCard,
+#productApp[data-design="premium-night-v3"] .genericBookMarkupBar,
+#productApp[data-design="premium-night-v3"] .quranMarkupBar{
+  background:rgba(14,29,42,.94);
+  border-color:rgba(216,181,109,.10);
+  color:#d8d1c5
+}
+
+/* Navigation */
+#productApp[data-design="premium-night-v3"] nav{
+  bottom:max(10px,env(safe-area-inset-bottom));
+  width:min(860px,calc(100% - 22px));
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:4px;
+  padding:7px;
+  border:1px solid rgba(219,184,111,.18);
+  border-radius:22px;
+  background:rgba(5,14,23,.88);
+  backdrop-filter:blur(20px) saturate(120%);
+  box-shadow:0 20px 56px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.035);
+}
+#productApp[data-design="premium-night-v3"] nav button{
+  min-width:0;
+  padding:8px 3px 7px;
+  border:1px solid transparent;
+  border-radius:15px;
+  color:#778487;
+  transition:transform .15s ease,background .15s ease,color .15s ease,border-color .15s ease;
+}
+#productApp[data-design="premium-night-v3"] nav button:hover{transform:translateY(-1px)}
+#productApp[data-design="premium-night-v3"] nav button.active{
+  background:linear-gradient(145deg,rgba(214,179,107,.14),rgba(255,255,255,.04));
+  border-color:rgba(216,181,109,.18);
+  color:#e2c57f;
+}
+#productApp[data-design="premium-night-v3"] .navGlyph{
+  display:block;
+  font-size:17px;
+  line-height:1;
+}
+#productApp[data-design="premium-night-v3"] nav button small{
+  display:block;
+  margin-top:4px;
+  color:inherit;
+  font-size:8px;
+  font-weight:750;
+  letter-spacing:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Responsive guardrails: 360–430px is the primary target. */
+@media(max-width:640px){
+  #productApp[data-design="premium-night-v3"] .shell{padding:11px 10px 118px}
+  #productApp[data-design="premium-night-v3"] .card{border-radius:20px}
+  #productApp[data-design="premium-night-v3"] .mrNightHero{
+    min-height:0;
+    grid-template-columns:minmax(0,1fr) 78px;
+    gap:10px;
+    padding:21px 17px 17px;
+    border-radius:23px;
+  }
+  #productApp[data-design="premium-night-v3"] .mrNightHero h1{
+    font-size:39px;
+    margin-top:5px;
+  }
+  #productApp[data-design="premium-night-v3"] .mrNightHero p{
+    font-size:11px;
+    line-height:1.45;
+    max-width:245px;
+  }
+  #productApp[data-design="premium-night-v3"] .mrNightAura{
+    top:19px;right:18px;width:62px;height:62px
+  }
+  #productApp[data-design="premium-night-v3"] .mrNightCrescent{font-size:24px}
+  #productApp[data-design="premium-night-v3"] .mrNightProgress{
+    width:72px;height:72px;align-self:start;margin-top:47px
+  }
+  #productApp[data-design="premium-night-v3"] .mrNightProgress:before{inset:5px}
+  #productApp[data-design="premium-night-v3"] .mrNightProgress b{font-size:18px}
+  #productApp[data-design="premium-night-v3"] .mrNightProgress span{font-size:6px;max-width:54px}
+  #productApp[data-design="premium-night-v3"] .mrNightStage{
+    margin-top:13px;padding:7px 9px;border-radius:11px
+  }
+  #productApp[data-design="premium-night-v3"] .mrNightStage b{font-size:9px}
+  #productApp[data-design="premium-night-v3"] .mrNightStats{
+    gap:5px;margin-top:5px
+  }
+  #productApp[data-design="premium-night-v3"] .mrNightStats>span,
+  #productApp[data-design="premium-night-v3"] .profileJourneyStats>span{
+    padding:8px 8px;border-radius:11px
+  }
+  #productApp[data-design="premium-night-v3"] .mrNightStats b,
+  #productApp[data-design="premium-night-v3"] .profileJourneyStats b{font-size:15px}
+  #productApp[data-design="premium-night-v3"] .mrNightStats small,
+  #productApp[data-design="premium-night-v3"] .profileJourneyStats small{font-size:6.8px}
+  #productApp[data-design="premium-night-v3"] .premiumLibraryHero{padding:20px 17px}
+  #productApp[data-design="premium-night-v3"] .premiumLibraryHero h1{font-size:36px}
+  #productApp[data-design="premium-night-v3"] .premiumLibraryHero .lead{font-size:10px;line-height:1.45}
+  #productApp[data-design="premium-night-v3"] .libraryHeroPills{margin-top:11px;gap:5px}
+  #productApp[data-design="premium-night-v3"] .libraryHeroPills span{font-size:7px;padding:5px 7px}
+  #productApp[data-design="premium-night-v3"] .profileJourneyHero{
+    display:block;padding-bottom:18px
+  }
+  #productApp[data-design="premium-night-v3"] .profileJourneyHero h1{font-size:36px}
+  #productApp[data-design="premium-night-v3"] .profileJourneyStats{
+    margin-top:14px;gap:5px
+  }
+  #productApp[data-design="premium-night-v3"] nav{
+    width:calc(100% - 14px);
+    bottom:max(7px,env(safe-area-inset-bottom));
+    padding:5px 4px;
+    border-radius:19px;
+  }
+  #productApp[data-design="premium-night-v3"] nav button{
+    padding:7px 1px 6px;border-radius:13px
+  }
+  #productApp[data-design="premium-night-v3"] .navGlyph{font-size:15px}
+  #productApp[data-design="premium-night-v3"] nav button small{font-size:7.2px;margin-top:3px}
+}
+@media(max-width:374px){
+  #productApp[data-design="premium-night-v3"] .mrNightHero{grid-template-columns:minmax(0,1fr) 64px;padding:19px 14px 15px}
+  #productApp[data-design="premium-night-v3"] .mrNightHero h1{font-size:34px}
+  #productApp[data-design="premium-night-v3"] .mrNightProgress{width:62px;height:62px}
+  #productApp[data-design="premium-night-v3"] .mrNightStats small,
+  #productApp[data-design="premium-night-v3"] .profileJourneyStats small{font-size:6px}
+  #productApp[data-design="premium-night-v3"] nav button small{font-size:6.6px}
+}
+@media(prefers-reduced-motion:reduce){
+  #productApp[data-design="premium-night-v3"] *,
+  #productApp[data-design="premium-night-v3"] *:before,
+  #productApp[data-design="premium-night-v3"] *:after{
+    scroll-behavior:auto!important;
+    transition-duration:.01ms!important;
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+  }
+}
+
+
+/* Premium UI v3.1 — visual-review contrast corrections */
+#productApp[data-design="premium-night-v3"] .starterBookCard{
+  background:linear-gradient(150deg,rgba(18,35,50,.90),rgba(9,21,33,.92))!important;
+  border-color:rgba(216,181,109,.12)!important;
+  box-shadow:none!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.ready:hover{
+  background:linear-gradient(150deg,rgba(23,43,58,.98),rgba(11,26,39,.98))!important;
+  border-color:rgba(221,187,116,.34)!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.completed{
+  background:linear-gradient(150deg,rgba(22,39,49,.94),rgba(11,27,36,.94))!important;
+  border-color:rgba(129,176,151,.20)!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.pending{
+  background:rgba(255,255,255,.025)!important;
+  border-color:rgba(255,255,255,.05)!important;
+  opacity:.48;
+}
+#productApp[data-design="premium-night-v3"] .starterBookOrder{
+  background:#0b1b28!important;
+  color:#d8b86f!important;
+  border:1px solid rgba(216,181,109,.16);
+}
+#productApp[data-design="premium-night-v3"] .starterBookCard.completed .starterBookOrder{
+  background:#3b5f52!important;
+  color:#f5ecdc!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookCover{
+  box-shadow:0 13px 28px rgba(0,0,0,.18)!important;
+}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>b{color:#ece2d2!important}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>small{color:#9aa5a6!important}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>p{color:#879395!important}
+#productApp[data-design="premium-night-v3"] .starterBookInfo>em{color:#d0b878!important}
+#productApp[data-design="premium-night-v3"] .starterBookAnnotations{color:#8f999a!important}
+
+#productApp[data-design="premium-night-v3"] .pilotHead h2{color:#eee3d2}
+#productApp[data-design="premium-night-v3"] .pilotCard .lead{color:#9ca7a8}
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid b{
+  color:#e9dfcf;
+}
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid small{
+  color:#9ca6a6;
+}
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid>div>span{
+  background:rgba(126,190,156,.13);
+  color:#b9dec9;
+}
+#productApp[data-design="premium-night-v3"] .pilotPrivacyGrid>div:nth-child(2)>span{
+  background:rgba(203,132,103,.13);
+  color:#e3b39f;
+}
+#productApp[data-design="premium-night-v3"] .pilotStatusRow>div{
+  background:rgba(255,255,255,.045);
+  color:#e9dfd0;
+}
+#productApp[data-design="premium-night-v3"] .pilotStatusRow small{color:#829093}
+#productApp[data-design="premium-night-v3"] .pilotStatusRow b{color:#f0e5d4}
