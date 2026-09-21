@@ -870,6 +870,10 @@ async function renderGenericBookReader(){
 }
 async function renderQuranReader(){
  S.library.quran=normalizeQuranReaderState(S.library.quran);
+ if(!S.library.quran.activeSession){
+   S.library.quran=beginQuranReadingSession(S.library.quran,{surah:S.library.quran.surah,ayah:S.library.quran.ayah,at:new Date().toISOString()});
+   save();
+ }
  const state=S.library.quran,meta=quranMeta(state.surah),screen=S.ilim.ui?.screen;
  if(!quranChapterCache.has(meta.id)){
    renderLibraryLoading('Kur’ân-ı Kerîm',`${meta.turkish} sûresi hazırlanıyor…`);
@@ -877,6 +881,8 @@ async function renderQuranReader(){
    if(S.ilim.ui?.screen==='quran'&&screen==='quran')return renderQuranReader();return;
  }
  const data=quranChapterCache.get(meta.id),scale=Number(state.fontScale||1),selectedColor=state.highlightColor||'#e6c46f';
+ const quranActiveMinutes=state.activeSession?Math.max(1,Math.min(120,Math.round((Date.now()-new Date(state.activeSession.startedAt))/60000))):0;
+ const quranActiveVerses=state.activeSession?(state.activeSession.startSurah===state.surah?Math.max(0,Math.abs(Number(state.ayah)-Number(state.activeSession.startAyah))):1):0;
  if(quranProgressObserver){quranProgressObserver.disconnect();quranProgressObserver=null}
  const palette=['#e6c46f','#8fc7a2','#d998a2'].map(color=>`<button class="quranColorSwatch ${selectedColor===color?'sel':''}" data-quran-color="${color}" style="--sw:${color}" aria-label="Vurgu rengi ${color}"></button>`).join('');
  const verses=data.verses.map(v=>{
@@ -894,12 +900,26 @@ async function renderQuranReader(){
  <section class="quranReaderShell ${state.focusMode?'quranFocusMode':''}">
    <div class="quranNavBar"><button id="prevSurah" ${meta.id<=1?'disabled':''}>←</button><select id="surahSelect" aria-label="Sûre seç">${QURAN_META.map(x=>`<option value="${x[0]}" ${x[0]===meta.id?'selected':''}>${x[0]}. ${esc(x[1])}</option>`).join('')}</select><button id="nextSurah" ${meta.id>=114?'disabled':''}>→</button></div>
    <header class="quranSurahHead"><div class="eyebrow">SÛRE ${meta.id}</div><h1>${esc(meta.arabic)}</h1><p>${esc(meta.turkish)} · ${meta.verseCount} âyet</p></header>
+   <section class="quranSessionCard"><div><small>AKTİF OKUMA OTURUMU</small><b>${quranActiveMinutes} dk · ${quranActiveVerses} âyet ilerleme</b><p>Bitirirken nasıl geldiğini seç; öneri motoru süreyi ve yükü yalnız bu açık geri bildirimle öğrenir.</p></div><div><button data-quran-session-feedback="heavy">Zor</button><button data-quran-session-feedback="ideal" class="primary">Tam kıvamında</button><button data-quran-session-feedback="easy">Rahat</button></div></section>
    <div class="quranMarkupBar"><div><span>Vurgu rengi</span><div class="quranColorPalette">${palette}<input id="quranCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div><small>Vurgu ve kişisel notlar eser metninden ayrı tutulur.</small></div>
    <div class="quranVerseList">${verses}</div>
    <details class="readerSourceNote quranSourceDetails"><summary>Metin kaynağı</summary><p>Yerel edisyon: <b>ara-quranuthmanihaf</b> — Quran Uthmani Hafs. Kaynak metadata Quran Complex’i işaret eder; uygulama kopyayı <b>fawazahmed0/quran-api</b> üzerinden paketler. Meal, açıklama veya Manevî Rota/AI yorumu bu okuyucuda gösterilmez.</p></details>
  </section>`;
- const goSurah=n=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,surah:Math.max(1,Math.min(114,Number(n)||1)),ayah:1,noteFor:null});S.library.lastBook='quran';save();renderQuranReader()};
- document.querySelector('#quranBack').onclick=()=>ilimGo('home');
+ const goSurah=n=>{
+   const nextSurah=Math.max(1,Math.min(114,Number(n)||1));
+   S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,surah:nextSurah,ayah:1,noteFor:null}),{surah:nextSurah,ayah:1});
+   S.library.lastBook='quran';save();renderQuranReader()
+ };
+ document.querySelector('#quranBack').onclick=()=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,activeSession:null});save();ilimGo('home')};
+ document.querySelectorAll('[data-quran-session-feedback]').forEach(btn=>btn.onclick=()=>{
+   const result=btn.dataset.quranSessionFeedback||'ideal';
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId==='quran'&&S.library.recommendationMemory?.active?.kind==='quran';
+   const session=finalizeQuranSession(result);
+   if(wasRecommended&&isMeaningfulRecommendationSession(session)){
+     S.view='today';S.ilim.ui={...(S.ilim.ui||{}),screen:'home'};save();return render();
+   }
+   S.library.quran=beginQuranReadingSession(S.library.quran,{surah:S.library.quran.surah,ayah:S.library.quran.ayah,at:new Date().toISOString()});save();renderQuranReader()
+ });
  document.querySelector('#surahSelect').onchange=e=>goSurah(e.target.value);
  document.querySelector('#prevSurah').onclick=()=>goSurah(meta.id-1);document.querySelector('#nextSurah').onclick=()=>goSurah(meta.id+1);
  document.querySelector('#quranFontDown').onclick=()=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,fontScale:Math.max(.82,scale-.08)});save();renderQuranReader()};
@@ -913,10 +933,14 @@ async function renderQuranReader(){
  const noteSave=document.querySelector('#quranNoteSave'),noteCancel=document.querySelector('#quranNoteCancel');
  if(noteSave)noteSave.onclick=e=>{e.stopPropagation();const n=Number(S.library.quran.noteFor);S.library.quran=setQuranVerseNote(S.library.quran,meta.id,n,document.querySelector('#quranNoteInput')?.value||'');S.library.quran=normalizeQuranReaderState({...S.library.quran,noteFor:null,ayah:n});save();renderQuranReader()};
  if(noteCancel)noteCancel.onclick=e=>{e.stopPropagation();S.library.quran=normalizeQuranReaderState({...S.library.quran,noteFor:null});save();renderQuranReader()};
- document.querySelectorAll('[data-quran-ayah]').forEach(el=>el.onclick=()=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,ayah:Number(el.dataset.quranAyah)});S.library.lastBook='quran';save();document.querySelectorAll('.quranAyah').forEach(x=>x.classList.toggle('savedAyah',x===el))});
+ document.querySelectorAll('[data-quran-ayah]').forEach(el=>el.onclick=()=>{
+   const ayah=Number(el.dataset.quranAyah);
+   S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,ayah}),{surah:meta.id,ayah});
+   S.library.lastBook='quran';save();document.querySelectorAll('.quranAyah').forEach(x=>x.classList.toggle('savedAyah',x===el))
+ });
  const saved=document.querySelector(`[data-quran-ayah="${Math.max(1,Number(state.ayah)||1)}"]`);if(saved)setTimeout(()=>saved.scrollIntoView({block:'center'}),40);
  if('IntersectionObserver'in window){
-   quranProgressObserver=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting&&e.intersectionRatio>=.62).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];if(!visible)return;const n=Number(visible.target.dataset.quranAyah);if(n&&n!==S.library.quran.ayah){S.library.quran=normalizeQuranReaderState({...S.library.quran,ayah:n});S.library.lastBook='quran';save()}},{threshold:[.62]});
+   quranProgressObserver=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting&&e.intersectionRatio>=.62).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];if(!visible)return;const n=Number(visible.target.dataset.quranAyah);if(n&&n!==S.library.quran.ayah){S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,ayah:n}),{surah:meta.id,ayah:n});S.library.lastBook='quran';save()}},{threshold:[.62]});
    document.querySelectorAll('[data-quran-ayah]').forEach(el=>quranProgressObserver.observe(el));
  }
 }
