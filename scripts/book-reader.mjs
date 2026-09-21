@@ -7,8 +7,10 @@ import {
 
 const base=emptyBookReaderState();
 assert.equal(bookParagraphKey(5,2),'5:2');
-let state=normalizeBookReaderState({page:0,fontScale:8,highlightColor:'#8FC7A2',notes:{'2:0':'  not  ',bad:'x'},highlights:{'2:0':'#D998A2'},bookmarks:[2,2,7]});
+let state=normalizeBookReaderState({page:0,totalPages:'250',fontScale:8,highlightColor:'#8FC7A2',notes:{'2:0':'  not  ',bad:'x'},highlights:{'2:0':'#D998A2'},bookmarks:[2,2,7]});
 assert.equal(state.page,1);
+assert.equal(state.totalPages,250);
+assert.equal(normalizeBookReaderState({page:220,totalPages:null}).totalPages,0);
 assert.equal(state.fontScale,1.5);
 assert.equal(state.highlightColor,'#8fc7a2');
 assert.deepEqual(state.bookmarks,[2,7]);
@@ -46,4 +48,4 @@ const hits=searchBookPages([
 assert.deepEqual(hits.map(x=>x.page),[1,3]);
 assert.equal(searchBookPages([{page:1,text:'abc'}],'a').length,0);
 
-console.log('book-reader: premium reader state + search + reading session memory passed');
+console.log('book-reader: premium reader state + persisted totals + search + reading session memory passed');

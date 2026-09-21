@@ -11,7 +11,7 @@ export function emptyBookReaderState(){
   return {
     page:1,fontScale:1,focusMode:false,highlightColor:'#e6c46f',
     highlights:{},notes:{},noteFor:null,bookmarks:[],
-    searchQuery:'',sessions:[],activeSession:null
+    searchQuery:'',sessions:[],activeSession:null,totalPages:0
   };
 }
 
@@ -70,6 +70,7 @@ export function normalizeBookReaderState(input={}){
     noteFor:/^\d{1,5}:\d{1,4}$/.test(noteFor)?noteFor:null,
     bookmarks,
     searchQuery:String(raw.searchQuery||'').trim().slice(0,120),
+    totalPages:Math.max(0,Math.round(Number(raw.totalPages)||0)),
     sessions,
     activeSession:normalizeActiveSession(raw.activeSession)
   };

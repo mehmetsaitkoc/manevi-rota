@@ -2,7 +2,7 @@ import {TASK_CATALOG,TIME_SLOTS} from '../src/catalog.mjs';
 import {buildRoute,weeklyDigest,dayAdd,timeSlotLearning} from '../src/route-engine.mjs';
 import {PRAYERS,emptyQada,normalizePrayerPayload,prayerStatus,formatDuration,qadaRemaining,qadaTargetProgress,setQadaBalance,recordQada,undoQada} from '../src/prayer-center.mjs';
 import {KIRK_HADIS_META,KIRK_HADIS_UNITS,emptyKirkHadisState,normalizeKirkHadisState,getHadis,progressPct as hadisProgressPct,todayHadisPlan,recordHadisSession,scheduleHadisReviews,dueReviews as dueHadisReviews,recordRecallAttempt,recallPromptFor,knowledgeSignal,knowledgeOverview,addHadisHighlight,addHadisNote,toggleHadisBookmark,notebookEntries} from '../src/kirk-hadis.mjs';
-import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,quranVerseBookmarked,toggleQuranVerseHighlight,setQuranVerseNote,toggleQuranVerseBookmark} from '../src/quran-reader.mjs';
+import {emptyQuranReaderState,normalizeQuranReaderState,quranVerseHighlight,quranVerseNote,quranVerseBookmarked,toggleQuranVerseHighlight,setQuranVerseNote,toggleQuranVerseBookmark,beginQuranReadingSession,touchQuranReadingSession,finishQuranReadingSession} from '../src/quran-reader.mjs';
 import {STARTER_LIBRARY,STARTER_LIBRARY_STAGES,starterBook,starterBooksByStage} from '../src/library-catalog.mjs';
 import {normalizeBookReaderState,bookHighlight,bookNote,toggleBookHighlight,setBookNote,toggleBookPageBookmark,beginBookReadingSession,touchBookReadingSession,finishBookReadingSession,bookReadingSummary,searchBookPages} from '../src/book-reader.mjs';
 import {emptyLibraryPathState,normalizeLibraryPathState,setGenericBookCompleted,isPathBookCompleted,libraryPathSnapshot,acknowledgeLibraryLevel} from '../src/library-path.mjs';
@@ -11,8 +11,9 @@ import {genericNotebookRefs,quranNotebookRefs,filterNotebookEntries,groupNoteboo
 import {rankReadingRecommendations} from '../src/reading-recommendation.mjs';
 import {
   emptyReadingRecommendationMemory,normalizeReadingRecommendationMemory,isMeaningfulRecommendationSession,
-  startReadingRecommendation,skipReadingRecommendation,completeReadingRecommendation
+  startReadingRecommendation,skipReadingRecommendation,abandonReadingRecommendation,completeReadingRecommendation
 } from '../src/reading-recommendation-memory.mjs';
+import {todayExperienceSnapshot,readingFeedbackLabel} from '../src/today-experience.mjs';
 
 const KEY='manevi-rota-v2.7';
 const LEGACY_KEYS=['manevi-rota-v2','manevi-rota-v1.4','manevi-rota-v1.3','manevi-rota-v1.2','manevi-rota-v1.1','manevi-rota-v1-pro'];
@@ -123,6 +124,36 @@ async function loadGenericBook(id){
  if(!Array.isArray(data?.pages)||!data.pages.length)throw new Error('Kitap veri biçimi geçersiz.');
  genericBookCache.set(id,data);return data;
 }
+let genericBookTotalsHydration=null;
+function hasPersistedBookProgress(bookId,state){
+ const normalized=normalizeBookReaderState(state||{});
+ return normalized.page>2||normalized.sessions.length>0||normalized.bookmarks.length>0||
+   Object.keys(normalized.highlights||{}).length>0||Object.keys(normalized.notes||{}).length>0||
+   S.library.lastBook===bookId;
+}
+async function hydratePersistedBookTotals(){
+ if(genericBookTotalsHydration)return genericBookTotalsHydration;
+ const targets=STARTER_LIBRARY.filter(book=>book.readerType==='generic'&&book.availability==='ready'&&book.asset).filter(book=>{
+   const state=normalizeBookReaderState(S.library.books?.[book.id]||{});
+   return !state.totalPages&&hasPersistedBookProgress(book.id,state);
+ });
+ if(!targets.length)return false;
+ genericBookTotalsHydration=(async()=>{
+   let changed=false;
+   for(const book of targets){
+     try{
+       const data=await loadGenericBook(book.id),total=Number(data?.pages?.length||0);
+       if(total>0&&Number(S.library.books?.[book.id]?.totalPages||0)!==total){
+         S.library.books[book.id]=normalizeBookReaderState({...S.library.books?.[book.id],totalPages:total});
+         changed=true;
+       }
+     }catch{}
+   }
+   if(changed)save();
+   return changed;
+ })().finally(()=>{genericBookTotalsHydration=null});
+ return genericBookTotalsHydration;
+}
 function genericBookState(id){
  S.library.books=S.library.books||{};
  S.library.books[id]=normalizeBookReaderState(S.library.books[id]||{});
@@ -199,10 +230,43 @@ function finalizeGenericBookSession(bookId,page,feedback='ideal'){
  }
  return result.session;
 }
+function syncQuranReadingSession(session){
+ if(!session)return;
+ const date=today(),d=ensure(date);
+ const planned=(d.route?.tasks||[]).map(x=>x.id);
+ const target=planned.includes('quran')?'quran':planned.includes('reading')?'reading':planned.includes('learning')?'learning':null;
+ const row={...session,bookId:'quran',date,taskId:target};
+ d.readingSessions=[row,...(d.readingSessions||[])].slice(0,40);
+ if(target&&isMeaningfulRecommendationSession(session)){
+   const done=new Set(d.done||[]);done.add(target);d.done=[...done];
+   d.taskFeedback=d.taskFeedback||{};
+   d.taskFeedback[target]=session.feedback==='heavy'?'hard':session.feedback==='easy'?'easy':'normal';
+ }
+ save();
+}
+function finalizeQuranSession(feedback='ideal'){
+ const current=normalizeQuranReaderState(S.library.quran||{});
+ const result=finishQuranReadingSession(current,{surah:current.surah,ayah:current.ayah,at:new Date().toISOString(),feedback});
+ S.library.quran=result.state;
+ if(result.session){
+   syncQuranReadingSession(result.session);
+   if(isMeaningfulRecommendationSession(result.session)){
+     S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{
+       bookId:'quran',date:today(),minutes:result.session.minutes,feedback:result.session.feedback,at:result.session.endedAt
+     });
+   }
+   save();
+ }
+ return result.session;
+}
 function openStarterBook(id){
  const book=starterBook(id);if(!book||book.availability!=='ready')return;
  S.library.lastBook=id;save();
- if(book.readerType==='quran')return ilimGo('quran');
+ if(book.readerType==='quran'){
+   S.library.quran=beginQuranReadingSession(S.library.quran,{surah:S.library.quran.surah,ayah:S.library.quran.ayah,at:new Date().toISOString()});
+   S.ilim.ui={...(S.ilim.ui||{}),screen:'quran'};
+   save();return renderIlim();
+ }
  if(book.readerType==='hadith')return ilimGo('reader',S.ilim.currentId);
  if(book.readerType==='islam')return ilimGo('islam');
  if(book.readerType==='generic'){
@@ -294,35 +358,71 @@ function prayerSummary(){if(!S.prayer.today)return null;const st=prayerStatus(S.
 function renderToday(){
  const d=ensure();if(!validCheck(d.checkin)){S.view='checkin';save();return render()}
  const r=makeRoute(false),done=new Set(d.done||[]),progress=r.tasks.length?Math.round(r.tasks.filter(x=>done.has(x.id)).length/r.tasks.length*100):0;
- const a=r.analysis||{},behaviorReady=Number(a.evidenceDays||0)>=3;
+ const a=r.analysis||{};
  const hidden=new Set(d.dismissedTimeSuggestions||[]),suggestion=(r.timeSuggestions||[]).find(x=>!hidden.has(x.taskId));
  const grouped=Object.keys(TIME_SLOTS).map(slot=>({slot,tasks:r.tasks.filter(x=>x.slot===slot)})).filter(g=>g.tasks.length);
  const ps=prayerSummary(),qp=qadaTargetProgress(S.qada,today());
- const bookTotals=Object.fromEntries([...genericBookCache.entries()].map(([id,data])=>[id,Number(data?.pages?.length||0)]));
- const readingCandidates=rankReadingRecommendations({date:today(),profile:S.profile,checkin:d.checkin,library:S.library,ilim:S.ilim,records:records(),bookTotals});
+ const bookTotals=Object.fromEntries(STARTER_LIBRARY.filter(book=>book.readerType==='generic'&&book.availability==='ready').map(book=>[
+   book.id,
+   Number(genericBookCache.get(book.id)?.pages?.length||S.library.books?.[book.id]?.totalPages||0)
+ ]));
+ const experience=todayExperienceSnapshot({memory:S.library.recommendationMemory,records:records(),date:today()});
+ const todayCompleted=experience.completed,yesterdaySummary=experience.yesterday;
+ const readingCandidates=todayCompleted?[]:rankReadingRecommendations({date:today(),profile:S.profile,checkin:d.checkin,library:S.library,ilim:S.ilim,records:records(),bookTotals});
  const candidateCount=Math.min(3,readingCandidates.length);
  const storedRecommendationIndex=S.library.recommendationDay===today()?Number(S.library.recommendationIndex||0):0;
  const readingIndex=candidateCount?Math.max(0,storedRecommendationIndex)%candidateCount:0;
  const readingRec=readingCandidates[readingIndex]||null;
+ const remainingCount=r.tasks.filter(x=>!done.has(x.id)).length;
+ const todaySession=todayCompleted?(d.readingSessions||[]).find(x=>x.bookId===todayCompleted.bookId):null;
+ const todayPages=Math.max(0,Number(todaySession?.pages||0)),todayVerses=Math.max(0,Number(todaySession?.verses||0));
+ const completedBook=todayCompleted?starterBook(todayCompleted.bookId):null;
+ const completedFeedback=todayCompleted?readingFeedbackLabel(todayCompleted.feedback):'';
+ const yesterdayDetail=yesterdaySummary.hasActivity
+   ?[yesterdaySummary.minutes+' dk',yesterdaySummary.pages?yesterdaySummary.pages+' sayfa':'',yesterdaySummary.verses?yesterdaySummary.verses+' âyet':'',yesterdaySummary.feedbackLabel].filter(Boolean).join(' · ')
+   :'Dün okuma kaydı oluşmadı. Bugün küçük bir adım yeter.';
  const taskHtml=x=>{const t=TASK_CATALOG[x.id],isDone=done.has(x.id),fb=d.taskFeedback?.[x.id],ilimLink=['learning','reading'].includes(x.id);return `<section class="task premiumTask ${isDone?'done':''}"><div class="taskTop"><div class="ico">${t.icon}</div><div class="taskMain"><div class="taskTitleLine"><h3>${t.title}</h3><span>${x.duration} dk</span></div><div class="reason">${esc(t.description)}</div><div class="method">${esc(x.method)}</div>${ilimLink?`<button class="taskDeepLink" data-open-ilim="1">Kitaplığı aç →</button>`:''}<details class="taskWhy"><summary>Neden bugün?</summary><p>${x.reasons.length?x.reasons.map(esc).join(' · '):'Genel denge için'}</p></details></div><button class="toggle" data-task="${x.id}" aria-label="Görevi tamamla">✓</button></div>${isDone?`<div class="taskFeedback"><button class="${fb==='hard'?'sel':''}" data-tf="${x.id}:hard">Zor</button><button class="${fb==='normal'?'sel':''}" data-tf="${x.id}:normal">Tam kıvamında</button><button class="${fb==='easy'?'sel':''}" data-tf="${x.id}:easy">Rahat</button></div>`:''}</section>`};
- app.innerHTML=`${readingRec?`<section class="card readingRecommendationCard" data-reading-kind="${esc(readingRec.kind)}">
-   <div class="readingRecommendationTop"><div><div class="eyebrow">BUGÜN NE OKUYAYIM?</div><h2><span>${readingRec.minutes} dk</span> ${esc(readingRec.title)}</h2><p>Tek bir net öneri; gerçek okuma ritmin ve bugünkü kapasitenle sınırlandı.</p></div><span class="readingRecommendationLevel">Seviye ${readingRec.activeLevel}</span></div>
-   <div class="readingRecommendationLocation"><small>${readingRec.kind==='hadith-review'?'ÖNCE TEKRAR':'KALDIĞIN YER'}</small><b>${esc(readingRec.locator||readingRec.title)}</b></div>
-   <details class="readingRecommendationWhy"><summary>Neden bunu seçtim?</summary><ul>${(readingRec.reasons||[]).slice(0,4).map(reason=>`<li>${esc(reason)}</li>`).join('')||'<li>Bugünkü süre ve okuma rotanla uyumlu.</li>'}</ul></details>
-   <div class="readingRecommendationActions"><button class="btn primary" id="startReadingRecommendation">Okumaya Başla</button>${candidateCount>1?'<button class="readingRecommendationAlt" id="nextReadingRecommendation">Başka öneri</button>':''}</div>
- </section>`:''}
- <section class="card hero premiumTodayHero"><div class="premiumHeroTop"><div><div class="eyebrow">MANEVÎ ROTA · BUGÜN</div><h1>Bugünün Rotası</h1><p>Küçük adımlar, sürdürülebilir bir düzen.</p></div><div class="heroProgress"><b>${progress}%</b><span>tamamlandı</span></div></div><div class="premiumRouteSummary"><span>${r.mode}</span><span>${r.totalMinutes} dk</span><span>${r.tasks.length} görev</span><span>Motor: ${r.confidenceLabel}</span></div><div class="metrics"><div class="metric"><b>${r.totalMinutes} dk</b><span>Plan</span></div><div class="metric"><b>${r.tasks.length}</b><span>Görev</span></div><div class="metric"><b>${progress}%</b><span>Tamamlandı</span></div><div class="metric"><b>${r.evidence.days}</b><span>Kanıt günü</span></div></div><div class="explain">🧠 ${r.why.map(esc).join(' ')}</div></section>
 
- <section class="card engineAnalysis compactEngine"><details><summary><span>🧠 Rota neden böyle?</span><b>${esc(a.decision||r.mode)}</b></summary><div class="engineGrid"><div><small>Kanıt</small><b>${a.evidenceDays||0} gün</b></div><div><small>Etkin kanıt</small><b>${a.effectiveEvidenceDays??0} gün</b></div><div><small>Kanıt tazeliği</small><b>${esc(a.evidenceStatus||'—')} · %${a.evidenceFreshness??0}</b></div><div><small>Motor güveni</small><b>${a.confidence??r.confidence}%</b></div><div><small>Başlangıç profili etkisi</small><b>%${a.priorWeight??100}</b></div><div><small>Aşırı yük riski</small><b>%${a.overloadRisk??0}</b></div><div><small>Dönemsel kapasite</small><b>${esc(a.capacityPhase||'Veri topluyor')}</b></div><div><small>Davranış değişimi</small><b>${esc(a.behaviorShift||'Belirsiz')}</b></div><div><small>Yakın dönem tamamlama</small><b>${behaviorReady?`%${a.recentCompletion}`:'Veri bekliyor'}</b></div><div><small>Öğrenilmiş günlük doz</small><b>${a.learnedSustainableMinutes?`${a.learnedSustainableMinutes} dk`:'Henüz yok'}</b></div><div><small>Doğrulanmış rutin</small><b>${a.verifiedRoutines?.length||0}</b></div><div><small>Yeniden doğrulama</small><b>${a.revalidationRoutines?.length||0}</b></div><div><small>Yumuşak geri dönüş</small><b>${a.returnAreas?.length?`${a.returnAreas.length} rutin`:'Yok'}</b></div><div><small>Müdahale hafızası</small><b>${a.interventionInsights?.length?`${a.interventionInsights.length} örüntü`:'Veri topluyor'}</b></div></div>${a.contradictions?.length?`<div class="analysisSignals">${a.contradictions.map(x=>`<p>↳ ${esc(x)}</p>`).join('')}</div>`:''}${a.interventionInsights?.length?`<div class="analysisSignals"><p><b>Motorun öğrendiği müdahaleler</b></p>${a.interventionInsights.slice(0,3).map(x=>{const ctx=Object.entries(x.contexts||{}).sort((a,b)=>(b[1].samples||0)-(a[1].samples||0))[0];const ctxText=ctx?` · ${policyContextLabel(ctx[0])}: ${ctx[1].policy==='repeat'?'işe yarıyor':ctx[1].policy==='change'?'yaklaşımı değiştir':ctx[1].policy==='revalidate'?'yeniden doğrula':'izleniyor'}`:'';return `<p>↳ ${esc(TASK_CATALOG[x.taskId]?.title||x.taskId)} · ${esc(x.kind)} · ${x.policy==='repeat'?'tekrar edilebilir':x.policy==='change'?'yaklaşımı değiştir':x.policy==='revalidate'?'yeniden doğrula':'izleniyor'}${esc(ctxText)} (${x.samples} örnek)</p>`}).join('')}</div>`:''}<p class="small">Başlangıç cevapların kalıcı etiket değildir. Motor v2.1 eski kanıtı zamanla zayıflatır; bir rutini ancak zamana yayılmış güncel verilerle doğrular ve müdahale sonuçlarını benzer koşullarda ayrı öğrenir.</p></details></section>
+ const primaryCard=todayCompleted
+   ?`<section class="card todayPrimaryCard completed" data-today-primary="completed">
+      <div class="todayPrimaryTop"><div class="todayPrimaryCheck">✓</div><div><div class="eyebrow">BUGÜN TAMAMLANDI</div><h1>${esc(todayCompleted.title||completedBook?.title||'Bugünkü okuma')}</h1><p>Bugünün ana okuma kaydı tamamlandı. Bu yalnızca okuma düzenini gösterir; manevî bir puan değildir.</p></div></div>
+      <div class="todayCompletionStats"><span><b>${todayCompleted.actualMinutes||todayCompleted.recommendedMinutes||0} dk</b><small>gerçek okuma</small></span>${todayPages?`<span><b>${todayPages} sayfa</b><small>ilerleme</small></span>`:todayVerses?`<span><b>${todayVerses} âyet</b><small>ilerleme</small></span>`:''}<span><b>${esc(completedFeedback)}</b><small>senin geri bildirimin</small></span>${completedBook?.level?`<span><b>${esc(completedBook.level)}</b><small>okuma yolu</small></span>`:''}</div>
+      <div class="todayPrimaryActions"><button class="btn primary" id="todayCompletionLibrary">Kütüphaneye git</button><button class="btn ghost" id="todayCompletionNotebook">İlim Defteri</button></div>
+    </section>`
+   :readingRec
+    ?`<section class="card readingRecommendationCard todayPrimaryCard" data-reading-kind="${esc(readingRec.kind)}" data-today-primary="recommendation">
+       <div class="readingRecommendationTop"><div><div class="eyebrow">BUGÜN SANA ÖNERİM</div><h1>${esc(readingRec.title)}</h1><p>Tek bir net adım. Süre ve seçim, gerçek okuma ritminle bugünkü kapasiten üzerinden sınırlandı.</p></div><span class="readingRecommendationLevel">${readingRec.minutes} dk · Seviye ${readingRec.activeLevel}</span></div>
+       <div class="readingRecommendationLocation"><small>${readingRec.kind==='hadith-review'?'ÖNCE KISA TEKRAR':'KALDIĞIN YER'}</small><b>${esc(readingRec.locator||readingRec.title)}</b></div>
+       <details class="readingRecommendationWhy"><summary>Neden bunu seçtim?</summary><ul>${(readingRec.reasons||[]).slice(0,4).map(reason=>`<li>${esc(reason)}</li>`).join('')||'<li>Bugünkü süre ve okuma rotanla uyumlu.</li>'}</ul></details>
+       <div class="readingRecommendationActions"><button class="btn primary" id="startReadingRecommendation">Okumaya Başla</button>${candidateCount>1?'<button class="readingRecommendationAlt" id="nextReadingRecommendation">Başka öneri</button>':''}</div>
+     </section>`
+    :`<section class="card todayPrimaryCard quiet" data-today-primary="empty"><div class="eyebrow">BUGÜN</div><h1>Yeni bir ana okuma gerekmiyor.</h1><p>Bugünün diğer küçük adımlarına devam edebilirsin.</p></section>`;
+
+ app.innerHTML=`${primaryCard}
+ <section class="card todayYesterdayCard"><div class="todayYesterdayIcon">↶</div><div><div class="eyebrow">DÜN NE OLDU?</div><b>${esc(yesterdaySummary.title)}</b><p>${esc(yesterdayDetail)}</p></div></section>
+
+ <section class="card hero premiumTodayHero todayRouteOverview">
+   <div class="premiumHeroTop"><div><div class="eyebrow">BUGÜNÜN DİĞER ADIMLARI</div><h2>${remainingCount?remainingCount+' küçük adım kaldı':'Bugünün rotası tamamlandı'}</h2><p>Ana okumanın dışında kalan görevleri istediğin sırayla tamamlayabilirsin.</p></div><div class="heroProgress"><b>${progress}%</b><span>rota</span></div></div>
+   <div class="todayRouteStats"><span><b>${r.totalMinutes} dk</b><small>toplam plan</small></span><span><b>${r.tasks.length}</b><small>küçük görev</small></span><span><b>${done.size}</b><small>tamamlanan</small></span></div>
+   <div class="todayRouteActions"><button class="btn ghost" id="edit">Bugünkü durumu değiştir</button><button class="btn ${d.lightDay?'primary':'ghost'}" id="light">${d.lightDay?'Hafif gün açık':'Bugünü hafiflet'}</button></div>
+ </section>
+
  ${S.profile.prayerTracking?`<section class="prayerStrip" data-view="prayer"><div><span class="prayerStripIcon">🕌</span><div><small>NAMAZ MERKEZİ</small><b>${ps?`${ps.next.label} · ${ps.next.time}`:'Vakitlerini bağla'}</b><span>${ps?`${formatDuration(ps.minutesUntil)} kaldı · ${esc(ps.label)}`:'Konum veya şehir seçerek bugünün vakitlerini getir.'}</span></div></div><div class="qadaMini">${S.qada.enabled?`Kaza hedefi <b>${qp.done}/${qp.target}</b>`:'Aç →'}</div></section>`:''}
- <div class="actions" style="margin:0 0 12px"><button class="btn ghost" id="edit">Bugünkü durumu değiştir</button><button class="btn ${d.lightDay?'primary':'ghost'}" id="light">${d.lightDay?'Hafif gün açık':'Bugünü hafiflet'}</button></div>
- ${suggestion?`<section class="card timingSuggestion"><div class="eyebrow">Zamanlama önerisi</div><h3>${TASK_CATALOG[suggestion.taskId].icon} ${TASK_CATALOG[suggestion.taskId].title} için saat değişikliği</h3><p><b>${slotLabel(suggestion.from)}</b> diliminde son ${suggestion.currentSamples} planda tamamlama %${pct(suggestion.currentCompletion)}. <b>${slotLabel(suggestion.to)}</b> dilimi sende %${pct(suggestion.targetCompletion)} tamamlama gösteriyor.</p><div class="explain">Bu bir manevî değerlendirme değil; yalnızca rutinin hangi saatte daha sürdürülebilir göründüğünü karşılaştırır. Değişiklik ancak sen onaylarsan uygulanır.</div><div class="actions"><button class="btn primary" id="acceptTiming" data-id="${suggestion.taskId}" data-slot="${suggestion.to}">${slotLabel(suggestion.to)}na taşı</button><button class="btn ghost" id="snoozeTiming" data-id="${suggestion.taskId}">Şimdilik kalsın</button></div></section>`:''}
- ${grouped.map(g=>`<section class="slotGroup"><div class="slotHead"><span>${slotIcon(g.slot)}</span><div><b>${slotLabel(g.slot)}</b><small>${g.tasks.reduce((a,x)=>a+x.duration,0)} dk</small></div></div>${g.tasks.map(taskHtml).join('')}</section>`).join('')}
- <section class="card"><h3>Bugünkü rota nasıldı?</h3><p>Seçmezsen motor bir şey varsaymaz.</p><div class="dayFeedback">${[['heavy','Ağır geldi'],['ideal','Tam kıvamında'],['easy','Kolaydı']].map(([k,l])=>`<button class="rating ${d.feedback===k?'sel':''}" data-dayf="${k}">${l}</button>`).join('')}</div></section>`;
+ ${suggestion?`<section class="card timingSuggestion"><div class="eyebrow">Zamanlama önerisi</div><h3>${TASK_CATALOG[suggestion.taskId].icon} ${TASK_CATALOG[suggestion.taskId].title} için saat değişikliği</h3><p><b>${slotLabel(suggestion.from)}</b> diliminde son ${suggestion.currentSamples} planda tamamlama %${pct(suggestion.currentCompletion)}. <b>${slotLabel(suggestion.to)}</b> dilimi sende %${pct(suggestion.targetCompletion)} tamamlama gösteriyor.</p><div class="explain">Bu yalnızca rutinin hangi saatte daha sürdürülebilir göründüğünü karşılaştırır. Değişiklik ancak sen onaylarsan uygulanır.</div><div class="actions"><button class="btn primary" id="acceptTiming" data-id="${suggestion.taskId}" data-slot="${suggestion.to}">${slotLabel(suggestion.to)}na taşı</button><button class="btn ghost" id="snoozeTiming" data-id="${suggestion.taskId}">Şimdilik kalsın</button></div></section>`:''}
+ ${grouped.map(g=>`<section class="slotGroup"><div class="slotHead"><span>${slotIcon(g.slot)}</span><div><b>${slotLabel(g.slot)}</b><small>${g.tasks.reduce((sum,x)=>sum+x.duration,0)} dk</small></div></div>${g.tasks.map(taskHtml).join('')}</section>`).join('')}
+
+ <section class="card engineAnalysis compactEngine todayEngineDetails"><details><summary><span>🧠 Plan nasıl ayarlandı?</span><b>Ayrıntılar</b></summary><div class="engineGrid"><div><small>Kanıt</small><b>${a.evidenceDays||0} gün</b></div><div><small>Motor güveni</small><b>${a.confidence??r.confidence}%</b></div><div><small>Bugünkü kapasite</small><b>${esc(a.capacityPhase||'Veri topluyor')}</b></div><div><small>Davranış değişimi</small><b>${esc(a.behaviorShift||'Belirsiz')}</b></div><div><small>Öğrenilmiş doz</small><b>${a.learnedSustainableMinutes?`${a.learnedSustainableMinutes} dk`:'Henüz yok'}</b></div><div><small>Başlangıç profili etkisi</small><b>%${a.priorWeight??100}</b></div></div><div class="analysisSignals"><p>${esc(r.why?.join(' ')||'Plan bugünkü kapasite ve geçmiş kullanım verilerine göre ayarlandı.')}</p></div><p class="small">Bu alan maneviyatını değerlendirmez; yalnızca planın sürdürülebilirliğini açıklamak için davranış ve süre verisini gösterir.</p></details></section>
+
+ <section class="card todayFeedbackCard"><h3>Bugünkü rota nasıldı?</h3><p>Seçmezsen motor bir şey varsaymaz.</p><div class="dayFeedback">${[['heavy','Ağır geldi'],['ideal','Tam kıvamında'],['easy','Kolaydı']].map(([k,l])=>`<button class="rating ${d.feedback===k?'sel':''}" data-dayf="${k}">${l}</button>`).join('')}</div></section>`;
+
  document.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{const set=new Set(d.done||[]),id=b.dataset.task;set.has(id)?(set.delete(id),delete d.taskFeedback[id]):set.add(id);d.done=[...set];save();pilotRecordDay('task-toggle',d);renderToday()});
  document.querySelectorAll('[data-open-ilim]').forEach(b=>b.onclick=()=>{S.view='ilim';S.ilim.ui={...S.ilim.ui,screen:'home'};save();render()});
  document.querySelectorAll('[data-tf]').forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.tf.split(':');d.taskFeedback=d.taskFeedback||{};d.taskFeedback[id]=d.taskFeedback[id]===v?null:v;if(!d.taskFeedback[id])delete d.taskFeedback[id];save();pilotRecordDay('task-feedback',d);renderToday()});
  document.querySelectorAll('[data-dayf]').forEach(b=>b.onclick=()=>{d.feedback=d.feedback===b.dataset.dayf?null:b.dataset.dayf;save();pilotRecordDay('day-feedback',d);renderToday()});
+
+ const completedLibrary=document.querySelector('#todayCompletionLibrary');if(completedLibrary)completedLibrary.onclick=()=>{S.view='ilim';S.ilim.ui={...S.ilim.ui,screen:'home'};save();render()};
+ const completedNotebook=document.querySelector('#todayCompletionNotebook');if(completedNotebook)completedNotebook.onclick=()=>{S.view='ilim';S.ilim.ui={...S.ilim.ui,screen:'notebook'};save();render()};
+
  const startReading=document.querySelector('#startReadingRecommendation');
  if(startReading&&readingRec)startReading.onclick=()=>{
    S.view='ilim';
@@ -341,7 +441,9 @@ function renderToday(){
    S.library.recommendationIndex=(readingIndex+1)%candidateCount;
    save();renderToday();
  };
+
  document.querySelector('#edit').onclick=()=>{S.view='checkin';save();render()};
+ void hydratePersistedBookTotals().then(changed=>{if(changed&&S.view==='today')renderToday()});
  document.querySelector('#light').onclick=()=>{d.lightDay=!d.lightDay;d.route=null;d.done=[];d.taskFeedback={};makeRoute(true);save();pilotRecordRoute(d.route,d.checkin,d.lightDay);pilotRecordDay('light-day',d);renderToday()};
  const accept=document.querySelector('#acceptTiming');if(accept)accept.onclick=()=>{const id=accept.dataset.id,slot=accept.dataset.slot;S.profile.slotOverrides[id]=slot;delete S.profile.slotSuggestionSnooze[id];d.route=null;makeRoute(true);save();renderToday()};
  const snooze=document.querySelector('#snoozeTiming');if(snooze)snooze.onclick=()=>{const id=snooze.dataset.id;S.profile.slotSuggestionSnooze[id]=dayAdd(today(),7);d.dismissedTimeSuggestions=[...new Set([...(d.dismissedTimeSuggestions||[]),id])];save();renderToday()};
@@ -771,7 +873,16 @@ async function renderGenericBookReader(){
  </section>`;
  const persist=()=>{S.library.books[bookId]=normalizeBookReaderState(S.library.books[bookId]);S.library.lastBook=bookId;save()};
  const goPage=value=>{const nextPage=Math.max(1,Math.min(total,Number(value)||pageNo));S.library.books[bookId]=touchBookReadingSession(normalizeBookReaderState({...S.library.books[bookId],page:nextPage,noteFor:null}),nextPage);persist();renderGenericBookReader()};
- document.querySelector('#genericBookBack').onclick=()=>{finalizeGenericBookSession(bookId,pageNo,'ideal');ilimGo('home')};
+ document.querySelector('#genericBookBack').onclick=()=>{
+   const current=normalizeBookReaderState(S.library.books[bookId]),active=current.activeSession;
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId===bookId&&S.library.recommendationMemory?.active?.kind==='book';
+   if(wasRecommended&&active){
+     const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+     const pages=Math.max(0,Math.abs(pageNo-(active.startPage||pageNo)));
+     S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId,date:today(),minutes,pages,at:new Date().toISOString()});
+   }
+   S.library.books[bookId]=normalizeBookReaderState({...current,activeSession:null});persist();ilimGo('home')
+ };
  document.querySelector('#genericBookComplete').onclick=()=>{if(!completionEligible)return;S.library.path=setGenericBookCompleted(S.library.path,bookId,!completed);save();renderGenericBookReader()};
  document.querySelector('#genericPrevPage').onclick=()=>goPage(pageNo-1);document.querySelector('#genericNextPage').onclick=()=>goPage(pageNo+1);
  document.querySelector('#genericBookPageInput').onchange=e=>goPage(e.target.value);
@@ -779,7 +890,15 @@ async function renderGenericBookReader(){
  const searchForm=document.querySelector('#genericBookSearchForm');if(searchForm)searchForm.onsubmit=e=>{e.preventDefault();S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],searchQuery:document.querySelector('#genericBookSearchInput')?.value||''});persist();renderGenericBookReader()};
  const searchClear=document.querySelector('#genericBookSearchClear');if(searchClear)searchClear.onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...S.library.books[bookId],searchQuery:''});persist();renderGenericBookReader()};
  document.querySelectorAll('[data-search-page]').forEach(btn=>btn.onclick=()=>goPage(btn.dataset.searchPage));
- document.querySelectorAll('[data-reader-feedback]').forEach(btn=>btn.onclick=()=>{const result=btn.dataset.readerFeedback||'ideal';finalizeGenericBookSession(bookId,pageNo,result);S.library.books[bookId]=beginBookReadingSession(S.library.books[bookId],{page:pageNo,at:new Date().toISOString()});save();renderGenericBookReader()});
+ document.querySelectorAll('[data-reader-feedback]').forEach(btn=>btn.onclick=()=>{
+   const result=btn.dataset.readerFeedback||'ideal';
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId===bookId&&S.library.recommendationMemory?.active?.kind==='book';
+   const session=finalizeGenericBookSession(bookId,pageNo,result);
+   if(wasRecommended&&isMeaningfulRecommendationSession(session)){
+     S.view='today';S.ilim.ui={...(S.ilim.ui||{}),screen:'home'};save();return render();
+   }
+   S.library.books[bookId]=beginBookReadingSession(S.library.books[bookId],{page:pageNo,at:new Date().toISOString()});save();renderGenericBookReader()
+ });
  document.querySelector('#genericBookFontDown').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.max(.82,scale-.08)});persist();renderGenericBookReader()};
  document.querySelector('#genericBookFontUp').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,fontScale:Math.min(1.5,scale+.08)});persist();renderGenericBookReader()};
  document.querySelector('#genericBookFocus').onclick=()=>{S.library.books[bookId]=normalizeBookReaderState({...state,focusMode:!state.focusMode,noteFor:null});persist();renderGenericBookReader()};
@@ -794,6 +913,10 @@ async function renderGenericBookReader(){
 }
 async function renderQuranReader(){
  S.library.quran=normalizeQuranReaderState(S.library.quran);
+ if(!S.library.quran.activeSession){
+   S.library.quran=beginQuranReadingSession(S.library.quran,{surah:S.library.quran.surah,ayah:S.library.quran.ayah,at:new Date().toISOString()});
+   save();
+ }
  const state=S.library.quran,meta=quranMeta(state.surah),screen=S.ilim.ui?.screen;
  if(!quranChapterCache.has(meta.id)){
    renderLibraryLoading('Kur’ân-ı Kerîm',`${meta.turkish} sûresi hazırlanıyor…`);
@@ -801,6 +924,8 @@ async function renderQuranReader(){
    if(S.ilim.ui?.screen==='quran'&&screen==='quran')return renderQuranReader();return;
  }
  const data=quranChapterCache.get(meta.id),scale=Number(state.fontScale||1),selectedColor=state.highlightColor||'#e6c46f';
+ const quranActiveMinutes=state.activeSession?Math.max(1,Math.min(120,Math.round((Date.now()-new Date(state.activeSession.startedAt))/60000))):0;
+ const quranActiveVerses=state.activeSession?(state.activeSession.startSurah===state.surah?Math.max(0,Math.abs(Number(state.ayah)-Number(state.activeSession.startAyah))):1):0;
  if(quranProgressObserver){quranProgressObserver.disconnect();quranProgressObserver=null}
  const palette=['#e6c46f','#8fc7a2','#d998a2'].map(color=>`<button class="quranColorSwatch ${selectedColor===color?'sel':''}" data-quran-color="${color}" style="--sw:${color}" aria-label="Vurgu rengi ${color}"></button>`).join('');
  const verses=data.verses.map(v=>{
@@ -818,12 +943,34 @@ async function renderQuranReader(){
  <section class="quranReaderShell ${state.focusMode?'quranFocusMode':''}">
    <div class="quranNavBar"><button id="prevSurah" ${meta.id<=1?'disabled':''}>←</button><select id="surahSelect" aria-label="Sûre seç">${QURAN_META.map(x=>`<option value="${x[0]}" ${x[0]===meta.id?'selected':''}>${x[0]}. ${esc(x[1])}</option>`).join('')}</select><button id="nextSurah" ${meta.id>=114?'disabled':''}>→</button></div>
    <header class="quranSurahHead"><div class="eyebrow">SÛRE ${meta.id}</div><h1>${esc(meta.arabic)}</h1><p>${esc(meta.turkish)} · ${meta.verseCount} âyet</p></header>
+   <section class="quranSessionCard"><div><small>AKTİF OKUMA OTURUMU</small><b>${quranActiveMinutes} dk · ${quranActiveVerses} âyet ilerleme</b><p>Bitirirken nasıl geldiğini seç; öneri motoru süreyi ve yükü yalnız bu açık geri bildirimle öğrenir.</p></div><div><button data-quran-session-feedback="heavy">Zor</button><button data-quran-session-feedback="ideal" class="primary">Tam kıvamında</button><button data-quran-session-feedback="easy">Rahat</button></div></section>
    <div class="quranMarkupBar"><div><span>Vurgu rengi</span><div class="quranColorPalette">${palette}<input id="quranCustomColor" type="color" value="${esc(selectedColor)}" aria-label="Özel vurgu rengi"></div></div><small>Vurgu ve kişisel notlar eser metninden ayrı tutulur.</small></div>
    <div class="quranVerseList">${verses}</div>
    <details class="readerSourceNote quranSourceDetails"><summary>Metin kaynağı</summary><p>Yerel edisyon: <b>ara-quranuthmanihaf</b> — Quran Uthmani Hafs. Kaynak metadata Quran Complex’i işaret eder; uygulama kopyayı <b>fawazahmed0/quran-api</b> üzerinden paketler. Meal, açıklama veya Manevî Rota/AI yorumu bu okuyucuda gösterilmez.</p></details>
  </section>`;
- const goSurah=n=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,surah:Math.max(1,Math.min(114,Number(n)||1)),ayah:1,noteFor:null});S.library.lastBook='quran';save();renderQuranReader()};
- document.querySelector('#quranBack').onclick=()=>ilimGo('home');
+ const goSurah=n=>{
+   const nextSurah=Math.max(1,Math.min(114,Number(n)||1));
+   S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,surah:nextSurah,ayah:1,noteFor:null}),{surah:nextSurah,ayah:1});
+   S.library.lastBook='quran';save();renderQuranReader()
+ };
+ document.querySelector('#quranBack').onclick=()=>{
+   const current=normalizeQuranReaderState(S.library.quran),active=current.activeSession;
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId==='quran'&&S.library.recommendationMemory?.active?.kind==='quran';
+   if(wasRecommended&&active){
+     const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+     S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId:'quran',date:today(),minutes,verses:quranActiveVerses,at:new Date().toISOString()});
+   }
+   S.library.quran=normalizeQuranReaderState({...current,activeSession:null});save();ilimGo('home')
+ };
+ document.querySelectorAll('[data-quran-session-feedback]').forEach(btn=>btn.onclick=()=>{
+   const result=btn.dataset.quranSessionFeedback||'ideal';
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId==='quran'&&S.library.recommendationMemory?.active?.kind==='quran';
+   const session=finalizeQuranSession(result);
+   if(wasRecommended&&isMeaningfulRecommendationSession(session)){
+     S.view='today';S.ilim.ui={...(S.ilim.ui||{}),screen:'home'};save();return render();
+   }
+   S.library.quran=beginQuranReadingSession(S.library.quran,{surah:S.library.quran.surah,ayah:S.library.quran.ayah,at:new Date().toISOString()});save();renderQuranReader()
+ });
  document.querySelector('#surahSelect').onchange=e=>goSurah(e.target.value);
  document.querySelector('#prevSurah').onclick=()=>goSurah(meta.id-1);document.querySelector('#nextSurah').onclick=()=>goSurah(meta.id+1);
  document.querySelector('#quranFontDown').onclick=()=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,fontScale:Math.max(.82,scale-.08)});save();renderQuranReader()};
@@ -837,10 +984,14 @@ async function renderQuranReader(){
  const noteSave=document.querySelector('#quranNoteSave'),noteCancel=document.querySelector('#quranNoteCancel');
  if(noteSave)noteSave.onclick=e=>{e.stopPropagation();const n=Number(S.library.quran.noteFor);S.library.quran=setQuranVerseNote(S.library.quran,meta.id,n,document.querySelector('#quranNoteInput')?.value||'');S.library.quran=normalizeQuranReaderState({...S.library.quran,noteFor:null,ayah:n});save();renderQuranReader()};
  if(noteCancel)noteCancel.onclick=e=>{e.stopPropagation();S.library.quran=normalizeQuranReaderState({...S.library.quran,noteFor:null});save();renderQuranReader()};
- document.querySelectorAll('[data-quran-ayah]').forEach(el=>el.onclick=()=>{S.library.quran=normalizeQuranReaderState({...S.library.quran,ayah:Number(el.dataset.quranAyah)});S.library.lastBook='quran';save();document.querySelectorAll('.quranAyah').forEach(x=>x.classList.toggle('savedAyah',x===el))});
- const saved=document.querySelector(`[data-quran-ayah="${Math.max(1,Number(state.ayah)||1)}"]`);if(saved)setTimeout(()=>saved.scrollIntoView({block:'center'}),40);
+ document.querySelectorAll('[data-quran-ayah]').forEach(el=>el.onclick=()=>{
+   const ayah=Number(el.dataset.quranAyah);
+   S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,ayah}),{surah:meta.id,ayah});
+   S.library.lastBook='quran';save();document.querySelectorAll('.quranAyah').forEach(x=>x.classList.toggle('savedAyah',x===el))
+ });
+ const saved=document.querySelector(`[data-quran-ayah="${Math.max(1,Number(state.ayah)||1)}"]`);if(saved)setTimeout(()=>saved.scrollIntoView({block:'nearest'}),40);
  if('IntersectionObserver'in window){
-   quranProgressObserver=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting&&e.intersectionRatio>=.62).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];if(!visible)return;const n=Number(visible.target.dataset.quranAyah);if(n&&n!==S.library.quran.ayah){S.library.quran=normalizeQuranReaderState({...S.library.quran,ayah:n});S.library.lastBook='quran';save()}},{threshold:[.62]});
+   quranProgressObserver=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting&&e.intersectionRatio>=.62).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];if(!visible)return;const n=Number(visible.target.dataset.quranAyah);if(n&&n!==S.library.quran.ayah){S.library.quran=touchQuranReadingSession(normalizeQuranReaderState({...S.library.quran,ayah:n}),{surah:meta.id,ayah:n});S.library.lastBook='quran';save()}},{threshold:[.62]});
    document.querySelectorAll('[data-quran-ayah]').forEach(el=>quranProgressObserver.observe(el));
  }
 }
@@ -895,7 +1046,15 @@ function renderIlimReader(id){
  const retryArabic=document.querySelector('#retryArabic');if(retryArabic)retryArabic.onclick=()=>{nawawiArabicError='';loadNawawiArabic().then(()=>renderIlimReader(h.id)).catch(()=>renderIlimReader(h.id))};
  document.querySelectorAll('[data-highlight-color]').forEach(b=>b.onclick=()=>{S.ilim.settings.highlightColor=b.dataset.highlightColor;save();renderIlimReader(h.id)});
  const customHighlight=document.querySelector('#customHighlightColor');if(customHighlight)customHighlight.oninput=()=>{S.ilim.settings.highlightColor=customHighlight.value;save()};
- document.querySelector('#ilimBack').onclick=()=>ilimGo('home');document.querySelector('#fontDown').onclick=()=>{S.ilim.settings.fontScale=Math.max(.9,Number(S.ilim.settings.fontScale||1)-.1);save();renderIlimReader(h.id)};document.querySelector('#fontUp').onclick=()=>{S.ilim.settings.fontScale=Math.min(1.5,Number(S.ilim.settings.fontScale||1)+.1);save();renderIlimReader(h.id)};document.querySelector('#focusReader').onclick=()=>{S.ilim.settings.focus=!S.ilim.settings.focus;save();renderIlimReader(h.id)};
+ document.querySelector('#ilimBack').onclick=()=>{
+   const active=S.library.recommendationMemory?.active;
+   if(active?.bookId==='kirk-hadis'&&active?.kind==='hadith'){
+     const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+     S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,at:new Date().toISOString()});
+     save();
+   }
+   ilimGo('home')
+ };document.querySelector('#fontDown').onclick=()=>{S.ilim.settings.fontScale=Math.max(.9,Number(S.ilim.settings.fontScale||1)-.1);save();renderIlimReader(h.id)};document.querySelector('#fontUp').onclick=()=>{S.ilim.settings.fontScale=Math.min(1.5,Number(S.ilim.settings.fontScale||1)+.1);save();renderIlimReader(h.id)};document.querySelector('#focusReader').onclick=()=>{S.ilim.settings.focus=!S.ilim.settings.focus;save();renderIlimReader(h.id)};
  document.querySelectorAll('[data-highlight]').forEach(sp=>sp.onclick=()=>{const [hid,si,idx]=sp.dataset.highlight.split(':');const txt=sentenceSplit(getHadis(hid).sections[Number(si)])[Number(idx)];addHadisHighlight(S.ilim,{hadisId:hid,sectionIndex:si,text:txt,date:today(),color:S.ilim.settings.highlightColor||'#e6c46f'});save();renderIlimReader(h.id)});
  document.querySelectorAll('[data-note-for]').forEach(b=>b.onclick=()=>{S.ilim.ui.noteFor=b.dataset.noteFor;save();renderIlimReader(h.id)});document.querySelector('#overallNote').onclick=()=>{S.ilim.ui.noteFor=`${h.id}:all`;save();renderIlimReader(h.id)};
  document.querySelectorAll('[data-note-tag]').forEach(b=>b.onclick=()=>{S.ilim.ui.noteTag=b.dataset.noteTag;save();renderIlimReader(h.id)});const cancel=document.querySelector('#cancelIlimNote');if(cancel)cancel.onclick=()=>{S.ilim.ui.noteFor=null;save();renderIlimReader(h.id)};const saveNote=document.querySelector('#saveIlimNote');if(saveNote)saveNote.onclick=()=>{const txt=document.querySelector('#ilimNoteText').value.trim();if(!txt)return;addHadisNote(S.ilim,{hadisId:saveNote.dataset.hadis,sectionIndex:saveNote.dataset.section==='all'?null:Number(saveNote.dataset.section),text:txt,date:today(),tag:S.ilim.ui.noteTag||'not'});S.ilim.ui.noteFor=null;S.ilim.ui.noteTag='not';save();renderIlimReader(h.id)};
@@ -905,13 +1064,16 @@ function renderIlimReader(id){
  document.querySelector('#finishHadis').onclick=()=>{
    const fb=S.ilim.ui.feedback;if(!fb)return;
    const minutes=isCurrent?plan.minutes:8;
+   const wasRecommended=S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith';
    recordHadisSession(S.ilim,{hadisId:h.id,date:today(),minutes,feedback:fb,completed:true,understanding:S.ilim.ui?.understanding??null});
-   if(S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith'){
+   if(wasRecommended){
      S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,feedback:fb,at:new Date().toISOString()});
    }
    const d=ensure(),routeTasks=d.route?.tasks||[];const linked=routeTasks.find(x=>x.id==='learning')||routeTasks.find(x=>x.id==='reading');
    if(linked){d.done=[...new Set([...(d.done||[]),linked.id])];d.taskFeedback=d.taskFeedback||{};d.taskFeedback[linked.id]=fb==='heavy'?'hard':fb==='easy'?'easy':'normal'}
-   S.ilim.ui={...S.ilim.ui,screen:'home',feedback:null,understanding:null,noteFor:null};save();renderIlimHome()
+   S.ilim.ui={...S.ilim.ui,screen:'home',feedback:null,understanding:null,noteFor:null};
+   if(wasRecommended){S.view='today';save();return render()}
+   save();renderIlimHome()
  };
 }
 function renderIlimReviews(){
@@ -921,23 +1083,41 @@ function renderIlimReviews(){
    const h=getHadis(selected.hadisId),reveal=!!S.ilim.ui.reviewReveal,draft=S.ilim.ui.recallDraft||'',wave=selected.kind==='recovery'?'KISA GERİ ÇAĞIRMA':`${selected.wave}. GÜN TEKRARI`;
    app.innerHTML=`<section class="card"><button class="textButton" id="backReviews">← Tekrarlara dön</button><div class="eyebrow">${wave}</div><h1>Önce hafızandan getir.</h1><p class="lead">Özet görünmeden önce kendi cümleni kur. Amaç sınav olmak değil; neyin gerçekten sende kaldığını görmek.</p></section>
    <section class="card activeRecall"><div class="sourcePill">Hadis ${h.id} · ${esc(h.title)}</div><h2>${esc(recallPromptFor(h.id))}</h2>${!reveal?`<textarea id="recallDraft" rows="5" placeholder="Hatırladığın kadarıyla yaz…">${esc(draft)}</textarea><div class="actions"><button class="btn ghost" id="cantRecall">Hatırlayamıyorum</button><button class="btn primary" id="revealRecall">Cevabımı karşılaştır →</button></div>`:`<div class="yourRecall"><small>SENİN HATIRLADIĞIN</small><p>${draft?esc(draft):'<i>Bir cevap yazılmadı.</i>'}</p></div><div class="recallReveal"><small>KAYNAĞA DÖN</small><h3>${esc(h.meaning)}</h3><p>${esc(h.why)}</p><div class="sourcePill">${esc(h.source)}</div></div><p class="small">Şimdi kendini değerlendir. Bu değerlendirme “ilim puanı” değildir; yalnızca bir sonraki tekrar dozunu ayarlar.</p><div class="reviewButtons triple"><button data-recall-result="forgot">Hatırlayamadım</button><button data-recall-result="hard">Zor hatırladım</button><button data-recall-result="remembered">Hatırladım</button></div>`}</section>`;
-   document.querySelector('#backReviews').onclick=()=>{S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()};
+   document.querySelector('#backReviews').onclick=()=>{
+     const active=S.library.recommendationMemory?.active;
+     if(active?.bookId==='kirk-hadis'&&active?.kind==='hadith-review'){
+       const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+       S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,at:new Date().toISOString()});
+     }
+     S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()
+   };
    if(!reveal){const ta=document.querySelector('#recallDraft');document.querySelector('#revealRecall').onclick=()=>{S.ilim.ui.recallDraft=ta.value.trim();S.ilim.ui.reviewReveal=true;save();renderIlimReviews()};document.querySelector('#cantRecall').onclick=()=>{S.ilim.ui.recallDraft='';S.ilim.ui.reviewReveal=true;save();renderIlimReviews()}}
    else document.querySelectorAll('[data-recall-result]').forEach(b=>b.onclick=()=>{
      const result=b.dataset.recallResult;
+     const wasRecommended=S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith-review';
      recordRecallAttempt(S.ilim,{reviewId:selected.id,today:today(),text:S.ilim.ui.recallDraft||'',result});
-     if(S.library.recommendationMemory?.active?.bookId==='kirk-hadis'&&S.library.recommendationMemory?.active?.kind==='hadith-review'){
+     if(wasRecommended){
        const minutes=S.library.recommendationMemory.active.recommendedMinutes||4;
        const feedback=result==='remembered'?'easy':result==='forgot'?'heavy':'ideal';
        S.library.recommendationMemory=completeReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,feedback,at:new Date().toISOString()});
      }
-     S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()
+     S.ilim.ui.reviewOpenId=null;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';
+     if(wasRecommended){S.view='today';S.ilim.ui.screen='home';save();return render()}
+     save();renderIlimReviews()
    });
    return;
  }
  const card=r=>{const h=getHadis(r.hadisId),k=knowledgeSignal(S.ilim,r.hadisId,today()),wave=r.kind==='recovery'?'Kısa geri çağırma':`${r.wave}. gün`;return `<button class="reviewStartCard" data-open-review="${r.id}"><div><small>${wave} · ${esc(r.dueDate)}</small><b>${esc(h?.title||'Hadis')}</b><p>${esc(recallPromptFor(r.hadisId))}</p></div><span class="knowledgeChip ${k.key}">${esc(k.label)}</span><i>›</i></button>`};
  app.innerHTML=`<section class="card"><button class="textButton" id="ilimHome">← İlim Rotası</button><div class="eyebrow">AKTİF GERİ ÇAĞIRMA</div><h1>Okuduğun şey geri gelsin.</h1><p class="lead">Önce hafızandan anlat, sonra kaynağı aç. 3. ve 7. gün tekrarları böylece sadece yeniden okumaya dönüşmez.</p></section><section class="card"><h2>Bugün</h2>${due.length?due.map(card).join(''):'<div class="emptyState">Bugün bekleyen tekrar yok.</div>'}</section><section class="card"><h3>Yaklaşanlar</h3>${upcoming.length?upcoming.map(r=>`<div class="upcomingReview"><span>${esc(r.dueDate)}</span><b>${esc(getHadis(r.hadisId)?.title||'Hadis')}</b><small>${r.kind==='recovery'?'geri çağırma':`${r.wave}. gün`}</small></div>`).join(''):'<p class="small">Henüz yaklaşan tekrar yok.</p>'}</section>`;
- document.querySelector('#ilimHome').onclick=()=>ilimGo('home');document.querySelectorAll('[data-open-review]').forEach(b=>b.onclick=()=>{S.ilim.ui.reviewOpenId=b.dataset.openReview;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()});
+ document.querySelector('#ilimHome').onclick=()=>{
+   const active=S.library.recommendationMemory?.active;
+   if(active?.bookId==='kirk-hadis'&&active?.kind==='hadith-review'){
+     const minutes=Math.max(0,Math.min(120,Math.floor((Date.now()-new Date(active.startedAt).getTime())/60000)));
+     S.library.recommendationMemory=abandonReadingRecommendation(S.library.recommendationMemory,{bookId:'kirk-hadis',date:today(),minutes,at:new Date().toISOString()});
+     save();
+   }
+   ilimGo('home')
+ };document.querySelectorAll('[data-open-review]').forEach(b=>b.onclick=()=>{S.ilim.ui.reviewOpenId=b.dataset.openReview;S.ilim.ui.reviewReveal=false;S.ilim.ui.recallDraft='';save();renderIlimReviews()});
 }
 async function collectIlimNotebookEntries(){
   const entries=[];

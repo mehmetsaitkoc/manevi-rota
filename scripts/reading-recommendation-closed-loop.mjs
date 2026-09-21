@@ -56,4 +56,26 @@ assert.equal(third.bookId,'islam-dini');
 assert.ok(third.preferenceAdjustment>0,'repeated completed recommendations should become a small behavioral selection preference');
 assert.ok(third.reasons.some(x=>x.includes('düzenli olarak devam')),'the learned preference must remain explainable');
 
+const quranLibrary={
+  quran:{surah:2,ayah:12},
+  books:{'islam-dini':{page:2,totalPages:250}},
+  path:{completedBooks:[],completedAt:{},acknowledgedLevel:1},
+  lastBook:'quran',
+  recommendationMemory:emptyReadingRecommendationMemory()
+};
+const quranRecords=[
+  {date:'2026-09-20',readingSessions:[{id:'q1',taskId:'quran',bookId:'quran',minutes:9,verses:5,feedback:'heavy'}]}
+];
+const quranRec=buildReadingRecommendation({
+  date:'2026-09-21',
+  profile:{priorities:['quran'],baseMinutes:15},
+  checkin,
+  library:quranLibrary,
+  ilim,
+  records:quranRecords
+});
+assert.equal(quranRec.bookId,'quran');
+assert.ok(quranRec.minutes<=7,'Quran recommendation should learn from its own heavy 9-minute session');
+assert.ok(quranRec.reasons.some(x=>x.includes('Kur’ân oturumu ağır')));
+
 console.log('reading-recommendation-closed-loop: recommendation -> real session -> next-day adaptation -> preference learning passed');

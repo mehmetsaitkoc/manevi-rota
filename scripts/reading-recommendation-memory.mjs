@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   emptyReadingRecommendationMemory,normalizeReadingRecommendationMemory,
-  startReadingRecommendation,skipReadingRecommendation,completeReadingRecommendation,
+  startReadingRecommendation,skipReadingRecommendation,abandonReadingRecommendation,completeReadingRecommendation,
   recommendationPreferenceSignal,isMeaningfulRecommendationSession
 } from '../src/reading-recommendation-memory.mjs';
 
@@ -11,6 +11,7 @@ assert.deepEqual(state,{active:null,history:[]});
 assert.equal(isMeaningfulRecommendationSession({minutes:1,pages:0}),false);
 assert.equal(isMeaningfulRecommendationSession({minutes:2,pages:0}),true);
 assert.equal(isMeaningfulRecommendationSession({minutes:1,pages:1}),true);
+assert.equal(isMeaningfulRecommendationSession({minutes:1,pages:0,verses:1}),true);
 
 state=startReadingRecommendation(state,rec,{date:'2026-09-21',at:'2026-09-21T18:00:00Z'});
 assert.equal(state.active.bookId,'islam-dini');
@@ -31,6 +32,18 @@ const negative=recommendationPreferenceSignal(state,'islam-dini','2026-09-25');
 assert.ok(negative.adjustment<0,'repeated explicit skips should create a modest negative selection signal');
 assert.ok(negative.reason?.includes('başka öneri'));
 
+let abandoned=emptyReadingRecommendationMemory();
+for(const date of ['2026-09-20','2026-09-21','2026-09-22']){
+  abandoned=startReadingRecommendation(abandoned,rec,{date,at:date+'T18:00:00Z'});
+  abandoned=abandonReadingRecommendation(abandoned,{bookId:'islam-dini',date,minutes:1,pages:0,at:date+'T18:01:00Z'});
+}
+assert.equal(abandoned.active,null,'reader exit must close active recommendation memory');
+assert.equal(abandoned.history.filter(x=>x.status==='abandoned').length,3);
+const abandonedSignal=recommendationPreferenceSignal(abandoned,'islam-dini','2026-09-23');
+assert.ok(abandonedSignal.adjustment<0,'repeated early exits should become a modest negative signal');
+assert.ok(abandonedSignal.reason?.includes('erken çıktın'));
+assert.ok(Math.abs(abandonedSignal.adjustment)<Math.abs(negative.adjustment),'early exits must weigh less than explicit skips');
+
 let positive=emptyReadingRecommendationMemory();
 for(const [date,feedback] of [['2026-09-20','ideal'],['2026-09-21','easy']]){
   positive=startReadingRecommendation(positive,rec,{date,at:`${date}T18:00:00Z`});
@@ -49,7 +62,15 @@ for(const date of ['2026-09-20','2026-09-21']){
 assert.ok(recommendationPreferenceSignal(kindMemory,'kirk-hadis','2026-09-22','hadith-review').adjustment>0);
 assert.equal(recommendationPreferenceSignal(kindMemory,'kirk-hadis','2026-09-22','hadith').adjustment,0,'review completion must not leak into new-hadith selection preference');
 
+let abandonedReview=emptyReadingRecommendationMemory();
+for(const date of ['2026-09-20','2026-09-21','2026-09-22']){
+  abandonedReview=startReadingRecommendation(abandonedReview,review,{date,at:date+'T18:00:00Z'});
+  abandonedReview=abandonReadingRecommendation(abandonedReview,{bookId:'kirk-hadis',date,minutes:1,at:date+'T18:01:00Z'});
+}
+assert.ok(recommendationPreferenceSignal(abandonedReview,'kirk-hadis','2026-09-23','hadith-review').adjustment<0);
+assert.equal(recommendationPreferenceSignal(abandonedReview,'kirk-hadis','2026-09-23','hadith').adjustment,0,'abandoned review preference must not leak into new-hadith reading');
+
 const normalized=normalizeReadingRecommendationMemory({active:{bad:true},history:[{status:'nonsense'}]});
 assert.deepEqual(normalized,{active:null,history:[]});
 
-console.log('reading-recommendation-memory: start, skip, completion, kind isolation and preference learning passed');
+console.log('reading-recommendation-memory: start, skip, abandon, completion, abandonment kind isolation and preference learning passed');
