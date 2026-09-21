@@ -435,6 +435,14 @@ jobs:
             const namazGroup=page.locator('.notebookBookGroup').filter({hasText:'Namaz Sûrelerinin'});
             if(await quranGroup.count()!==1)throw new Error('Quran annotations missing from Ilim Defteri v2');
             if(await namazGroup.count()!==1)throw new Error('Generic book annotations missing from Ilim Defteri v2');
+            const notebookVisual=await page.evaluate(()=>({
+              input:getComputedStyle(document.querySelector('.notebookToolbar input')).backgroundColor,
+              head:getComputedStyle(document.querySelector('.notebookBookHead')).backgroundImage,
+              quote:getComputedStyle(document.querySelector('.notebookEntry blockquote')).backgroundImage
+            }));
+            const notebookInputRgb=(notebookVisual.input.match(/\d+/g)||[]).slice(0,3).map(Number);
+            if(notebookInputRgb.length<3||notebookInputRgb.some(v=>v>90))throw new Error('Ilim Defteri search input regressed to a light surface');
+            if(!notebookVisual.head.includes('linear-gradient')||!notebookVisual.quote.includes('linear-gradient'))throw new Error('Ilim Defteri editorial surfaces regressed');
             await page.screenshot({path:'visual-review/04c-ilim-defteri-v2.png',fullPage:true});
             await page.fill('#notebookSearchInput','Visual review');
             await page.click('#notebookSearchForm button[type="submit"]');
