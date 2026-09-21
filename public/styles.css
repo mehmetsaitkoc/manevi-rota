@@ -3249,3 +3249,50 @@ nav button:hover{transform:translateY(-1px)}
 }
 #productApp[data-design="premium-night-v3"] .todayFeedbackCard h3{color:#e9dfcf}
 #productApp[data-design="premium-night-v3"] .todayFeedbackCard p{color:#879396}
+
+
+/* Ilim Route v4 — calm information architecture */
+#productApp[data-design="premium-night-v3"] .simpleIlimHero{min-height:0;padding:26px}
+#productApp[data-design="premium-night-v3"] .simpleIlimHero h1{font-size:clamp(36px,6vw,52px);margin-bottom:8px}
+#productApp[data-design="premium-night-v3"] .simpleContinueCard{margin-bottom:12px}
+#productApp[data-design="premium-night-v3"] .ilimSimpleActions{display:grid;gap:8px;margin:0 0 12px}
+#productApp[data-design="premium-night-v3"] .ilimSimpleAction{
+ width:100%;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+ padding:15px;border:1px solid rgba(216,181,109,.11);border-radius:18px;
+ background:linear-gradient(150deg,rgba(16,32,46,.9),rgba(9,21,33,.92));color:inherit;text-align:left;cursor:pointer
+}
+#productApp[data-design="premium-night-v3"] .ilimSimpleAction div{min-width:0}
+#productApp[data-design="premium-night-v3"] .ilimSimpleAction small,#productApp[data-design="premium-night-v3"] .ilimSimpleAction b,#productApp[data-design="premium-night-v3"] .ilimSimpleAction p{display:block}
+#productApp[data-design="premium-night-v3"] .ilimSimpleAction small{color:#d7b56d;font-size:8px;font-weight:850;letter-spacing:.09em}
+#productApp[data-design="premium-night-v3"] .ilimSimpleAction b{margin-top:3px;color:#eee4d3;font-family:Iowan Old Style,Palatino Linotype,Georgia,serif;font-size:17px}
+#productApp[data-design="premium-night-v3"] .ilimSimpleAction p{margin:3px 0 0;color:#899597;font-size:10px}
+#productApp[data-design="premium-night-v3"] .ilimSimpleAction>i{font-style:normal;color:#d7b56d;font-size:21px}
+#productApp[data-design="premium-night-v3"] .ilimRouteDetails{padding:0;overflow:hidden}
+#productApp[data-design="premium-night-v3"] .ilimRouteDetails>summary{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px;cursor:pointer;list-style:none}
+#productApp[data-design="premium-night-v3"] .ilimRouteDetails>summary::-webkit-details-marker{display:none}
+#productApp[data-design="premium-night-v3"] .ilimRouteDetails>summary span{color:#8d999b;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+#productApp[data-design="premium-night-v3"] .ilimRouteDetails>summary b{color:#e8d8b8;font-size:11px}
+#productApp[data-design="premium-night-v3"] .ilimRouteDetails>.libraryLevelProgress,#productApp[data-design="premium-night-v3"] .ilimRouteDetails>p,#productApp[data-design="premium-night-v3"] .ilimRouteDetails>.libraryAwarenessGoals{margin-left:16px;margin-right:16px}
+#productApp[data-design="premium-night-v3"] .ilimRouteDetails>p{font-size:10px}
+#productApp[data-design="premium-night-v3"] .simpleLibraryTop{display:flex;gap:13px;align-items:flex-start;margin:2px 0 14px}
+#productApp[data-design="premium-night-v3"] .simpleLibraryTop h1{font-size:clamp(35px,7vw,50px);margin:4px 0 5px}
+#productApp[data-design="premium-night-v3"] .simpleLibraryTop p{margin:0;font-size:11px}
+#productApp[data-design="premium-night-v3"] .simpleLibrarySummary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+#productApp[data-design="premium-night-v3"] .simpleLibrarySummary span{padding:11px;border:1px solid rgba(216,181,109,.1);border-radius:14px;background:rgba(255,255,255,.035)}
+#productApp[data-design="premium-night-v3"] .simpleLibrarySummary b,#productApp[data-design="premium-night-v3"] .simpleLibrarySummary small{display:block}
+#productApp[data-design="premium-night-v3"] .simpleLibrarySummary b{color:#ead8b4;font-size:19px}
+#productApp[data-design="premium-night-v3"] .simpleLibrarySummary small{color:#829093;font-size:7px;margin-top:2px}
+#productApp[data-design="premium-night-v3"] .simpleLibraryGrid{display:grid;gap:8px}
+#productApp[data-design="premium-night-v3"] .simpleLibraryGrid .starterBookCard{margin:0}
+#productApp[data-design="premium-night-v3"] .simpleLibraryGrid .starterBookInfo>p{display:none}
+#productApp[data-design="premium-night-v3"] .simpleLibraryGrid .starterBookBadges span:not(.done):not(.available){display:none}
+#productApp[data-design="premium-night-v3"] .simpleLibraryPending{margin-top:12px;padding:12px 14px;border:1px solid rgba(255,255,255,.06);border-radius:16px;background:rgba(255,255,255,.025);color:#899597}
+#productApp[data-design="premium-night-v3"] .simpleLibraryPending summary{cursor:pointer;font-size:9px;font-weight:800}
+#productApp[data-design="premium-night-v3"] .simpleLibraryPending div{display:grid;gap:7px;margin-top:10px}
+#productApp[data-design="premium-night-v3"] .simpleLibraryPending span{display:flex;justify-content:space-between;gap:10px;font-size:9px}
+#productApp[data-design="premium-night-v3"] .simpleLibraryPending b{color:#c8c0b2}
+@media(max-width:640px){
+ #productApp[data-design="premium-night-v3"] .simpleIlimHero{padding:20px 17px}
+ #productApp[data-design="premium-night-v3"] .simpleIlimHero h1{font-size:36px}
+ #productApp[data-design="premium-night-v3"] .ilimSimpleAction{padding:13px}
+}
