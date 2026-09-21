@@ -3107,3 +3107,104 @@ nav button:hover{transform:translateY(-1px)}
   border:1px solid rgba(194,107,81,.14);
   color:#dfaa96;
 }
+
+
+/* Premium UI v3.5 — Ilim Defteri dark editorial system */
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero{
+  background:
+    radial-gradient(circle at 100% 0,rgba(216,181,109,.10),transparent 16rem),
+    linear-gradient(155deg,rgba(15,31,46,.98),rgba(8,20,32,.98))!important;
+  border-color:rgba(216,181,109,.14)!important;
+  overflow:hidden;
+}
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero:after{
+  background:rgba(216,181,109,.05)!important;
+}
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero h1{color:#f3e8d7}
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero .lead{color:#98a4a6}
+#productApp[data-design="premium-night-v3"] .ilimNotebookHero .textButton{
+  color:#cdb06f;
+}
+#productApp[data-design="premium-night-v3"] .notebookSummaryGrid>div{
+  background:rgba(255,255,255,.04)!important;
+  border-color:rgba(216,181,109,.10)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#productApp[data-design="premium-night-v3"] .notebookSummaryGrid b{color:#dfbd73}
+#productApp[data-design="premium-night-v3"] .notebookSummaryGrid span{color:#7f8c8e}
+#productApp[data-design="premium-night-v3"] .notebookToolbar{
+  background:rgba(8,20,32,.94)!important;
+  border-color:rgba(216,181,109,.10)!important;
+  backdrop-filter:blur(18px);
+}
+#productApp[data-design="premium-night-v3"] .notebookToolbar form>span{color:#d8b970}
+#productApp[data-design="premium-night-v3"] .notebookToolbar input,
+#productApp[data-design="premium-night-v3"] .notebookFilters select{
+  background:#102230!important;
+  color:#e7dfd2!important;
+  border-color:rgba(255,255,255,.075)!important;
+}
+#productApp[data-design="premium-night-v3"] .notebookToolbar input::placeholder{color:#6f7c80}
+#productApp[data-design="premium-night-v3"] .notebookToolbar input:focus,
+#productApp[data-design="premium-night-v3"] .notebookFilters select:focus{
+  outline:none;
+  border-color:rgba(216,181,109,.34)!important;
+  box-shadow:0 0 0 3px rgba(216,181,109,.06);
+}
+#productApp[data-design="premium-night-v3"] .notebookFilters label{color:#9b8a67}
+#productApp[data-design="premium-night-v3"] .notebookFilters>span{color:#788689}
+#productApp[data-design="premium-night-v3"] .notebookBookGroup{
+  background:linear-gradient(155deg,rgba(14,29,43,.96),rgba(8,20,31,.97))!important;
+  border-color:rgba(216,181,109,.10)!important;
+}
+#productApp[data-design="premium-night-v3"] .notebookBookHead{
+  background:
+    radial-gradient(circle at 100% 0,rgba(216,181,109,.08),transparent 12rem),
+    linear-gradient(145deg,#132738,#0b1d2b)!important;
+  border-color:rgba(216,181,109,.09)!important;
+}
+#productApp[data-design="premium-night-v3"] .notebookBookHead small{color:#d4b56f}
+#productApp[data-design="premium-night-v3"] .notebookBookHead h2{color:#efe4d3}
+#productApp[data-design="premium-night-v3"] .notebookBookHead p{color:#7f8c8f}
+#productApp[data-design="premium-night-v3"] .notebookBookGlyph{
+  border:1px solid rgba(216,181,109,.15);
+  box-shadow:0 10px 24px rgba(0,0,0,.14);
+}
+#productApp[data-design="premium-night-v3"] .notebookEntry{
+  border-color:rgba(255,255,255,.065)!important;
+}
+#productApp[data-design="premium-night-v3"] .notebookEntryTop small{color:#d5b56f}
+#productApp[data-design="premium-night-v3"] .notebookEntryTop b{color:#e6ded1}
+#productApp[data-design="premium-night-v3"] .notebookBadges span{
+  border:1px solid rgba(255,255,255,.055);
+}
+#productApp[data-design="premium-night-v3"] .notebookBadges .note{
+  background:rgba(82,142,118,.13);color:#afd1c1
+}
+#productApp[data-design="premium-night-v3"] .notebookBadges .highlight{
+  background:rgba(216,181,109,.13);color:#e2c783
+}
+#productApp[data-design="premium-night-v3"] .notebookBadges .bookmark{
+  background:rgba(158,105,135,.13);color:#d6b2c6
+}
+#productApp[data-design="premium-night-v3"] .notebookEntry blockquote{
+  background:
+    linear-gradient(90deg,var(--nb-hl,rgba(216,181,109,.15)),rgba(255,255,255,.035))!important;
+  color:#cdd3d1!important;
+  border-left-color:#d1af69!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+}
+#productApp[data-design="premium-night-v3"] .notebookPersonalNote{
+  background:rgba(255,255,255,.04)!important;
+  border:1px solid rgba(255,255,255,.05);
+}
+#productApp[data-design="premium-night-v3"] .notebookPersonalNote small{color:#d0b16f}
+#productApp[data-design="premium-night-v3"] .notebookPersonalNote p{color:#aab4b4}
+#productApp[data-design="premium-night-v3"] .notebookBookmarkOnly{color:#899597}
+#productApp[data-design="premium-night-v3"] .notebookEntry .textButton{color:#c8aa69}
+#productApp[data-design="premium-night-v3"] .notebookLoading{color:#899597}
+#productApp[data-design="premium-night-v3"] .emptyState{
+  background:rgba(255,255,255,.035)!important;
+  color:#849194!important;
+  border-color:rgba(255,255,255,.05)!important;
+}
