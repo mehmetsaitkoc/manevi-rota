@@ -2788,3 +2788,197 @@ nav button:hover{transform:translateY(-1px)}
 @media(max-width:374px){
   #productApp[data-design="premium-night-v3"] nav button small{font-size:7.2px}
 }
+
+
+/* Premium UI v3.3 — first-run and progress visual consistency */
+#productApp[data-design="premium-night-v3"] .onboardingCard{
+  background:
+    radial-gradient(circle at 100% 0,rgba(219,181,105,.10),transparent 15rem),
+    linear-gradient(155deg,rgba(15,31,46,.98),rgba(8,20,32,.98))!important;
+  border-color:rgba(216,181,109,.16)!important;
+  box-shadow:0 24px 64px rgba(0,0,0,.26)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard:after{
+  border-color:rgba(216,181,109,.11)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingBrandRow small,
+#productApp[data-design="premium-night-v3"] .onboardingPrompt .eyebrow{color:#deb96c}
+#productApp[data-design="premium-night-v3"] .onboardingBrandRow b,
+#productApp[data-design="premium-night-v3"] .onboardingPrompt h1{color:#f5ead8}
+#productApp[data-design="premium-night-v3"] .onboardingBrandRow>span{
+  background:rgba(255,255,255,.055);
+  color:#b8c0bf;
+  border:1px solid rgba(255,255,255,.07);
+}
+#productApp[data-design="premium-night-v3"] .onboardingPrompt .lead{color:#9ca8aa}
+#productApp[data-design="premium-night-v3"] .onboardingCard .step{
+  background:rgba(255,255,255,.12);
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .step.on{
+  background:linear-gradient(90deg,#9e773a,#dfbe74);
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt{
+  background:linear-gradient(150deg,rgba(24,42,57,.88),rgba(14,29,42,.92))!important;
+  border-color:rgba(255,255,255,.075)!important;
+  color:#e7dfd1!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt:hover{
+  border-color:rgba(216,181,109,.28)!important;
+  background:linear-gradient(150deg,rgba(27,48,64,.96),rgba(15,32,46,.96))!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt b{color:#ece3d5}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt small{
+  color:#899597!important;
+  opacity:1!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt.sel{
+  background:
+    radial-gradient(circle at 100% 0,rgba(216,181,109,.13),transparent 8rem),
+    linear-gradient(150deg,#172c3d,#0d2232)!important;
+  border-color:rgba(220,185,113,.42)!important;
+  color:#f3e6cb!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.16),inset 0 0 0 1px rgba(216,181,109,.06)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt.sel small{color:#c3b89f!important}
+#productApp[data-design="premium-night-v3"] .onboardingChoiceMark{
+  border-color:#66747a;
+  background:#101f2c;
+  box-shadow:inset 0 0 0 4px #101f2c;
+}
+#productApp[data-design="premium-night-v3"] .onboardingCard .opt.sel .onboardingChoiceMark{
+  border-color:#dfbd72;
+  background:#dfbd72;
+  box-shadow:inset 0 0 0 4px #112331;
+}
+#productApp[data-design="premium-night-v3"] .onboardingChips .chip{
+  background:rgba(255,255,255,.045)!important;
+  color:#b7c0bf;
+  border-color:rgba(255,255,255,.075)!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingChips .chip.sel{
+  background:rgba(216,181,109,.13)!important;
+  border-color:rgba(216,181,109,.36)!important;
+  color:#f0d8a7!important;
+}
+#productApp[data-design="premium-night-v3"] .onboardingAssurance span{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.055);
+  color:#899597;
+}
+#productApp[data-design="premium-night-v3"] .onboardingActions{
+  border-color:rgba(255,255,255,.075);
+}
+#productApp[data-design="premium-night-v3"] .onboardingActions .btn.primary{
+  background:linear-gradient(135deg,#dfbf77,#b98c44);
+  border-color:#d0aa63;
+  color:#10191c;
+}
+#productApp[data-design="premium-night-v3"] .onboardingActions .btn.ghost{
+  background:rgba(255,255,255,.04);
+  color:#839092;
+  border-color:rgba(255,255,255,.07);
+}
+
+/* Progress: keep the entire analysis view in one material system instead of
+   mixing parchment cards with the night shell. */
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .progressTabs{
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .progressTabs button{
+  color:#8f9a9b;
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .progressTabs button.active{
+  background:linear-gradient(135deg,rgba(222,187,116,.20),rgba(222,187,116,.10));
+  color:#ecd6a7;
+  border:1px solid rgba(216,181,109,.19);
+  box-shadow:none;
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .journeyChartCard{
+  background:linear-gradient(155deg,rgba(11,24,36,.94),rgba(7,18,29,.96))!important;
+  color:#e9dfd0!important;
+  border-color:rgba(216,181,109,.12)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .journeyChartHead small{
+  color:#d7b66f;
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .journeyChartHead b{
+  color:#eee3d2!important;
+}
+#productApp[data-design="premium-night-v3"] .progressHero.premiumProgressHero .journeyChartHead>span{
+  color:#8d9899!important;
+}
+#productApp[data-design="premium-night-v3"] .journeyBarTrack{
+  background:rgba(255,255,255,.065);
+  border:1px solid rgba(255,255,255,.025);
+}
+#productApp[data-design="premium-night-v3"] .journeyBarTrack i{
+  background:linear-gradient(180deg,#d7bd7a,#557d70);
+  box-shadow:0 -6px 16px rgba(210,177,107,.10);
+}
+#productApp[data-design="premium-night-v3"] .journeyBarCol small{color:#758285}
+#productApp[data-design="premium-night-v3"] .progressEmpty{color:#829092}
+#productApp[data-design="premium-night-v3"] .journeyMetric{
+  background:linear-gradient(150deg,rgba(17,34,49,.92),rgba(9,22,34,.94));
+  border-color:rgba(216,181,109,.10);
+  box-shadow:0 12px 30px rgba(0,0,0,.14);
+}
+#productApp[data-design="premium-night-v3"] .journeyMetricIcon{
+  background:rgba(216,181,109,.10);
+  color:#dfbd75;
+  border:1px solid rgba(216,181,109,.13);
+}
+#productApp[data-design="premium-night-v3"] .journeyMetric.understanding .journeyMetricIcon{
+  background:rgba(181,94,76,.12);color:#dfa897;border-color:rgba(181,94,76,.16)
+}
+#productApp[data-design="premium-night-v3"] .journeyMetric.recall .journeyMetricIcon{
+  background:rgba(79,143,116,.13);color:#aad2bf;border-color:rgba(79,143,116,.17)
+}
+#productApp[data-design="premium-night-v3"] .journeyMetric.load .journeyMetricIcon{
+  background:rgba(186,143,69,.13);color:#ddc07f;border-color:rgba(186,143,69,.17)
+}
+#productApp[data-design="premium-night-v3"] .journeyMetric small{color:#b69a65}
+#productApp[data-design="premium-night-v3"] .journeyMetric b{color:#f0e4d1}
+#productApp[data-design="premium-night-v3"] .journeyMetric span{color:#859193}
+#productApp[data-design="premium-night-v3"] .periodInsight{
+  background:linear-gradient(155deg,rgba(15,30,44,.94),rgba(8,20,32,.95))!important;
+  border-color:rgba(216,181,109,.11)!important;
+}
+#productApp[data-design="premium-night-v3"] .periodInsight h2{color:#eee3d2}
+#productApp[data-design="premium-night-v3"] .periodInsightRow{
+  background:rgba(255,255,255,.035)!important;
+  border:1px solid rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .periodInsightRow>span{
+  background:rgba(216,181,109,.10)!important;
+  color:#debd76!important;
+}
+#productApp[data-design="premium-night-v3"] .periodInsightRow p{
+  color:#a5afb0!important;
+}
+#productApp[data-design="premium-night-v3"] .progressDetails{
+  background:rgba(12,25,38,.82)!important;
+  border-color:rgba(216,181,109,.09)!important;
+}
+#productApp[data-design="premium-night-v3"] .progressDetails summary{
+  color:#c9ac70;
+}
+#productApp[data-design="premium-night-v3"] .progressDetails .small{color:#8e9a9b}
+#productApp[data-design="premium-night-v3"] .slotStat{
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.045);
+}
+#productApp[data-design="premium-night-v3"] .slotStat b{color:#ddd6c9}
+#productApp[data-design="premium-night-v3"] .slotStat small{color:#7f8c8e}
+#productApp[data-design="premium-night-v3"] .slotStat strong{color:#d9b970}
+
+@media(max-width:640px){
+  #productApp[data-design="premium-night-v3"] .onboardingCard .opt{
+    min-height:58px;
+  }
+  #productApp[data-design="premium-night-v3"] .journeyMetric{
+    min-height:86px;
+  }
+}
