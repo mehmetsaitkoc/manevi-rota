@@ -449,6 +449,9 @@ nav button:hover{transform:translateY(-1px)}
 .genericBookMarkupBar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding:11px 13px;border-radius:15px;border:1px solid #e2d8c4;background:#fffaf0}
 .genericBookMarkupBar>div{display:flex;align-items:center;gap:9px}.genericBookMarkupBar span{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:#746b5c}.genericBookMarkupBar>small{font-size:9px;color:#988e7d}
 .bookColorPalette{display:flex;align-items:center;gap:6px}.bookColorSwatch{width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:var(--sw);box-shadow:0 0 0 1px #d8cdb9;cursor:pointer}.bookColorSwatch.sel{box-shadow:0 0 0 2px #173f36}.bookColorPalette input[type=color]{width:28px;height:28px;padding:1px;border:1px solid #d8cdb9;border-radius:8px;background:#fff}
+.readerQualityWarning{margin:0 0 12px;padding:13px 14px;border:1px solid #e7c987;border-radius:16px;background:#fff7df;color:#6d5325;box-shadow:0 8px 22px rgba(103,78,31,.06)}
+.readerQualityWarning strong{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.readerQualityWarning p{margin:5px 0 0;font-size:10px;line-height:1.55;color:#806a42}
 .genericBookPaper{background:linear-gradient(180deg,#fffdf7,#fbf7ec);border:1px solid #e5dccb;border-radius:27px;padding:clamp(25px,5vw,44px);box-shadow:0 20px 52px rgba(37,47,41,.07);min-height:62vh}
 .genericBookPageMarker{margin-bottom:22px;padding-bottom:9px;border-bottom:1px solid #e8deca;color:#ae8849;font-size:9px;font-weight:900;letter-spacing:.09em}
 .genericBookBlock{position:relative;margin:0 -8px 9px;padding:10px 8px 8px;border-left:3px solid transparent;border-radius:10px;transition:.15s}.genericBookBlock.highlighted{background:linear-gradient(90deg,var(--book-hl),transparent 72%);border-left-color:var(--book-hl-line)}
