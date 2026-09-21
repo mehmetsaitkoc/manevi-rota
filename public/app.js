@@ -803,8 +803,7 @@ function renderSimpleLibrary(){
 
 function renderIlimHome(){
  loadNawawiArabic().catch(()=>{});
- const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,p=hadisProgressPct(S.ilim),due=dueHadisReviews(S.ilim,today(),9),overview=knowledgeOverview(S.ilim,today()),defterSummary=ilimNotebookQuickSummary();
- const counts=overview.reduce((a,x)=>(a[x.key]=(a[x.key]||0)+1,a),{});
+ const plan=todayHadisPlan(S.ilim,today()),h=plan.hadis,due=dueHadisReviews(S.ilim,today(),9),defterSummary=ilimNotebookQuickSummary();
  const completedCount=S.ilim.completed.filter(x=>x<=KIRK_HADIS_META.totalUnits).length;
  const pathSnapshot=libraryPathSnapshot({pathState:S.library.path,hadithCompletedCount:completedCount});
  const activeLevel=pathSnapshot.levels.find(level=>level.order===pathSnapshot.currentLevel)||pathSnapshot.levels[0];
@@ -815,118 +814,24 @@ function renderIlimHome(){
  const resume=libraryResume(current,completedCount);
  const nextDue=due[0];
  const readyBookCount=STARTER_LIBRARY.filter(x=>x.availability==='ready').length;
- const starterShelf=renderStarterPath(completedCount,pathSnapshot);
- const libraryNotes=defterSummary.notes;
- const libraryHighlights=defterSummary.highlights;
- const levelRail=pathSnapshot.levels.map(level=>`<button class="libraryRailStep ${esc(level.status)}" data-level-rail="${level.order}"><span>${level.status==='complete'?'✓':level.order}</span><div><small>SEVİYE ${level.order}</small><b>${esc(level.title)}</b></div></button>`).join('');
  app.innerHTML=`
- <section class="card libraryHero premiumLibraryHero" data-ui="premium-library-v3">
-   <div class="libraryHeroTop">
-     <div>
-       <div class="eyebrow">İLİM ROTASI</div>
-       <h1>Dokuz hazır eser, tek sakin öğrenme yolu.</h1>
-       <p class="lead">Kur’ân, hadis, temel din bilgisi, ahlâk ve tefekkür okumalarını beş seviyede; gerçek ilerleme verinle kaldığın yerden sürdür.</p>
-       <div class="libraryHeroPills"><span>${readyBookCount} okunabilir eser</span><span>${pathSnapshot.totalLevels} seviye</span><span>${defterSummary.notes} not</span></div>
-     </div>
-     <div class="ilimProgressRing" style="--p:${p}"><b>${p}%</b><span>Kırk Hadis</span></div>
-   </div>
+ <section class="card libraryHero premiumLibraryHero simpleIlimHero" data-ui="premium-library-v4">
+  <div class="libraryHeroTop"><div><div class="eyebrow">İLİM ROTASI</div><h1>Okumaya odaklan.</h1><p class="lead">Kaldığın yer, kitapların ve kişisel kayıtların. Ayrıntıları yalnız gerektiğinde aç.</p></div></div>
  </section>
-
- <section class="continueReadingCard">
-   <div class="continueCover"><span>${esc(resume.glyph||'ك')}</span><small>DEVAM ET</small></div>
-   <div class="continueBody">
-     <div class="eyebrow">${esc(resume.label)}</div>
-     <h2>${esc(resume.title)}</h2>
-     <p>${esc(resume.description)}</p>
-     <div class="continueMeta"><span>${esc(resume.meta)}</span><span>${esc(resume.book?.field||'İlim')}</span></div>
-     <button class="btn primary wide" id="continueLibrary">Okumaya devam →</button>
-   </div>
+ <section class="continueReadingCard simpleContinueCard"><div class="continueCover"><span>${esc(resume.glyph||'ك')}</span><small>DEVAM ET</small></div><div class="continueBody"><div class="eyebrow">${esc(resume.label)}</div><h2>${esc(resume.title)}</h2><p>${esc(resume.description)}</p><div class="continueMeta"><span>${esc(resume.meta)}</span></div><button class="btn primary wide" id="continueLibrary">Okumaya devam →</button></div></section>
+ <section class="ilimSimpleActions">
+  <button class="ilimSimpleAction" id="openSimpleLibrary"><span class="libraryIcon">▤</span><div><small>KİTAPLARIM</small><b>${readyBookCount} hazır eser</b><p>Tüm kitapları sade bir kitaplıkta gör.</p></div><i>›</i></button>
+  <button class="ilimSimpleAction" id="openSimpleReviews"><span class="libraryIcon">↻</span><div><small>TEKRARLAR</small><b>${due.length?due.length+' tekrar hazır':'Bugün temiz'}</b><p>${nextDue?esc(recallPromptFor(nextDue.hadisId)):'Bekleyen geri çağırma yok.'}</p></div><i>›</i></button>
+  <button class="ilimSimpleAction" id="openSimpleNotebook"><span class="libraryIcon">✎</span><div><small>NOTLAR & VURGULAR</small><b>${defterSummary.notes} not · ${defterSummary.highlights} vurgu</b><p>Kişisel kayıtlarını tek yerde aç.</p></div><i>›</i></button>
  </section>
-
- <section class="card libraryShelf premiumStarterShelf">
-   <div class="sectionHead starterShelfHead">
-     <div><div class="eyebrow">SEÇKİ · 2026.09</div><h2>${readyBookCount} hazır eserle gelişim yolu</h2><p>Seviye 1’den 5’e; temel bilgi, Kur’ân ve ibadet, sünnet, ahlâk ve tefekkür. Katalogdaki kaynak hazırlığı süren eser okunabilir gibi gösterilmez.</p></div>
-     <span class="sourcePill">${readyBookCount} hazır · ${STARTER_LIBRARY.length-readyBookCount} kaynak hazırlığında</span>
-   </div>
-   <div class="starterPath">${starterShelf}</div>
- </section>
-
- <section class="libraryTodayGrid">
-   <article class="libraryMiniCard todayFocus">
-     <div><span class="libraryIcon">✦</span><div><small>BUGÜNÜN OKUMASI</small><b>${esc(h.title)}</b><p>${plan.reviewFirst?'Önce kısa tekrar, sonra yeni okuma.':`${plan.minutes} dakikalık hafif okuma.`}</p></div></div>
-     <button id="openTodayHadis">Aç →</button>
-   </article>
-   <article class="libraryMiniCard">
-     <div><span class="libraryIcon">↻</span><div><small>TEKRARLAR</small><b>${due.length?due.length+' tekrar hazır':'Bugün temiz'}</b><p>${nextDue?esc(recallPromptFor(nextDue.hadisId)):'Bekleyen geri çağırma yok.'}</p></div></div>
-     <button id="ilimReviews">${due.length?'Başla →':'Görüntüle'}</button>
-   </article>
-   <article class="libraryMiniCard">
-     <div><span class="libraryIcon">✎</span><div><small>İLİM DEFTERİ v2</small><b>${defterSummary.notes} not · ${defterSummary.highlights} vurgu · ${defterSummary.bookmarks} yer imi</b><p>${defterSummary.books} eserdeki kişisel kayıtların tek yerde.</p></div></div>
-     <button id="ilimNotebook">Aç →</button>
-   </article>
- </section>
-
- <section class="libraryV2Rail" aria-label="Okuma yolu seviyeleri">
-   <div class="libraryRailHeader"><div><small>5 AŞAMALI YOL</small><b>Temelden şuura ilerleyen okuma rotası</b></div><div class="libraryRailStats"><span><b>${readyBookCount}</b> hazır eser</span><span><b>${libraryNotes}</b> not</span><span><b>${libraryHighlights}</b> vurgu</span><span><b>${defterSummary.bookmarks}</b> yer imi</span></div></div>
-   <div class="libraryRailTrack">${levelRail}</div>
- </section>
-
- <section class="card libraryLevelCard">
-   <div class="libraryLevelTop">
-     <div><div class="eyebrow">OKUMA YOLUN</div><h2>Seviye ${pathSnapshot.currentLevel} · ${esc(activeLevel.title)}</h2><p>${esc(activeLevel.subtitle)}</p></div>
-     <div class="libraryLevelBadge"><b>${pathSnapshot.completedLevels}/${pathSnapshot.totalLevels}</b><span>seviye tamamlandı</span></div>
-   </div>
-   <div class="libraryLevelProgress"><i style="width:${Math.round((pathSnapshot.completedLevels/pathSnapshot.totalLevels)*100)}%"></i></div>
-   <div class="libraryLevelMeta"><span>${activeLevel.completedCount}/${activeLevel.requiredCount} eser tamamlandı</span><span>${esc(activeLevelNotice)}</span></div>
-   <div class="libraryAwarenessGoals"><small>BU SEVİYEDE ODAKLAN</small><ol>${(activeLevel.goals||[]).map(goal=>`<li>${esc(goal)}</li>`).join('')}</ol></div>
-   <p class="small">Bu hedefler ve seviye bir maneviyat veya iman puanı değildir; yalnızca katalogdaki okuma yolunda neyi anlamaya çalışacağını gösterir. Hazır olan dokuz eseri istediğin zaman açabilir, kaynak hazırlığı süren eseri ise ancak doğrulama tamamlandığında okuyabilirsin.</p>
-   <button class="btn ghost" id="jumpCurrentLevel">Aktif seviyeye git ↓</button>
- </section>
-
+ <details class="card ilimRouteDetails"><summary><span>Okuma yolum</span><b>Seviye ${pathSnapshot.currentLevel} · ${esc(activeLevel.title)}</b></summary><div class="libraryLevelProgress"><i style="width:${Math.round((pathSnapshot.completedLevels/pathSnapshot.totalLevels)*100)}%"></i></div><p>${activeLevel.completedCount}/${activeLevel.requiredCount} eser tamamlandı · ${esc(activeLevelNotice)}</p><div class="libraryAwarenessGoals"><small>BU SEVİYEDE ODAKLAN</small><ol>${(activeLevel.goals||[]).map(goal=>`<li>${esc(goal)}</li>`).join('')}</ol></div></details>
  ${transitionCard}
-
- <section class="card memorySummary compactMemory">
-   <div class="sectionHead"><div><div class="eyebrow">İLİM HAFIZASI</div><h2>Okudukların ne durumda?</h2></div><span class="sourcePill">${counts.stable||0} oturuyor</span></div>
-   <div class="memoryGrid"><div><b>${counts.new||0}</b><span>Yeni</span></div><div><b>${counts.building||0}</b><span>Pekişiyor</span></div><div><b>${counts.recall||0}</b><span>Geri çağır</span></div><div><b>${counts.repair||0}</b><span>Yeniden bak</span></div><div><b>${counts.stable||0}</b><span>Oturuyor</span></div></div>
- </section>
-
  <section class="card sourceCard"><details><summary>Metin ve kaynak politikası</summary><p>${esc(KIRK_HADIS_META.rightsNote)}</p><p>${esc(KIRK_HADIS_META.editorialNote)}</p></details></section>`;
- const open=()=>ilimGo('reader',S.ilim.currentId);
  document.querySelector('#continueLibrary').onclick=resume.action;
- const ackLevel=document.querySelector('#ackLibraryLevel');if(ackLevel)ackLevel.onclick=()=>{S.library.path=acknowledgeLibraryLevel(S.library.path,pathSnapshot.currentLevel);save();renderIlimHome();setTimeout(()=>document.querySelector(`[data-starter-stage="level-${pathSnapshot.currentLevel}"]`)?.scrollIntoView({behavior:'smooth',block:'start'}),60)};
- document.querySelector('#jumpCurrentLevel').onclick=()=>document.querySelector(`[data-starter-stage="level-${pathSnapshot.currentLevel}"]`)?.scrollIntoView({behavior:'smooth',block:'start'});
- document.querySelectorAll('[data-level-rail]').forEach(btn=>btn.onclick=()=>document.querySelector(`[data-starter-stage="level-${btn.dataset.levelRail}"]`)?.scrollIntoView({behavior:'smooth',block:'start'}));
- document.querySelector('#openTodayHadis').onclick=()=>ilimGo('reader',h.id);
- document.querySelectorAll('[data-starter-book]').forEach(btn=>btn.onclick=()=>openStarterBook(btn.dataset.starterBook));
- document.querySelector('#ilimReviews').onclick=()=>ilimGo('reviews');
- document.querySelector('#ilimNotebook').onclick=()=>ilimGo('notebook');
-}
-  app.innerHTML=`
-  <section class="card libraryHero premiumLibraryHero simpleIlimHero" data-ui="premium-library-v4">
-    <div class="libraryHeroTop"><div><div class="eyebrow">İLİM ROTASI</div><h1>Okumaya odaklan.</h1><p class="lead">Kaldığın yer, kitapların ve kişisel kayıtların. Ayrıntıları yalnız gerektiğinde aç.</p></div></div>
-  </section>
-  <section class="continueReadingCard simpleContinueCard">
-    <div class="continueCover"><span>${esc(resume.glyph||'ك')}</span><small>DEVAM ET</small></div>
-    <div class="continueBody"><div class="eyebrow">${esc(resume.label)}</div><h2>${esc(resume.title)}</h2><p>${esc(resume.description)}</p><div class="continueMeta"><span>${esc(resume.meta)}</span></div><button class="btn primary wide" id="continueLibrary">Okumaya devam →</button></div>
-  </section>
-  <section class="ilimSimpleActions">
-    <button class="ilimSimpleAction" id="openSimpleLibrary"><span class="libraryIcon">▤</span><div><small>KİTAPLARIM</small><b>${readyBookCount} hazır eser</b><p>Tüm kitapları sade bir kitaplıkta gör.</p></div><i>›</i></button>
-    <button class="ilimSimpleAction" id="openSimpleReviews"><span class="libraryIcon">↻</span><div><small>TEKRARLAR</small><b>${due.length?due.length+' tekrar hazır':'Bugün temiz'}</b><p>${nextDue?esc(recallPromptFor(nextDue.hadisId)):'Bekleyen geri çağırma yok.'}</p></div><i>›</i></button>
-    <button class="ilimSimpleAction" id="openSimpleNotebook"><span class="libraryIcon">✎</span><div><small>NOTLAR & VURGULAR</small><b>${defterSummary.notes} not · ${defterSummary.highlights} vurgu</b><p>Kişisel kayıtlarını tek yerde aç.</p></div><i>›</i></button>
-  </section>
-  <details class="card ilimRouteDetails">
-    <summary><span>Okuma yolum</span><b>Seviye ${pathSnapshot.currentLevel} · ${esc(activeLevel.title)}</b></summary>
-    <div class="libraryLevelProgress"><i style="width:${Math.round((pathSnapshot.completedLevels/pathSnapshot.totalLevels)*100)}%"></i></div>
-    <p>${activeLevel.completedCount}/${activeLevel.requiredCount} eser tamamlandı · ${esc(activeLevelNotice)}</p>
-    <div class="libraryAwarenessGoals"><small>BU SEVİYEDE ODAKLAN</small><ol>${(activeLevel.goals||[]).map(goal=>`<li>${esc(goal)}</li>`).join('')}</ol></div>
-  </details>
-  ${transitionCard}
-  <section class="card sourceCard"><details><summary>Metin ve kaynak politikası</summary><p>${esc(KIRK_HADIS_META.rightsNote)}</p><p>${esc(KIRK_HADIS_META.editorialNote)}</p></details></section>`;
-  document.querySelector('#continueLibrary').onclick=resume.action;
-  document.querySelector('#openSimpleLibrary').onclick=()=>ilimGo('library');
-  document.querySelector('#openSimpleReviews').onclick=()=>ilimGo('reviews');
-  document.querySelector('#openSimpleNotebook').onclick=()=>ilimGo('notebook');
-  const ackLevel=document.querySelector('#ackLibraryLevel');if(ackLevel)ackLevel.onclick=()=>{S.library.path=acknowledgeLibraryLevel(S.library.path,pathSnapshot.currentLevel);save();renderIlimHome()};
+ document.querySelector('#openSimpleLibrary').onclick=()=>ilimGo('library');
+ document.querySelector('#openSimpleReviews').onclick=()=>ilimGo('reviews');
+ document.querySelector('#openSimpleNotebook').onclick=()=>ilimGo('notebook');
+ const ackLevel=document.querySelector('#ackLibraryLevel');if(ackLevel)ackLevel.onclick=()=>{S.library.path=acknowledgeLibraryLevel(S.library.path,pathSnapshot.currentLevel);save();renderIlimHome()};
 }
 
 async function renderGenericBookReader(){
